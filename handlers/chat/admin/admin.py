@@ -10,6 +10,7 @@ def is_chat(msg: types.Message):
 
 @dp.message_handler(lambda msg: is_chat(msg), commands=["ban", "unban", "kick", "mute", "unmute"])
 async def command(msg: types.Message):
+    await msg.answer_chat_action(types.ChatActions.TYPING)
     member = await msg.chat.get_member(msg.from_user.id)
     if not (member.can_restrict_members or member.is_chat_creator()):  # Проверка прав
         raise HasNotPermission(msg.from_user.language_code)
@@ -42,7 +43,6 @@ async def action(parser: CommandParser, msg: types.Message):
     for user in parser.users:
         try:
             action: user.ban = getattr(user, parser.action)
-            await msg.answer_chat_action(types.ChatActions.TYPING)
             await action(msg.chat.id, parser)
         except:
             pass
