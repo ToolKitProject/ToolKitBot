@@ -40,5 +40,9 @@ async def get_text(parser: CommandParser, msg: types.Message):
 
 async def action(parser: CommandParser, msg: types.Message):
     for user in parser.users:
-        action: user.ban = getattr(user, parser.action)
-        await action(msg.chat.id, parser)
+        try:
+            action: user.ban = getattr(user, parser.action)
+            await msg.answer_chat_action(types.ChatActions.TYPING)
+            await action(msg.chat.id, parser)
+        except:
+            pass

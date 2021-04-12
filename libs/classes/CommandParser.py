@@ -87,9 +87,9 @@ class CommandParser:
             self.type = f"multi_{self.type}"
 
         delta = self.until - self.now
-        if (delta.seconds < 30 or delta.days > 366) and self.until.timestamp() != self.now.timestamp():
+        if (delta.total_seconds() < 30 or delta.days > 366) and self.until.timestamp() != self.now.timestamp():
             await self.msg.answer(self.src.text.errors.UntilWaring)
-            self.until = self.now
+            # self.until = self.now
 
     async def entities_parse(self):
         for entity in self.entities:
