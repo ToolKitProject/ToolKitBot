@@ -126,3 +126,4 @@ dmypy.json
 config.py
 database.db
 test*.*
+*.session*

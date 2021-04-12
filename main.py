@@ -23,7 +23,7 @@ else:
     raise ValueError("АРГУМЕНТЫ СУКА")
 
 if True:
-    from bot import dp
+    from bot import dp, client
     import handlers
     # from objects import MessageData
 
@@ -34,7 +34,8 @@ async def on_shutdown(dp: Dispatcher):
 
 
 async def on_startup(dp: Dispatcher):
-    pass
+    await client.start()
+    config.bot = await dp.bot.get_me()
 
 
 if __name__ == "__main__":
