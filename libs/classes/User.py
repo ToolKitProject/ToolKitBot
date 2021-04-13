@@ -1,30 +1,15 @@
 from typing import *
 
-import config
 from aiogram import types
 from aiogram.types.chat import ChatType
 from bot import bot
-from libs import src
-from libs.src import other as _src_type
+from . import Errors
 
 
-class UserText:
-    def __init__(self, lang: str) -> None:
-        if lang in config.lang_support:
-            self.lang = lang
-        else:
-            self.lang = "other"
-
-        self.src: _src_type = getattr(src, self.lang)
-        self.text = self.src.text
-        self.buttons = self.src.buttons
-
-    @property
-    def encode_lang(self) -> str:
-        return config.lang_encode[self.lang]
-
-
-class User:
+class User:  # TODO:Добавить коментарии
+    """
+    Пользователь
+    """
 
     def __init__(self, chat: types.Chat) -> None:
         if chat.type not in [ChatType.PRIVATE, 'bot']:

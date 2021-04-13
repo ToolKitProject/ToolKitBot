@@ -2,6 +2,7 @@ import config
 from aiogram.dispatcher.dispatcher import Dispatcher
 from aiogram import executor
 import optparse
+import logging
 
 
 parser = optparse.OptionParser(conflict_handler="resolve")
@@ -36,6 +37,8 @@ async def on_shutdown(dp: Dispatcher):
 async def on_startup(dp: Dispatcher):
     await client.start()
     config.bot = await dp.bot.get_me()
+    logging.warning(
+        f"{config.bot.full_name} [{config.bot.mention}]")
 
 
 if __name__ == "__main__":

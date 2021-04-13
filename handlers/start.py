@@ -9,6 +9,9 @@ from libs.classes.Errors import *
 
 @dp.errors_handler()
 async def errors(update: types.Update, error: Exception):
+    """
+    Обрабочик ошибок
+    """
 
     async def delete(*msgs: types.Message, sleep: int = 2):
         await asyncio.sleep(sleep)
@@ -20,13 +23,15 @@ async def errors(update: types.Update, error: Exception):
 
     if update.message:
         msg = update.message
+        answer = msg.answer
     elif update.callback_query:
         msg = update.callback_query.message
+        answer = update.callback_query.answer
 
     errorText: str
     if error.__class__ in ERRORS:
         errorText = error.args[0]
-        await msg.answer(errorText)
+        await answer(errorText)
     elif error.__class__ in IGNORE:
         pass
         # logging.info(f"Error skipped {error.__class__.__name__}")
@@ -35,7 +40,7 @@ async def errors(update: types.Update, error: Exception):
             f"User: {msg.from_user.mention}\n" + \
             f"Message: {msg.text} \n"
         logging.error(txt)
-        await msg.answer(f"⚠ {error.__class__.__name__}: {error.args[0]}")
+        await answer(f"⚠ {error.__class__.__name__}: {error.args[0]}")
         # for id in config.owners:
         #     await bot.send_message(id, txt)
 

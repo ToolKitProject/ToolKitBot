@@ -4,7 +4,6 @@ from datetime import datetime, timedelta
 from typing import List, Optional
 
 from aiogram import types
-import config
 from asyncinit import asyncinit
 from bot import bot, client
 from libs.classes.Errors import ArgumentError, UserNotFound
@@ -14,6 +13,9 @@ from . import User, UserText
 
 
 def get_days_years(year: int, now: datetime):
+    """
+    Превращает года в дни
+    """
     days = 0
     for y in range(now.year, now.year+year):
         year_days = 365
@@ -24,6 +26,9 @@ def get_days_years(year: int, now: datetime):
 
 
 def get_days_month(month: int, now: datetime):
+    """
+    Превращает месяца в дни
+    """
     days = 0
     years = month // 12
     month = month % 12
@@ -36,6 +41,9 @@ def get_days_month(month: int, now: datetime):
 
 @asyncinit
 class CommandParser:
+    """
+    Инструмент для парсинга команд
+    """
 
     async def __init__(self, msg: types.Message, text: Optional[str] = None) -> None:
         self.src = UserText(msg.from_user.language_code)
@@ -44,9 +52,11 @@ class CommandParser:
         self.entities = msg.entities
 
         self.type: str = None
+        self.undo_type: str = None
         self.cmd: str = None
         self.bot: str = None
         self.action: str = None
+        self.undo_action: str = None
 
         self.users: List[User] = []
 
@@ -64,6 +74,9 @@ class CommandParser:
             raise ArgumentError(self.src.lang)
 
     async def parse(self):
+        """
+        Парс по regex
+        """
         all = re.finditer(system.regex.parse.all, self.command)
 
         for match in all:
@@ -76,6 +89,8 @@ class CommandParser:
                 self.bot = match.group("bot")
 
                 self.type = self.action
+
+                await self.to_undo()
             elif group in ["id", "user"]:
                 await self.to_user(text)
             elif group == "until":
@@ -85,6 +100,7 @@ class CommandParser:
 
         if len(self.users) > 1:
             self.type = f"multi_{self.type}"
+            self.undo_type = f"multi_{self.undo_type}"
 
         delta = self.until - self.now
         if (delta.total_seconds() < 30 or delta.days > 366) and self.until.timestamp() != self.now.timestamp():
@@ -92,13 +108,30 @@ class CommandParser:
             # self.until = self.now
 
     async def entities_parse(self):
+        """
+        Парс по message entities
+        """
         for entity in self.entities:
             if entity.type == "text_mention":
                 chat = await bot.get_chat(entity.user.id)
                 user = User(chat)
                 self.users.append(user)
 
+    async def to_undo(self):
+        """
+        Делает отмену действия
+        """
+        if self.action.startswith("un"):
+            self.undo_action = self.action.removeprefix("un")
+            self.undo_type = self.undo_action
+        else:
+            self.undo_action = "un"+self.action
+            self.undo_type = self.undo_action
+
     async def to_user(self, user: str) -> User:
+        """
+        Преобразует упоминание в User
+        """
         try:
             usr = await client.get_users(user)
             chat = await client.get_chat(usr.id)
@@ -108,6 +141,9 @@ class CommandParser:
         self.users.append(user)
 
     async def to_date(self, match: re.Match) -> int:
+        """
+        Преобразует строку в datetime
+        """
         num: int = int(match.group("num"))
         datetype: str = match.group("type")
 
@@ -128,12 +164,18 @@ class CommandParser:
 
     @property
     def format_until(self):
+        """
+        Возвращает форматированую дату
+        """
         if self.now == self.until:
             return self.src.text.chat.admin.forever
         return f"{self.until.year}-{self.until.month}-{self.until.day}"
 
     @property
     def format_users(self):
+        """
+        Возвращает форматированных пользователей 
+        """
         result = ""
         for user in self.users:
             result += f"{user.link},"
