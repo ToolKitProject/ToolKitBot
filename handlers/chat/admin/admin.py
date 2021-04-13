@@ -24,7 +24,7 @@ async def command(msg: types.Message):
     await msg.reply(text)
 
 
-async def get_text(parser: CommandParser, msg: types.Message):
+async def get_text(parser: CommandParser, msg: types.Message) -> str:
     user = User(await client.get_chat(msg.from_user.id))
     src = UserText(msg.from_user.language_code)
     text = getattr(src.text.chat.admin, parser.type)
