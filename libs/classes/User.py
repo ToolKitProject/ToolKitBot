@@ -1,46 +1,37 @@
+import datetime
+import asyncio
 from typing import *
 
 from aiogram import types
+import aiogram
+from aiogram.types import chat
 from aiogram.types.chat import ChatType
-from bot import bot
-from . import Errors
+from asyncinit import asyncinit
+from bot import bot, client
+
+from .Errors import *
+from .Localisation import UserText
 
 
+@asyncinit
 class User:  # TODO:Добавить коментарии
     """
     Пользователь
     """
 
-    def __init__(self, chat: types.Chat) -> None:
-        if chat.type not in [ChatType.PRIVATE, 'bot']:
-            raise ValueError("Это не приват чат придурок")
-
+    async def __init__(self, user: types.User, chat: types.Chat):
         self.chat = chat
+        self.user = user
+        self.member = await chat.get_member(user.id)
 
-        self.id = chat.id
-        self.username = chat.username
-        self.first_name = chat.first_name
-        self.last_name = chat.last_name
+        self.id = user.id
+        self.username = user.username
+        self.first_name = user.first_name
+        self.last_name = user.last_name
+        self.lang = user.language_code
         self.bio = chat.bio
 
-    async def ban(self, chat_id: int, parser, *args):
-        await bot.kick_chat_member(chat_id, self.id, parser.until)
-
-    async def unban(self, chat_id: int, *args):
-        await bot.unban_chat_member(chat_id, self.id, True)
-
-    async def kick(self, chat_id: int, parser, *args):
-        await self.ban(chat_id, parser)
-        await self.unban(chat_id)
-
-    async def mute(self, chat_id: int, parser, *args):
-        perm = types.ChatPermissions(can_send_messages=False)
-        await bot.restrict_chat_member(chat_id, self.id, perm, parser.until)
-
-    async def unmute(self, chat_id: int, *args):
-        perm = types.ChatPermissions(
-            True, True, True, True, True, True, True, True)
-        await bot.restrict_chat_member(chat_id, self.id, perm)
+        return self
 
     @property
     def full_name(self):
@@ -89,3 +80,50 @@ class User:  # TODO:Добавить коментарии
                                reply_to_message_id=reply_to_message_id,
                                allow_sending_without_reply=allow_sending_without_reply,
                                reply_markup=reply_markup,)
+
+
+@asyncinit
+class Admin(User):
+    """
+    НЕ АДМИНИСТРОТОР, это админ команды
+    """
+    async def __init__(self, user: types.User, chat: types.Chat, creator: Optional[User] = None) -> None:
+        await super().__init__(user, chat)
+
+        self.creator: User = creator if creator else await User(user, chat)
+
+    async def has_permission(self, action):
+        member = await self.chat.get_member(self.creator.id)
+        if action in ["ban", "unban", "kick", "mute", "unmute"]:
+            perm = member.can_restrict_members
+
+        if not (perm or member.is_chat_creator()):
+            raise HasNotPermission(self.creator.lang)
+
+    async def ban(self, until: datetime):
+        await self.has_permission("ban")
+
+        await self.chat.kick(self.id, until)
+
+    async def unban(self):
+        await self.has_permission("unban")
+
+        await self.chat.unban(self.id, True)
+
+    async def kick(self):
+        await self.has_permission("kick")
+
+        await self.chat.unban(self.id, False)
+
+    async def mute(self, until: datetime):
+        await self.has_permission("mute")
+
+        perm = types.ChatPermissions(can_send_messages=False)
+        await self.chat.restrict(self.id, perm, until)
+
+    async def unmute(self):
+        await self.has_permission("unmute")
+
+        perm = types.ChatPermissions(
+            True, True, True, True, True, True, True, True)
+        await self.chat.restrict(self.id, perm)

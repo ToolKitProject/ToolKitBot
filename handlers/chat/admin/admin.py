@@ -1,9 +1,14 @@
-from libs.objects import MessageData
-from libs.classes.Errors import *
+from datetime import datetime
+from typing import List, Text, Tuple
+
 from aiogram import types
-from bot import dp, client
-from libs.classes import CommandParser, User, UserText, get_help
-from libs.classes import CommandParser
+from aiogram.types.inline_keyboard import InlineKeyboardMarkup as IM
+from pyrogram.methods import users
+from bot import bot, dp
+from libs.classes import Admin, CommandParser, User, get_help
+from libs.classes.Errors import *
+from libs.classes.Localisation import UserText
+from libs.objects import MessageData
 
 
 def is_chat(msg: types.Message):
@@ -19,20 +24,18 @@ async def command(msg: types.Message):
     Обрабочик команды
     """
     await msg.answer_chat_action(types.ChatActions.TYPING)
-    member = await msg.chat.get_member(msg.from_user.id)
-    if not (member.can_restrict_members or member.is_chat_creator()):  # Проверка прав
-        raise HasNotPermission(msg.from_user.language_code)
-    if msg.text == msg.get_command():  # Вывод помощи
-        await get_help(msg)
+    if await get_help(msg):
         return
 
     parser: CommandParser = await CommandParser(msg)
-    # Получаем текст и кнопку действия
-    text, rm = await get_text(parser, msg.from_user)
-    await action(parser, msg)  # Выполняем действие команды
-    msg = await msg.reply(text, reply_markup=rm)
-    with await MessageData(msg) as data:
+
+    await execute_action(parser)
+    text, rm = await get_text(parser)
+
+    message = await msg.reply(text, reply_markup=rm)
+    with await MessageData(message) as data:
         data.parser = parser
+        data.user = msg.from_user
 
 
 @dp.callback_query_handler(lambda clb: clb.data == "undo")
@@ -41,47 +44,74 @@ async def undo(clb: types.CallbackQuery):
     Обрабочик кнопки undo
     """
     msg = clb.message
-
     with await MessageData(msg) as data:
+        user: types.User = data.user
+        if user.id != clb.from_user.id:
+            raise HasNotPermission(clb.from_user.language_code)
         parser: CommandParser = data.parser
-        parser.action = parser.undo_action
-        parser.type = parser.undo_type
-        await parser.to_undo()
-        data.parser = parser
+        parser.action = await parser.undo()
 
-    await action(parser, msg)
-    text, rm = await get_text(parser, clb.from_user)
+    await execute_action(parser)
+    text, rm = await get_text(parser)
+
     await msg.edit_text(text, reply_markup=rm)
 
 
-async def get_text(parser: CommandParser, usr: types.User):
-    """
-    Возвращает локализованные текст и кнопу
-    """
-    user = User(await client.get_chat(usr.id))
-    src = UserText(usr.language_code)
-    text = getattr(src.text.chat.admin, parser.type)
+async def execute_action(parser: CommandParser):
+    users = parser.users
+    action = parser.action
+    until = parser.until
+
+    for user in users:
+        if action == "ban":
+            await user.ban(until)
+        elif action == "unban":
+            await user.unban()
+        elif action == "kick":
+            await user.kick()
+        elif action == "mute":
+            await user.mute(until)
+        elif action == "unmute":
+            await user.unmute()
+
+
+async def get_text(parser: CommandParser) -> Tuple[str, IM]:
+    action = parser.action
+    src = UserText(parser.owner.lang)
+
+    if len(parser.users) > 1:
+        action = "multi_" + action
+
+    text: str = getattr(src.text.chat.admin, action)
+    rm = src.buttons.chat.admin.undo
+    if parser.action in ["kick"]:
+        rm = None
 
     text = text.format(
         users=parser.format_users,
         reason=parser.reason,
-        adminuser=user.link,
+        admin=parser.owner.ping,
         until=parser.format_until
     )
 
-    rm = src.buttons.chat.admin.undo
-    if parser.action in ["kick"]:
-        rm = None
     return text, rm
 
 
-async def action(parser: CommandParser, msg: types.Message):
-    """
-    Выполняет действие
-    """
-    for user in parser.users:
-        try:
-            action: user.ban = getattr(user, parser.action)
-            await action(msg.chat.id, parser)
-        except:
-            pass
+@dp.message_handler(lambda msg: is_chat(msg), commands=["purge", "delete"])
+async def purge(msg: types.Message):
+    user: Admin = await Admin(msg.from_user, msg.chat)
+    src = UserText(msg.from_user.language_code)
+    if await get_help(msg):
+        return
+
+    try:
+        count = int(msg.get_args().split()[-1])
+    except:
+        raise ArgumentError(msg.from_user.language_code)
+
+    done, undone = await user.purge(count)
+
+    text = src.text.chat.admin.purge_done.format(done) +\
+        src.text.chat.admin.purge_undone.format(undone)
+
+    await msg.reply(text)

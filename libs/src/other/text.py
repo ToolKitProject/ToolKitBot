@@ -14,7 +14,7 @@ class errors:
 class chat:
     class admin:
         reason = "Reason - {reason} \n"
-        admin = "Moderator - {adminuser} \n"
+        admin = "Moderator - {admin} \n"
         until = "Until - {until} \n"
 
         unmute = "{users} unmuted \n" + reason + admin
