@@ -9,7 +9,7 @@ from bot import bot, client
 from libs.classes.Errors import ArgumentError, UserNotFound
 from libs.src import system
 
-from . import User, UserText
+from . import User, UserText, Admin
 
 
 def get_days_years(year: int, now: datetime):
@@ -47,18 +47,19 @@ class CommandParser:
 
     async def __init__(self, msg: types.Message, text: Optional[str] = None) -> None:
         self.src = UserText(msg.from_user.language_code)
+
         self.msg = msg
+        self.chat = msg.chat
+        self.owner: User = await User(msg.from_user, msg.chat)
+
         self.command = text if text else msg.text
         self.entities = msg.entities
 
-        self.type: str = None
-        self.undo_type: str = None
         self.cmd: str = None
-        self.bot: str = None
         self.action: str = None
-        self.undo_action: str = None
+        self.bot: str = None
 
-        self.users: List[User] = []
+        self.users: List[Admin] = []
 
         self.now: datetime = datetime.now()
         self.until: datetime = self.now
@@ -70,7 +71,7 @@ class CommandParser:
 
         if not self.reason:
             self.reason = self.src.text.chat.admin.reason_empty
-        if not (self.users and self.type):
+        if not (self.users or self.cmd or self.bot):
             raise ArgumentError(self.src.lang)
 
     async def parse(self):
@@ -85,22 +86,15 @@ class CommandParser:
 
             if group == "cmd":
                 self.cmd = text
-                self.action = match.group("action")
                 self.bot = match.group("bot")
+                self.action = match.group("action")
 
-                self.type = self.action
-
-                await self.to_undo()
             elif group in ["id", "user"]:
                 await self.to_user(text)
             elif group == "until":
                 await self.to_date(match)
             elif group == "reason":
                 self.reason += text
-
-        if len(self.users) > 1:
-            self.type = f"multi_{self.type}"
-            self.undo_type = f"multi_{self.undo_type}"
 
         delta = self.until - self.now
         if (delta.total_seconds() < 30 or delta.days > 366) and self.until.timestamp() != self.now.timestamp():
@@ -113,20 +107,9 @@ class CommandParser:
         """
         for entity in self.entities:
             if entity.type == "text_mention":
-                chat = await bot.get_chat(entity.user.id)
-                user = User(chat)
+                usr = entity.user.id
+                user = await Admin(user, self.chat, self.owner)
                 self.users.append(user)
-
-    async def to_undo(self):
-        """
-        Делает отмену действия
-        """
-        if self.action.startswith("un"):
-            self.undo_action = self.action.removeprefix("un")
-            self.undo_type = self.undo_action
-        else:
-            self.undo_action = "un"+self.action
-            self.undo_type = self.undo_action
 
     async def to_user(self, user: str) -> User:
         """
@@ -134,10 +117,9 @@ class CommandParser:
         """
         try:
             usr = await client.get_users(user)
-            chat = await client.get_chat(usr.id)
         except Exception:
             raise UserNotFound(self.msg.from_user.language_code)
-        user = User(chat)
+        user = await Admin(usr, self.chat, self.owner)
         self.users.append(user)
 
     async def to_date(self, match: re.Match) -> int:
@@ -161,6 +143,12 @@ class CommandParser:
             delta = timedelta(days=get_days_years(num, self.now))
 
         self.until += + delta
+
+    async def undo(self) -> str:
+        if self.action.startswith("un"):
+            return self.action.removeprefix("un")
+        else:
+            return "un" + self.action
 
     @property
     def format_until(self):

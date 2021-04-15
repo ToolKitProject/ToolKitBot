@@ -14,7 +14,7 @@ class errors:
 class chat:
     class admin:
         reason = "Причина - {reason} \n"
-        admin = "Администратор - {adminuser} \n"
+        admin = "Администратор - {admin} \n"
         until = "До - {until} \n"
 
         unmute = "{users} размучен \n" + reason + admin
@@ -41,8 +41,8 @@ class help:
     until = "\nДата[s|m|h|d|M|y] (1m 30s,1M)"
     reason = "\n(Причина) (Текст от 3 символов)"
 
-    ban = f"/ban" + users + until + reason
-    unban = f"/unban" + users + reason
-    kick = f"/kick" + users + reason
-    mute = f"/mute" + users + until + reason
-    unmute = f"/unmute" + users + reason
+    ban = "/ban" + users + until + reason
+    unban = "/unban" + users + reason
+    kick = "/kick" + users + reason
+    mute = "/mute" + users + until + reason
+    unmute = "/unmute" + users + reason
