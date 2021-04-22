@@ -3,9 +3,8 @@ from typing import List, Text, Tuple, Union
 
 from aiogram.types import *
 from aiogram.types.inline_keyboard import InlineKeyboardMarkup as IM
-from pyrogram.methods import users
-from bot import bot, dp
-from libs.classes import Admin, AdminCommandParser, User, get_help
+from bot import dp
+from libs.classes import AdminCommandParser, User, get_help
 from libs.classes.Errors import *
 from libs.classes.Localisation import UserText
 from libs.objects import MessageData
@@ -63,15 +62,15 @@ async def execute_action(parser: AdminCommandParser):
 
     for user in users:
         if action == "ban":
-            await user.ban(until)
+            await user.ban(until, parser.chat)
         elif action == "unban":
-            await user.unban()
+            await user.unban(parser.chat)
         elif action == "kick":
-            await user.kick()
+            await user.kick(parser.chat)
         elif action == "mute":
-            await user.mute(until)
+            await user.mute(until, parser.chat)
         elif action == "unmute":
-            await user.unmute()
+            await user.unmute(parser.chat)
 
 
 async def get_text(parser: AdminCommandParser) -> Tuple[str, IM]:

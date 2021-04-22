@@ -1,7 +1,7 @@
 from typing import *
-from aiogram.types import *
+from aiogram.types import CallbackQuery, Message, ChatType
 from bot import dp
-from libs.classes import UserText
+from libs.classes import User
 
 
 def is_chat(msg: Union[CallbackQuery, Message]):
@@ -12,5 +12,7 @@ def is_chat(msg: Union[CallbackQuery, Message]):
 
 @dp.message_handler(is_chat, commands=["settings"])
 async def get_menu(msg: Message):
-    src = UserText(msg.from_user.language_code).buttons.private.settings
-    await src.settings.answer(msg)
+    arg = msg.get_args().split()[0]
+    user: User = await User(msg.from_user.id)
+    user.settings = {arg: "Тест короч"}
+    await msg.answer(f"-- {arg} --")

@@ -9,7 +9,7 @@ from bot import bot, client
 from libs.classes.Errors import ArgumentError, UserNotFound
 from libs.src import system
 
-from . import User, UserText, Admin
+from . import User, UserText, AdminPanel
 
 
 def get_days_years(year: int, now: datetime):
@@ -50,7 +50,7 @@ class AdminCommandParser:
 
         self.msg = msg
         self.chat = msg.chat
-        self.owner: User = await User(msg.from_user, msg.chat)
+        self.owner: User = await User(msg.from_user.id)
 
         self.command = text if text else msg.text
         self.entities = msg.entities
@@ -59,7 +59,7 @@ class AdminCommandParser:
         self.action: str = None
         self.bot: str = None
 
-        self.users: List[Admin] = []
+        self.users: List[AdminPanel] = []
 
         self.now: datetime = datetime.now()
         self.until: datetime = self.now
@@ -107,19 +107,18 @@ class AdminCommandParser:
         """
         for entity in self.entities:
             if entity.type == "text_mention":
-                usr = entity.user.id
-                user = await Admin(user, self.chat, self.owner)
+                user = await AdminPanel(entity.user.id, self.owner)
                 self.users.append(user)
 
-    async def to_user(self, user: str) -> User:
+    async def to_user(self, auth: str) -> User:
         """
         Преобразует упоминание в User
         """
+        user = await AdminPanel(auth, self.owner)
         try:
-            usr = await client.get_users(user)
-        except Exception:
+            pass
+        except Exception as e:
             raise UserNotFound(self.msg.from_user.language_code)
-        user = await Admin(usr, self.chat, self.owner)
         self.users.append(user)
 
     async def to_date(self, match: re.Match) -> int:
