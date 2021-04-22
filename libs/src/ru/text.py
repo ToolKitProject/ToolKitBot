@@ -11,6 +11,13 @@ class errors:
     UntilWaring = f"❗ {until}"
 
 
+class private:
+    settings = "Выберете что хотите настроить"
+
+    class admin:
+        pass
+
+
 class chat:
     class admin:
         reason = "Причина - {reason} \n"

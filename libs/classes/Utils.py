@@ -1,5 +1,6 @@
+from libs.classes.Localisation import UserText
 from aiogram import types
-from . import UserText
+from . import UserText as UT
 
 
 async def get_help(msg: types.Message):

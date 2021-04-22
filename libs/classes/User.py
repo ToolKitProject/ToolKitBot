@@ -1,16 +1,12 @@
 import datetime
-import asyncio
 from typing import *
 
 from aiogram import types
-import aiogram
-from aiogram.types import chat
-from aiogram.types.chat import ChatType
+from pyrogram import types as ptypes
 from asyncinit import asyncinit
 from bot import bot, client
 
 from .Errors import *
-from .Localisation import UserText
 
 
 @asyncinit
@@ -57,6 +53,9 @@ class User:  # TODO:Добавить коментарии
             return f"@{self.username}"
         else:
             return self.link
+
+    async def get_common_chats(self) -> List[ptypes.Chat]:
+        return None
 
     async def send(self,
                    text: str,

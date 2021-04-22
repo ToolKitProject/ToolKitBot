@@ -1,33 +1,32 @@
 from datetime import datetime
-from typing import List, Text, Tuple
+from typing import List, Text, Tuple, Union
 
-from aiogram import types
+from aiogram.types import *
 from aiogram.types.inline_keyboard import InlineKeyboardMarkup as IM
 from pyrogram.methods import users
 from bot import bot, dp
-from libs.classes import Admin, CommandParser, User, get_help
+from libs.classes import Admin, AdminCommandParser, User, get_help
 from libs.classes.Errors import *
 from libs.classes.Localisation import UserText
 from libs.objects import MessageData
 
 
-def is_chat(msg: types.Message):
-    """
-    Проверка на тип чата
-    """
-    return msg.chat.type in [types.ChatType.GROUP, types.ChatType.SUPERGROUP]
+def is_chat(msg: Union[CallbackQuery, Message]):
+    if type(msg) == CallbackQuery:
+        msg = msg.message
+    return msg.chat.type in [ChatType.GROUP, ChatType.SUPERGROUP]
 
 
-@dp.message_handler(lambda msg: is_chat(msg), commands=["ban", "unban", "kick", "mute", "unmute"])
-async def command(msg: types.Message):
+@dp.message_handler(is_chat, commands=["ban", "unban", "kick", "mute", "unmute"])
+async def command(msg: Message):
     """
     Обрабочик команды
     """
-    await msg.answer_chat_action(types.ChatActions.TYPING)
+    await msg.answer_chat_action(ChatActions.TYPING)
     if await get_help(msg):
         return
 
-    parser: CommandParser = await CommandParser(msg)
+    parser: AdminCommandParser = await AdminCommandParser(msg)
 
     await execute_action(parser)
     text, rm = await get_text(parser)
@@ -39,16 +38,16 @@ async def command(msg: types.Message):
 
 
 @dp.callback_query_handler(lambda clb: clb.data == "undo")
-async def undo(clb: types.CallbackQuery):
+async def undo(clb: CallbackQuery):
     """
     Обрабочик кнопки undo
     """
     msg = clb.message
     with await MessageData(msg) as data:
-        user: types.User = data.user
+        user: User = data.user
         if user.id != clb.from_user.id:
             raise HasNotPermission(clb.from_user.language_code)
-        parser: CommandParser = data.parser
+        parser: AdminCommandParser = data.parser
         parser.action = await parser.undo()
 
     await execute_action(parser)
@@ -57,7 +56,7 @@ async def undo(clb: types.CallbackQuery):
     await msg.edit_text(text, reply_markup=rm)
 
 
-async def execute_action(parser: CommandParser):
+async def execute_action(parser: AdminCommandParser):
     users = parser.users
     action = parser.action
     until = parser.until
@@ -75,7 +74,7 @@ async def execute_action(parser: CommandParser):
             await user.unmute()
 
 
-async def get_text(parser: CommandParser) -> Tuple[str, IM]:
+async def get_text(parser: AdminCommandParser) -> Tuple[str, IM]:
     action = parser.action
     src = UserText(parser.owner.lang)
 
@@ -95,23 +94,3 @@ async def get_text(parser: CommandParser) -> Tuple[str, IM]:
     )
 
     return text, rm
-
-
-@dp.message_handler(lambda msg: is_chat(msg), commands=["purge", "delete"])
-async def purge(msg: types.Message):
-    user: Admin = await Admin(msg.from_user, msg.chat)
-    src = UserText(msg.from_user.language_code)
-    if await get_help(msg):
-        return
-
-    try:
-        count = int(msg.get_args().split()[-1])
-    except:
-        raise ArgumentError(msg.from_user.language_code)
-
-    done, undone = await user.purge(count)
-
-    text = src.text.chat.admin.purge_done.format(done) +\
-        src.text.chat.admin.purge_undone.format(undone)
-
-    await msg.reply(text)

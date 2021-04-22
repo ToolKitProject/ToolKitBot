@@ -40,7 +40,7 @@ def get_days_month(month: int, now: datetime):
 
 
 @asyncinit
-class CommandParser:
+class AdminCommandParser:
     """
     Инструмент для парсинга команд
     """

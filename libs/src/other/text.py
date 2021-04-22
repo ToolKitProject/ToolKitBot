@@ -7,8 +7,15 @@ class errors:
     CommandNotFound = "⚠ Command not found"
     UserNotFound = "⚠ User not found"
     ArgumentError = "⚠ Invalid argument"
-    HasNotPermission = "⚠ You has not permission"
+    HasNotPermission = "⚠ You don't have the permission"
     UntilWaring = f"❗ {until}"
+
+
+class private:
+    settings = ""
+
+    class admin:
+        pass
 
 
 class chat:

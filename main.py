@@ -26,12 +26,12 @@ else:
 if True:
     from bot import dp, client
     import handlers
+    from libs.objects import MessageData
     # from objects import MessageData
 
 
 async def on_shutdown(dp: Dispatcher):
-    pass
-    # await MessageData.del_all()
+    await MessageData.close()
 
 
 async def on_startup(dp: Dispatcher):
