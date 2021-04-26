@@ -50,7 +50,7 @@ class AdminCommandParser:
 
         self.msg = msg
         self.chat = msg.chat
-        self.owner: User = await User(msg.from_user.id)
+        self.owner: User = await User(user=msg.from_user)
 
         self.command = text if text else msg.text
         self.entities = msg.entities

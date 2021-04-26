@@ -1,18 +1,18 @@
+from time import time
 from typing import *
-from aiogram.types import CallbackQuery, Message, ChatType
+
+from aiogram import types as t
 from bot import dp
-from libs.classes import User
+from libs.classes import User, is_private
 
 
-def is_chat(msg: Union[CallbackQuery, Message]):
-    if type(msg) == CallbackQuery:
-        msg = msg.message
-    return msg.chat.type in [ChatType.PRIVATE]
-
-
-@dp.message_handler(is_chat, commands=["settings"])
-async def get_menu(msg: Message):
-    arg = msg.get_args().split()[0]
-    user: User = await User(msg.from_user.id)
-    user.settings = {arg: "Тест короч"}
-    await msg.answer(f"-- {arg} --")
+@dp.message_handler(is_private, commands=["set"])
+async def set(msg: t.Message):
+    start = time()
+    user: User = await User(user=msg.from_user)
+    text = "Владеет\n"
+    async for chat in user.get_owns():
+        text += f"{chat.title}\n"
+    end = time()
+    text += f"Время выполнения {end-start} sec"
+    await msg.reply(text)

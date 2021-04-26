@@ -2,18 +2,24 @@ import asyncio
 import logging
 import traceback
 
-from aiogram import types
+from aiogram import types as t
 from bot import dp
 from libs.classes.Errors import *
+from libs.classes import chek
+
+
+@dp.message_handler(chek, content_types=[t.ContentType.ANY])
+async def chek(msg: t.Message):
+    pass
 
 
 @dp.errors_handler()
-async def errors(update: types.Update, error: Exception):
+async def errors(update: t.Update, error: Exception):
     """
     Обрабочик ошибок
     """
 
-    async def delete(*msgs: types.Message, sleep: int = 2):
+    async def delete(*msgs: t.Message, sleep: int = 2):
         await asyncio.sleep(sleep)
         for msg in msgs:
             try:

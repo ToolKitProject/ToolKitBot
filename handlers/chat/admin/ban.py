@@ -1,27 +1,19 @@
-from datetime import datetime
-from typing import List, Text, Tuple, Union
+from typing import *
 
-from aiogram.types import *
-from aiogram.types.inline_keyboard import InlineKeyboardMarkup as IM
+from aiogram import types as t
+from aiogram.types import InlineKeyboardMarkup as IM
 from bot import dp
-from libs.classes import AdminCommandParser, User, get_help
+from libs.classes import AdminCommandParser, User, UserText, get_help, is_chat
 from libs.classes.Errors import *
-from libs.classes.Localisation import UserText
 from libs.objects import MessageData
 
 
-def is_chat(msg: Union[CallbackQuery, Message]):
-    if type(msg) == CallbackQuery:
-        msg = msg.message
-    return msg.chat.type in [ChatType.GROUP, ChatType.SUPERGROUP]
-
-
 @dp.message_handler(is_chat, commands=["ban", "unban", "kick", "mute", "unmute"])
-async def command(msg: Message):
+async def command(msg: t.Message):
     """
     Обрабочик команды
     """
-    await msg.answer_chat_action(ChatActions.TYPING)
+    await msg.answer_chat_action(t.ChatActions.TYPING)
     if await get_help(msg):
         return
 
@@ -37,7 +29,7 @@ async def command(msg: Message):
 
 
 @dp.callback_query_handler(lambda clb: clb.data == "undo")
-async def undo(clb: CallbackQuery):
+async def undo(clb: t.CallbackQuery):
     """
     Обрабочик кнопки undo
     """

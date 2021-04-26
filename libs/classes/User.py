@@ -1,12 +1,13 @@
 import datetime
 from json import loads, dumps
+from os import read
 from typing import *
 
-from aiogram import types
+from aiogram import types as t
 from asyncinit import asyncinit
 from bot import bot, client
 from libs.objects import Database
-from pyrogram import types as ptypes
+from pyrogram import types as pt
 
 from .Errors import *
 
@@ -17,31 +18,28 @@ class User:  # TODO:Добавить коментарии
     Пользователь
     """
     __database__ = [
-        "settings", "owns", "permission"
+        "settings", "permission"
     ]
     _init = False
 
-    async def __init__(self, auth: int):
-        self.user = await client.get_users(auth)
-        self.DB_user = Database.run(
-            f"SELECT * FROM Users WHERE id = {self.user.id}", True)
-        self.chat = await bot.get_chat(self.user.id)
+    async def __init__(self, auth: int = None, user: Optional[t.User] = None):
+        self.user = user if user else await client.get_users(auth)
 
-        self.id = self.user.id
-        self.username = self.user.username
-        self.first_name = self.user.first_name
-        self.last_name = self.user.last_name
-        self.lang = self.user.language_code
-        self.bio = self.chat.bio
+        self.id: int = self.user.id
+        self.username: str = self.user.username
+        self.first_name: str = self.user.first_name
+        self.last_name: str = self.user.last_name
+        self.lang: str = self.user.language_code
 
-        if not self.DB_user:
-            Database.run(f"INSERT INTO Users(id) VALUES ({self.id});")
-            self.DB_user = Database.run(
-                f"SELECT * FROM Users WHERE id = {self.user.id}", True)
+        DB_user = Database.get_user(self.id)
+        if not DB_user:
+            # Database.run(f"INSERT INTO Users(id) VALUES ({self.id});")
+            Database.add_user(self.id)
+            DB_user = (self.id, "{}", "{}")
 
-        self.settings: dict = loads(self.DB_user[1])
-        self.owns: list = loads(self.DB_user[2])
-        self.permission: dict = loads(self.DB_user[3])
+        self.settings: dict = loads(DB_user[1])
+        self.permission: dict = loads(DB_user[2])
+        self.owns = Database.get_owns(self.id)
 
         self._init = True
 
@@ -77,21 +75,24 @@ class User:  # TODO:Добавить коментарии
         else:
             return self.link
 
-    async def get_common_chats(self) -> List[ptypes.Chat]:
-        return None
+    async def get_owns(self):
+        from . import Chat
+        for id in self.owns:
+            result: Chat = await Chat(id)
+            yield result
 
     async def send(self,
                    text: str,
                    parse_mode: Optional[str] = None,
-                   entities: Optional[List[types.MessageEntity]] = None,
+                   entities: Optional[List[t.MessageEntity]] = None,
                    disable_web_page_preview: Optional[bool] = None,
                    disable_notification: Optional[bool] = None,
                    reply_to_message_id: Optional[int] = None,
                    allow_sending_without_reply: Optional[bool] = None,
-                   reply_markup: Union[types.InlineKeyboardMarkup,
-                                       types.ReplyKeyboardMarkup,
-                                       types.ReplyKeyboardRemove,
-                                       types.ForceReply, None] = None,
+                   reply_markup: Union[t.InlineKeyboardMarkup,
+                                       t.ReplyKeyboardMarkup,
+                                       t.ReplyKeyboardRemove,
+                                       t.ForceReply, None] = None,
                    ):
         await bot.send_message(self.id,
                                text=text,
@@ -108,10 +109,10 @@ class User:  # TODO:Добавить коментарии
 class AdminPanel(User):
     async def __init__(self, auth: int, creator: Optional[User] = None):
         self.creator: User = creator if creator else await User(self.id)
-
         await super().__init__(auth)
+        self._init = False
 
-    async def has_permission(self, action, chat: types.Chat):
+    async def has_permission(self, action, chat: t.Chat):
         member = await chat.get_member(self.creator.id)
         if action in ["ban", "unban", "kick", "mute", "unmute"]:
             perm = member.can_restrict_members
@@ -119,30 +120,30 @@ class AdminPanel(User):
         if not (perm or member.is_chat_creator()):
             raise HasNotPermission(self.creator.lang)
 
-    async def ban(self, until: datetime, chat: types.Chat):
+    async def ban(self, until: datetime, chat: t.Chat):
         await self.has_permission("ban", chat)
 
         await chat.kick(self.id, until)
 
-    async def unban(self, chat: types.Chat):
+    async def unban(self, chat: t.Chat):
         await self.has_permission("unban", chat)
 
         await chat.unban(self.id, True)
 
-    async def kick(self, chat: types.Chat):
+    async def kick(self, chat: t.Chat):
         await self.has_permission("kick", chat)
 
         await chat.unban(self.id, False)
 
-    async def mute(self, until: datetime, chat: types.Chat):
+    async def mute(self, until: datetime, chat: t.Chat):
         await self.has_permission("mute", chat)
 
-        perm = types.ChatPermissions(can_send_messages=False)
+        perm = t.ChatPermissions(can_send_messages=False)
         await chat.restrict(self.id, perm, until)
 
-    async def unmute(self, chat: types.Chat):
+    async def unmute(self, chat: t.Chat):
         await self.has_permission("unmute", chat)
 
-        perm = types.ChatPermissions(
+        perm = t.ChatPermissions(
             True, True, True, True, True, True, True, True)
         await chat.restrict(self.id, perm)
