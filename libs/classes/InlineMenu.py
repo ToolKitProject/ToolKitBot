@@ -24,6 +24,9 @@ class Menu:
     async def answer(self, msg: Message):
         await msg.answer(self.title, reply_markup=self.menu)
 
+    async def edit(self, msg: Message):
+        await msg.edit_text(self.title, reply_markup=self.menu)
+
     @property
     def menu(self):
         im = IM(self.row)

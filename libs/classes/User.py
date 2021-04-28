@@ -75,11 +75,18 @@ class User:  # TODO:Добавить коментарии
         else:
             return self.link
 
-    async def get_owns(self):
+    async def iter_owns(self):
         from . import Chat
         for id in self.owns:
             result: Chat = await Chat(id)
             yield result
+
+    async def get_owns(self):
+        from . import Chat
+        result = []
+        async for chat in self.iter_owns():
+            result.append(chat)
+        return result
 
     async def send(self,
                    text: str,

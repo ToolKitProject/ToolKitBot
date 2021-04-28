@@ -12,10 +12,9 @@ class errors:
 
 
 class private:
-    settings = ""
-
-    class admin:
-        pass
+    class settings:
+        chat_loading = "🕒 Please wait,chats is loading"
+        empty = "⚠ You do not own chats"
 
 
 class chat:

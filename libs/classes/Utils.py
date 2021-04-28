@@ -1,9 +1,10 @@
+import re
 from typing import Union
 
 from aiogram import types as t
 from libs.objects import Database
 
-from . import UserText, Chat, User
+from . import Chat, User, UserText
 
 
 async def get_help(msg: t.Message):
@@ -30,8 +31,18 @@ async def is_private(msg: Union[t.CallbackQuery, t.Message]):
     return msg.chat.type in [t.ChatType.PRIVATE]
 
 
+def clb(data):
+    pattern = re.compile(data)
+
+    async def filter(clb: t.CallbackQuery):
+        if pattern.match(clb.data):
+            return True
+        return False
+    return filter
+
+
 async def chek(msg: t.Message):
-    if await is_chat(msg) and not Database.get_chat(msg.chat.id):
+    if await is_chat(msg):
         await Chat(chat=msg.chat)
     if not Database.get_user(msg.from_user.id):
         await User(user=msg.from_user)

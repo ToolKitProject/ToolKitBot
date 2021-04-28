@@ -21,6 +21,16 @@ class Database:
         result = self.run(f"SELECT * FROM Chats WHERE id={id}", True)
         return result
 
+    def get_users(self) -> List[int]:
+        result = self.run("SELECT id FROM Users")
+        result = [i[0] for i in result]
+        return result
+
+    def get_chats(self) -> List[int]:
+        result = self.run("SELECT id FROM Chats")
+        result = [i[0] for i in result]
+        return result
+
     def run(self, sql: str, one: bool = False) -> Union[Any, List]:
         with self.connect:
             result = self.cursor.execute(sql)

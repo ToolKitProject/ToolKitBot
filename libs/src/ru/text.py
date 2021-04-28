@@ -12,10 +12,9 @@ class errors:
 
 
 class private:
-    settings = "Выберете что хотите настроить"
-
-    class admin:
-        pass
+    class settings:
+        chat_loading = "🕒 Подождите, чаты загружаются"
+        empty = "⚠ Ты не владеешь чатами"
 
 
 class chat:

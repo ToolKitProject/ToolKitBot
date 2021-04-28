@@ -5,18 +5,34 @@ from libs.classes import Button, Menu, MenuButton
 
 class chat:
     class admin:
-        undo = Button("↩ Отмена", "undo").inline
+        undo = Button("↩ Отмена", "undo")
 
 
 class private:
     class settings:
-        alias = Button("Сокращение для стикера", "alias")
+        settings = Menu("Выбери что хочешь настроить")
 
-        settings = Menu("Выберете что хотите настроить").add(
-            MenuButton(
-                "Админ команды",
-                "Выберете что хотите настроить"
-            ).add(
-                alias
+        chats = Button("Чаты", "chats")
+        chats_menu = Menu("Выбери чат")
+
+        chat_settings = Menu("Выбери что хочешь настроить")
+        sticker_alias = MenuButton("Сокращения к стикерам", "Выбери действие")
+        command_alias = MenuButton("Сокращения к командам", "Выбери действие")
+
+        add_alias = Button("Добавить сокращение", "add_alias")
+        edit_alias = Button("Ха это шаблон", "edit_alias")
+
+        # private_settings = MenuButton("Себя", "private_settings")  # TODO
+
+        # ?____compile
+        settings.add(
+            chats
+        )
+        chat_settings.add(
+            sticker_alias.add(
+                add_alias
+            ),
+            command_alias.add(
+                add_alias
             )
         )

@@ -11,12 +11,15 @@ from libs.objects import Database
 class Chat:
 
     __database__ = [
-        "settings"
+        "settings", "owner"
     ]
     _init = False
 
     async def __init__(self, auth: str = None, chat: Optional[t.Chat] = None) -> None:
         self.chat = chat if chat else await bot.get_chat(auth)
+
+        if self.chat.type not in [t.ChatType.GROUP, t.ChatType.SUPERGROUP]:
+            ValueError("Чет не так")
 
         self.id: int = self.chat.id
         self.type: str = self.chat.type
@@ -34,10 +37,17 @@ class Chat:
 
         self._init = True
 
+        if DB_chat[2] != self.owner.id:
+            self.owner = self.owner
+
     def __setattr__(self, name: str, value: Any) -> None:
         if name in self.__database__ and self._init:
+            if name in ["settings"]:
+                value = dumps(value)
+            elif name in ["owner"]:
+                value = value.id
             Database.run(
-                f"UPDATE Chats SET {name}='{dumps(value)}' WHERE id={self.id};"
+                f"UPDATE Chats SET {name}='{value}' WHERE id={self.id};"
             )
         self.__dict__[name] = value
 

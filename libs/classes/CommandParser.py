@@ -52,7 +52,7 @@ class AdminCommandParser:
         self.chat = msg.chat
         self.owner: User = await User(user=msg.from_user)
 
-        self.command = text if text else msg.text
+        self.text = text if text else msg.text
         self.entities = msg.entities
 
         self.cmd: str = None
@@ -71,14 +71,14 @@ class AdminCommandParser:
 
         if not self.reason:
             self.reason = self.src.text.chat.admin.reason_empty
-        if not (self.users or self.cmd or self.bot):
+        if not self.users or not self.cmd:
             raise ArgumentError(self.src.lang)
 
     async def parse(self):
         """
         Парс по regex
         """
-        all = re.finditer(system.regex.parse.all, self.command)
+        all = re.finditer(system.regex.parse.all, self.text)
 
         for match in all:
             group = match.lastgroup
@@ -94,7 +94,7 @@ class AdminCommandParser:
             elif group == "until":
                 await self.to_date(match)
             elif group == "reason":
-                self.reason += text
+                self.reason += match.group("raw_reason")
 
         delta = self.until - self.now
         if (delta.total_seconds() < 30 or delta.days > 366) and self.until.timestamp() != self.now.timestamp():

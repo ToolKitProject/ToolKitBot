@@ -6,6 +6,7 @@ from bot import dp
 from libs.classes import AdminCommandParser, User, UserText, get_help, is_chat
 from libs.classes.Errors import *
 from libs.objects import MessageData
+from libs.src import buttons
 
 
 @dp.message_handler(is_chat, commands=["ban", "unban", "kick", "mute", "unmute"])
@@ -28,7 +29,7 @@ async def command(msg: t.Message):
         data.user = msg.from_user
 
 
-@dp.callback_query_handler(lambda clb: clb.data == "undo")
+@buttons.chat.admin.undo.set_action(is_chat)
 async def undo(clb: t.CallbackQuery):
     """
     Обрабочик кнопки undo
@@ -84,4 +85,4 @@ async def get_text(parser: AdminCommandParser) -> Tuple[str, IM]:
         until=parser.format_until
     )
 
-    return text, rm
+    return text, rm.inline
