@@ -19,8 +19,8 @@
         }
     ],
     "workbench.colorCustomizations": {
-        "tab.activeBorder": "#e76f51",
-        "statusBar.background": "#e76f51",
+        "tab.activeBorder": "#843b62",
+        "statusBar.background": "#843b62",
         "statusBar.foreground": "#000000"
     }
 }

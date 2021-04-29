@@ -1,11 +1,24 @@
 import asyncio
 import logging
 import traceback
+from typing import List
 
 from aiogram import types as t
 from bot import dp
+from libs.classes import chek, Menu
 from libs.classes.Errors import *
-from libs.classes import chek
+from libs.objects import MessageData
+from libs.src import system
+
+
+@system.back.set_action()
+async def back(clb: t.CallbackQuery):
+    msg = clb.message
+    with await MessageData(msg) as data:
+        history: List[Menu] = data.history
+        menu = history.pop(-2)
+        await menu.edit(msg, False)
+        data.history = history
 
 
 @dp.message_handler(chek, content_types=[t.ContentType.ANY])

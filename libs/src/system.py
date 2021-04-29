@@ -1,4 +1,7 @@
 import re
+from libs.classes import Button
+
+back = Button("↩", "back")
 
 
 class regex:
@@ -11,6 +14,7 @@ class regex:
 
     class settings:
         chat_settings = r"^(?P<prefix>settings)@(?P<id>-100[0-9]*)$"
+        data = r"^(?P<data>.+)@(?P<type>.+)$"
 
 
 if __name__ == "__main__":

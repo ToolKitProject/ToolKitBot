@@ -1,5 +1,6 @@
 from typing import *
 from aiogram import types
+from copy import copy
 
 
 class MessageConstructor:
@@ -64,49 +65,69 @@ class MessageData:
     """
 
     def __init__(self):
-        self.storage: Dict[types.Message, Data] = {}
+        self.storage: Dict[int, Dict[int, Data]] = {}
 
     async def __call__(self, msg: types.Message) -> Data:
         """ 
         Создает или возвращает данные
         """
-        if msg.message_id in self.storage:
+        if msg.chat.id in self.storage and msg.message_id in self.storage[msg.chat.id]:
             return await self.get(msg)
         else:
             return await self.new(msg)
 
-    async def delete(self, msg: types.Message):
+    async def delete(self, msg: types.Message, markup: bool = True):
         """
         Удаляет данные и сообщение 
         """
-        await self.remove(msg.message_id)
-        await msg.delete()
+        await self.remove(msg)
+        if markup:
+            await msg.delete_reply_markup()
+        else:
+            await msg.delete()
 
     async def remove(self, msg: types.Message):
         """
         Удаляет данные
         """
-        self.storage.pop(msg.message_id)
+        self.storage[msg.chat.id].pop(msg.message_id)
+        if not self.storage[msg.chat.id]:
+            self.storage.pop(msg.chat.id)
 
-    async def close(self):
+    async def close(self, markup: bool = True):
         """
         Удаляет ВСЕ данные и ВСЕ сообщение 
         """
-        for msg in self.storage:
-            try:
-                await self.delete(msg)
-            except:
-                pass
+        for chat_id in self.storage:
+            storage = copy(self.storage[chat_id])
+            for id in storage:
+                data = await self.get_id(chat_id, id)
+                try:
+                    if markup:
+                        await data.msg.delete_reply_markup()
+                    else:
+                        await data.msg.delete()
+                except:
+                    pass
 
     async def new(self, msg: types.Message) -> Data:
         """
         Добавляет данные к сообщению 
         """
-        self.storage[msg.message_id] = Data(msg)
-        return self.storage[msg.message_id]
+        if msg.chat.id not in self.storage:
+            self.storage[msg.chat.id] = {}
+        data = Data(msg)
+        self.storage[msg.chat.id][msg.message_id] = data
+        return data
 
     async def get(self, msg: types.Message) -> Data:
         """
         Возвращает данные 
         """
-        return self.storage[msg.message_id]
+        return self.storage[msg.chat.id][msg.message_id]
+
+    async def get_id(self, chat_id: int, message_id: int):
+        """
+        Возвращает данные 
+        """
+        return self.storage[chat_id][message_id]

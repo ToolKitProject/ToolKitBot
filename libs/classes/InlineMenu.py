@@ -5,15 +5,15 @@ from aiogram.types import InlineKeyboardButton as IB
 from aiogram.types import *
 from bot import dp
 
-# TODO: Доделать классы
 global id_button
 id_button = 0
 
 
 class Menu:
-    def __init__(self, title: str, row: Optional[int] = None) -> None:
+    def __init__(self, title: str, undo: bool = True, row: Optional[int] = None) -> None:
         self.buttons: List[Button] = []
         self.row: Optional[int] = row if row else 1
+        self.undo = undo
         self.title: str = title
 
     def add(self, *buttons):
@@ -22,16 +22,31 @@ class Menu:
         return self
 
     async def answer(self, msg: Message):
-        await msg.answer(self.title, reply_markup=self.menu)
+        from libs.objects import MessageData
 
-    async def edit(self, msg: Message):
-        await msg.edit_text(self.title, reply_markup=self.menu)
+        m = await msg.answer(self.title, reply_markup=self.menu)
+        with await MessageData(m) as data:
+            data.history = [self]
+
+    async def edit(self, msg: Message, save: bool = True):
+        from libs.objects import MessageData
+
+        text = self.title
+        m = await msg.edit_text(text, reply_markup=self.menu)
+        if save:
+            with await MessageData(m) as data:
+                history: List[Menu] = data.history
+                history.append(self)
 
     @property
     def menu(self):
+        from libs.src import system
+
         im = IM(self.row)
         buttons = [btn.button for btn in self.buttons]
         im.add(*buttons)
+        if self.undo:
+            im.row(system.back.button)
 
         return im
 

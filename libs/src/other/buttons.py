@@ -10,17 +10,23 @@ class chat:
 
 class private:
     class settings:
-        settings = Menu("Choose what you want customize")
+        settings = Menu("Choose what you want customize", row=2, undo=False)
+        chats = Button("Chats", "chats_menu")
 
-        chats = Button("Chats", "chats")  # to chats_menu
-        chats_menu = Menu("Choose a chat")
+        chats_menu = Menu("Choose a chat")  # Вывод кнопок
 
-        chat_settings = Menu("Choose option")
-        sticker_alias = MenuButton("Manage a sticker aliases", "Choose action")
-        command_alias = MenuButton("Manage a command aliases", "Choose action")
+        chat_settings = Menu("Choose option", row=2)  # При выборе чата
+        sticker_alias = Button(
+            "Manage a sticker aliases",
+            "alias_menu@sticker_alias"
+        )
+        command_alias = Button(
+            "Manage a command aliases",
+            "alias_menu@command_alias"
+        )
 
+        alias_menu = Menu("Choose action")  # При выборе типа настройки
         add_alias = Button("Add alias", "add_alias")
-        edit_alias = Button("Ha it's a template", "edit_alias")
 
         # private_settings = MenuButton("Youself", "private_settings") #TODO
 
@@ -29,10 +35,9 @@ class private:
             chats
         )
         chat_settings.add(
-            sticker_alias.add(
-                add_alias
-            ),
-            command_alias.add(
-                add_alias
-            )
+            sticker_alias,
+            command_alias
+        )
+        alias_menu.add(
+            add_alias
         )

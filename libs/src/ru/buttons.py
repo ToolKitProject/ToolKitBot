@@ -10,17 +10,23 @@ class chat:
 
 class private:
     class settings:
-        settings = Menu("Выбери что хочешь настроить")
+        settings = Menu("Выбери что хочешь настроить", row=2, undo=False)
+        chats = Button("Чаты", "chats_menu")
 
-        chats = Button("Чаты", "chats")
         chats_menu = Menu("Выбери чат")
 
-        chat_settings = Menu("Выбери что хочешь настроить")
-        sticker_alias = MenuButton("Сокращения к стикерам", "Выбери действие")
-        command_alias = MenuButton("Сокращения к командам", "Выбери действие")
+        chat_settings = Menu("Выбери что хочешь настроить", row=2)
+        sticker_alias = Button(
+            "Сокращения к стикерам",
+            "alias_menu@sticker_alias"
+        )
+        command_alias = Button(
+            "Сокращения к командам",
+            "alias_menu@command_alias"
+        )
 
+        alias_menu = Menu("Выбери действие")
         add_alias = Button("Добавить сокращение", "add_alias")
-        edit_alias = Button("Ха это шаблон", "edit_alias")
 
         # private_settings = MenuButton("Себя", "private_settings")  # TODO
 
@@ -29,10 +35,9 @@ class private:
             chats
         )
         chat_settings.add(
-            sticker_alias.add(
-                add_alias
-            ),
-            command_alias.add(
-                add_alias
-            )
+            sticker_alias,
+            command_alias
+        )
+        alias_menu.add(
+            add_alias
         )

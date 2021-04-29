@@ -1,3 +1,5 @@
+from os import times
+from libs.classes.InlineMenu import Menu
 import re
 from copy import deepcopy as copy
 from typing import *
@@ -17,7 +19,7 @@ async def settings(msg: t.Message):
 
 
 @buttons.private.settings.chats.set_action(is_private)
-async def chats(clb: t.CallbackQuery):
+async def chat_menu(clb: t.CallbackQuery):
     msg = clb.message
     src = UserText(clb.from_user.language_code)
     settings = src.buttons.private.settings
@@ -29,20 +31,20 @@ async def chats(clb: t.CallbackQuery):
 
     await clb.answer(src.text.private.settings.chat_loading)
 
-    menu = copy(settings.chats_menu)
+    settings = copy(settings.chats_menu)
     chats = await user.get_owns()
     for chat in chats:
         button = Button(chat.title, f"settings@{chat.id}")
-        menu.add(button)
+        settings.add(button)
 
-    await menu.edit(msg)
+    await settings.edit(msg)
 
     with await MessageData(msg) as data:
         data.chats = chats
 
 
 @dp.callback_query_handler(is_private, clb(regex.settings.chat_settings))
-async def chat(clb: t.CallbackQuery):
+async def chat_settings(clb: t.CallbackQuery):
     msg = clb.message
     src = UserText(clb.from_user.language_code)
     settings = src.buttons.private.settings.chat_settings
@@ -56,5 +58,27 @@ async def chat(clb: t.CallbackQuery):
     await settings.edit(msg)
 
 
-async def add_alias(msg: t.Message, chat: Chat):
-    pass
+@buttons.private.settings.sticker_alias.set_action(is_private)
+@buttons.private.settings.command_alias.set_action(is_private)
+async def alias_menu(clb: t.CallbackQuery):
+    msg = clb.message
+    type = re.match(regex.settings.data, clb.data).group("type")
+    src = UserText(clb.from_user.language_code)
+    settings = src.buttons.private.settings.alias_menu
+    with await MessageData(msg) as data:
+        data.type = type
+
+    await settings.edit(msg)
+
+
+@buttons.private.settings.add_alias.set_action(is_private)
+async def alias_menu(clb: t.CallbackQuery):
+    msg = clb.message
+    with await MessageData(msg) as data:
+        history: List[Menu] = data.history
+        type: str = data.type
+        chat: Chat = data.chat
+        text = f"{type}\n{chat.title}\n\n"
+        for menu in history:
+            text += f"{menu.title}\n"
+    await msg.edit_text(text)
