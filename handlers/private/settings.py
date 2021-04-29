@@ -1,4 +1,6 @@
 from os import times
+
+from aiogram.dispatcher.storage import FSMContext
 from libs.classes.InlineMenu import Menu
 import re
 from copy import deepcopy as copy
@@ -19,7 +21,7 @@ async def settings(msg: t.Message):
 
 
 @buttons.private.settings.chats.set_action(is_private)
-async def chat_menu(clb: t.CallbackQuery):
+async def chat_menu(clb: t.CallbackQuery, state: FSMContext):
     msg = clb.message
     src = UserText(clb.from_user.language_code)
     settings = src.buttons.private.settings
@@ -29,10 +31,14 @@ async def chat_menu(clb: t.CallbackQuery):
         await clb.answer(src.text.private.settings.empty)
         return
 
-    await clb.answer(src.text.private.settings.chat_loading)
+    async with state.proxy() as data:
+        if "chats" in data:
+            chats = data["chats"]
+        if "chats" not in data or len(chats) != len(user.owns):
+            chats = await user.get_owns()
+            data["chats"] = chats
 
     settings = copy(settings.chats_menu)
-    chats = await user.get_owns()
     for chat in chats:
         button = Button(chat.title, f"settings@{chat.id}")
         settings.add(button)
@@ -43,7 +49,7 @@ async def chat_menu(clb: t.CallbackQuery):
         data.chats = chats
 
 
-@dp.callback_query_handler(is_private, clb(regex.settings.chat_settings))
+@ dp.callback_query_handler(is_private, clb(regex.settings.chat_settings))
 async def chat_settings(clb: t.CallbackQuery):
     msg = clb.message
     src = UserText(clb.from_user.language_code)
@@ -58,8 +64,8 @@ async def chat_settings(clb: t.CallbackQuery):
     await settings.edit(msg)
 
 
-@buttons.private.settings.sticker_alias.set_action(is_private)
-@buttons.private.settings.command_alias.set_action(is_private)
+@ buttons.private.settings.sticker_alias.set_action(is_private)
+@ buttons.private.settings.command_alias.set_action(is_private)
 async def alias_menu(clb: t.CallbackQuery):
     msg = clb.message
     type = re.match(regex.settings.data, clb.data).group("type")
@@ -71,7 +77,7 @@ async def alias_menu(clb: t.CallbackQuery):
     await settings.edit(msg)
 
 
-@buttons.private.settings.add_alias.set_action(is_private)
+@ buttons.private.settings.add_alias.set_action(is_private)
 async def alias_menu(clb: t.CallbackQuery):
     msg = clb.message
     with await MessageData(msg) as data:

@@ -1,13 +1,11 @@
 import datetime
 from json import loads, dumps
-from os import read
 from typing import *
 
 from aiogram import types as t
 from asyncinit import asyncinit
 from bot import bot, client
 from libs.objects import Database
-from pyrogram import types as pt
 
 from .Errors import *
 
