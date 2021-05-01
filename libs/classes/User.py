@@ -28,8 +28,8 @@ class User:  # TODO:Добавить коментарии
         self.username: str = self.user.username
         self.first_name: str = self.user.first_name
         self.last_name: str = self.user.last_name
-        self.lang: str = self.user.language_code
-        self.src: UserText = UserText(self.lang)
+        self.language_code: str = self.user.language_code
+        self.src: UserText = UserText(self.language_code)
 
         DB_user = Database.get_user(self.id)
         if not DB_user:
@@ -125,7 +125,7 @@ class AdminPanel(User):
             perm = member.can_restrict_members
 
         if not (perm or member.is_chat_creator()):
-            raise HasNotPermission(self.creator.lang)
+            raise HasNotPermission(self.creator.language_code)
 
     async def ban(self, until: datetime, chat: t.Chat):
         await self.has_permission("ban", chat)
