@@ -1,8 +1,18 @@
 import re
+
+from aiogram.types.bot_command import BotCommand as C
 from libs.classes import Button
 from aiogram.dispatcher.filters.state import State, StatesGroup
 
 back = Button("↩", "back")
+commands = [
+    C("ban", "⛔ Block user"),
+    C("unban", "✅ Unblock user"),
+    C("kick", "⚠ Kick user"),
+    C("mute", "🔇 Mute user"),
+    C("unmute", "🔈 Unmute user"),
+    C("settings", "⚙ Settings")
+]
 
 
 class regex:
