@@ -3,10 +3,32 @@ from typing import *
 from aiogram import types as t
 from aiogram.types import InlineKeyboardMarkup as IM
 from bot import dp
-from libs.classes import AdminCommandParser, User, UserText, get_help, is_chat
+from libs.classes import AdminCommandParser, AdminPanel
+from libs.classes import Errors as e
+from libs.classes import User, UserText, alias, get_help, is_chat
 from libs.classes.Errors import *
 from libs.objects import MessageData
 from libs.src import buttons
+
+
+@dp.message_handler(is_chat, alias, content_types=[t.ContentType.TEXT, t.ContentType.STICKER])
+async def alias_command(msg: t.Message):
+    if not msg.reply_to_message:
+        return
+        # raise e.NotReply(msg.from_user.language_code)
+    else:
+        await msg.answer_chat_action(t.ChatActions.TYPING)
+        user: AdminPanel = await AdminPanel(user=msg.reply_to_message.from_user, creator=msg.from_user)
+
+    command = await alias(msg, False)
+    parser: AdminCommandParser = await AdminCommandParser(msg, command, user=user)
+    await execute_action(parser)
+
+    text, rm = await get_text(parser)
+    message = await msg.reply(text, reply_markup=rm)
+    with await MessageData(message) as data:
+        data.parser = parser
+        data.user = msg.from_user
 
 
 @dp.message_handler(is_chat, commands=["ban", "unban", "kick", "mute", "unmute"])
@@ -68,7 +90,7 @@ async def execute_action(parser: AdminCommandParser):
 
 async def get_text(parser: AdminCommandParser) -> Tuple[str, IM]:
     action = parser.action
-    src = UserText(parser.owner.lang)
+    src = parser.owner.src
 
     if len(parser.users) > 1:
         action = "multi_" + action

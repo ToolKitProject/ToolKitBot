@@ -1,4 +1,4 @@
-from aiogram import types
+from aiogram import types as t
 
 token = ""
 main_token = ""  # main bot token (-m --main)
@@ -14,4 +14,4 @@ lang_encode = {
 }
 
 
-bot: types.User  # this what *get_me* function return
+bot: t.User  # this what *get_me* function return

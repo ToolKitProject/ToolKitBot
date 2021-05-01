@@ -1,5 +1,5 @@
 from typing import *
-from aiogram import types
+from aiogram import types as t
 from copy import copy
 
 
@@ -12,7 +12,7 @@ class Data:
     Содержит пользовательские данные о сообщении 
     """
 
-    def __init__(self, msg: types.Message) -> None:
+    def __init__(self, msg: t.Message) -> None:
         self.msg = msg
 
     def __enter__(self):
@@ -36,6 +36,10 @@ class Data:
     def __iter__(self):
         for key in self.__dict__:
             yield key
+
+    @property
+    def storage(self):
+        return self.__dict__
 
     @property
     def values(self):
@@ -67,7 +71,7 @@ class MessageData:
     def __init__(self):
         self.storage: Dict[int, Dict[int, Data]] = {}
 
-    async def __call__(self, msg: types.Message) -> Data:
+    async def __call__(self, msg: t.Message) -> Data:
         """ 
         Создает или возвращает данные
         """
@@ -76,7 +80,7 @@ class MessageData:
         else:
             return await self.new(msg)
 
-    async def delete(self, msg: types.Message, markup: bool = True):
+    async def delete(self, msg: t.Message, markup: bool = True):
         """
         Удаляет данные и сообщение 
         """
@@ -86,7 +90,7 @@ class MessageData:
         else:
             await msg.delete()
 
-    async def remove(self, msg: types.Message):
+    async def remove(self, msg: t.Message):
         """
         Удаляет данные
         """
@@ -110,7 +114,7 @@ class MessageData:
                 except:
                     pass
 
-    async def new(self, msg: types.Message) -> Data:
+    async def new(self, msg: t.Message) -> Data:
         """
         Добавляет данные к сообщению 
         """
@@ -120,7 +124,12 @@ class MessageData:
         self.storage[msg.chat.id][msg.message_id] = data
         return data
 
-    async def get(self, msg: types.Message) -> Data:
+    async def move(self, to_msg: t.Message, msg: t.Message):
+        data = await self.get(msg)
+        await self.remove(msg)
+        self.storage[to_msg.chat.id][to_msg.message_id] = data
+
+    async def get(self, msg: t.Message) -> Data:
         """
         Возвращает данные 
         """

@@ -31,7 +31,7 @@ if True:
 
 
 async def shutdown(dp: Dispatcher):
-    await MessageData.close(False)
+    await MessageData.close()
 
 
 async def startup(dp: Dispatcher):

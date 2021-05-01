@@ -27,6 +27,7 @@ class Menu:
         m = await msg.answer(self.title, reply_markup=self.menu)
         with await MessageData(m) as data:
             data.history = [self]
+        return m
 
     async def edit(self, msg: Message, save: bool = True):
         from libs.objects import MessageData

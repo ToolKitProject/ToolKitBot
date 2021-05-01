@@ -1,5 +1,5 @@
 import re
-from typing import Union
+from typing import Dict, Text, Tuple, Union
 
 from aiogram import types as t
 from libs.objects import Database
@@ -39,6 +39,21 @@ def clb(data):
             return True
         return False
     return filter
+
+
+async def alias(msg: t.Message, handler=True) -> Union[bool, str]:
+    chat: Chat = await Chat(chat=msg.chat)
+    if msg.sticker:
+        text: str = msg.sticker.file_unique_id
+        aliases: Dict[str, str] = chat.settings["sticker_alias"]
+    elif msg.text:
+        text: str = msg.text
+        aliases: Dict[str, str] = chat.settings["command_alias"]
+
+    if handler:
+        return text in aliases
+    else:
+        return aliases[text]
 
 
 async def chek(msg: t.Message):

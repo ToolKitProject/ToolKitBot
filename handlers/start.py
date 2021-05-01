@@ -4,7 +4,7 @@ import traceback
 from typing import List
 
 from aiogram import types as t
-from bot import dp
+from bot import dp, bot
 from libs.classes import chek, Menu
 from libs.classes.Errors import *
 from libs.objects import MessageData
@@ -16,9 +16,12 @@ async def back(clb: t.CallbackQuery):
     msg = clb.message
     with await MessageData(msg) as data:
         history: List[Menu] = data.history
-        menu = history.pop(-2)
-        await menu.edit(msg, False)
-        data.history = history
+        try:
+            history.pop(-1)
+            await history[-1].edit(msg, False)
+            data.history = history
+        except Exception as e:
+            pass
 
 
 @dp.message_handler(chek, content_types=[t.ContentType.ANY])
@@ -50,7 +53,12 @@ async def errors(update: t.Update, error: Exception):
     errorText: str
     if error.__class__ in ERRORS:
         errorText = error.args[0]
-        await answer(errorText)
+        m = await answer(errorText)
+        try:
+            del_time = error.args[1]
+            await delete(m)
+        except:
+            pass
     elif error.__class__ in IGNORE:
         pass
         # logging.info(f"Error skipped {error.__class__.__name__}")

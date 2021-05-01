@@ -25,8 +25,15 @@ class private:
             "alias_menu@command_alias"
         )
 
-        alias_menu = Menu("Выбери действие")
+        alias_menu = Menu(
+            "Выбери действие\n" +
+            "Щелкните на существующие сокращение, чтобы удалить"
+        )
         add_alias = Button("Добавить сокращение", "add_alias")
+
+        delete_alias_menu = Menu("⚠ Удалить сокращение ?", False)
+        delete_accept = Button("✅ Удалить", "delete_accept")
+        delete_cancel = Button("⛔ Отмена", "delete_cancel")
 
         # private_settings = MenuButton("Себя", "private_settings")  # TODO
 
@@ -40,4 +47,8 @@ class private:
         )
         alias_menu.add(
             add_alias
+        )
+        delete_alias_menu.add(
+            delete_cancel,
+            delete_accept
         )

@@ -5,4 +5,4 @@ from .Database import Database
 from .Chat import Chat
 from .User import User, AdminPanel
 from .CommandParser import AdminCommandParser
-from .Utils import is_chat, is_private, chek, get_help, clb
+from .Utils import is_chat, is_private, chek, get_help, clb, alias

@@ -1,5 +1,6 @@
 import datetime
 from json import loads, dumps
+from libs.classes.Localisation import UserText
 from typing import *
 
 from aiogram import types as t
@@ -28,6 +29,7 @@ class User:  # TODO:Добавить коментарии
         self.first_name: str = self.user.first_name
         self.last_name: str = self.user.last_name
         self.lang: str = self.user.language_code
+        self.src: UserText = UserText(self.lang)
 
         DB_user = Database.get_user(self.id)
         if not DB_user:
@@ -112,9 +114,9 @@ class User:  # TODO:Добавить коментарии
 
 @asyncinit
 class AdminPanel(User):
-    async def __init__(self, auth: int, creator: Optional[User] = None):
-        self.creator: User = creator if creator else await User(self.id)
-        await super().__init__(auth)
+    async def __init__(self, auth: int = None, user: Optional[t.User] = None, creator: t.User = None):
+        await super().__init__(auth=auth, user=user)
+        self.creator: User = await User(user=creator)
         self._init = False
 
     async def has_permission(self, action, chat: t.Chat):

@@ -43,11 +43,11 @@ class Chat:
     def __setattr__(self, name: str, value: Any) -> None:
         if name in self.__database__ and self._init:
             if name in ["settings"]:
-                value = dumps(value)
+                v = dumps(value)
             elif name in ["owner"]:
-                value = value.id
+                v = value.id
             Database.run(
-                f"UPDATE Chats SET {name}='{value}' WHERE id={self.id};"
+                f"UPDATE Chats SET {name}='{v}' WHERE id={self.id};"
             )
         self.__dict__[name] = value
 

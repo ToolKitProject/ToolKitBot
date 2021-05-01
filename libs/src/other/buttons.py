@@ -25,8 +25,15 @@ class private:
             "alias_menu@command_alias"
         )
 
-        alias_menu = Menu("Choose action")  # При выборе типа настройки
+        alias_menu = Menu(
+            "Choose action\n" +
+            "Click on the existing alias to delete"
+        )  # При выборе типа настройки
         add_alias = Button("Add alias", "add_alias")
+
+        delete_alias_menu = Menu("⚠ Delete alias ?", False)
+        delete_accept = Button("✅ Delete", "delete_accept")
+        delete_cancel = Button("⛔ Cancel", "delete_cancel")
 
         # private_settings = MenuButton("Youself", "private_settings") #TODO
 
@@ -40,4 +47,8 @@ class private:
         )
         alias_menu.add(
             add_alias
+        )
+        delete_alias_menu.add(
+            delete_cancel,
+            delete_accept
         )
