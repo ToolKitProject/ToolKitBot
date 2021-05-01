@@ -27,6 +27,8 @@ if True:
     from bot import dp, client
     import handlers
     from libs.objects import MessageData
+    from libs.src.system import commands
+
     # from objects import MessageData
 
 
@@ -36,6 +38,7 @@ async def shutdown(dp: Dispatcher):
 
 async def startup(dp: Dispatcher):
     await client.start()
+    await dp.bot.set_my_commands(commands)
     config.bot = await dp.bot.get_me()
     logging.warning(
         f"{config.bot.full_name} [{config.bot.mention}]")
