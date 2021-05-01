@@ -5,7 +5,7 @@ from libs.src import other as _src_type
 
 class UserText:
     def __init__(self, lang: str) -> None:
-        if lang in config.lang_support:
+        if lang in config.lang_encode:
             self.lang = lang
         else:
             self.lang = "other"

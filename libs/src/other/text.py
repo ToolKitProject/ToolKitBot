@@ -1,14 +1,28 @@
 from aiogram.utils.markdown import hlink as l
 
+cancel = "\n/cancel - to cancel"
+
 
 class errors:
     until = "If user is banned for more than 366 days or less than 30 seconds from the current time they are considered to be banned forever."
+    UntilWaring = f"❗ {until}"
 
     CommandNotFound = "⚠ Command not found"
     UserNotFound = "⚠ User not found"
     ArgumentError = "⚠ Invalid argument"
-    HasNotPermission = "⚠ You has not permission"
-    UntilWaring = f"❗ {until}"
+    HasNotPermission = "⚠ You don't have the permission"
+    EmptyOwns = "⚠ You do not own chats"
+    TypeError = "⚠ Wrong type"
+    AlreadyExists = "⚠ Already exists"
+    NotReply = "⚠ Not replied"
+
+
+class private:
+    class settings:
+        chat_loading = "🕒 Please wait,chats is loading"
+        sticker = "1⃣ Send me sticker" + cancel
+        text = "1⃣ Send me text" + cancel
+        command = "2⃣ Send me command"
 
 
 class chat:
@@ -39,7 +53,7 @@ class chat:
 class help:
     users = f"\nMentions (@username,{l('Jack Jackson','t.me/username')})"
     until = "\nDate[s|m|h|d|M|y] (1m 30s, 1M)"
-    reason = "\n(Reason) (Text from 3 characters)"
+    reason = "\n\"Reason\" (Yes in a quote)"
 
     ban = f"/ban" + users + until + reason
     unban = f"/unban" + users + reason

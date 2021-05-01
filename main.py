@@ -26,15 +26,15 @@ else:
 if True:
     from bot import dp, client
     import handlers
+    from libs.objects import MessageData
     # from objects import MessageData
 
 
-async def on_shutdown(dp: Dispatcher):
-    pass
-    # await MessageData.del_all()
+async def shutdown(dp: Dispatcher):
+    await MessageData.close()
 
 
-async def on_startup(dp: Dispatcher):
+async def startup(dp: Dispatcher):
     await client.start()
     config.bot = await dp.bot.get_me()
     logging.warning(
@@ -42,4 +42,4 @@ async def on_startup(dp: Dispatcher):
 
 
 if __name__ == "__main__":
-    executor.start_polling(dp, on_startup=on_startup, on_shutdown=on_shutdown)
+    executor.start_polling(dp, on_startup=startup, on_shutdown=shutdown)

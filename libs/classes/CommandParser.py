@@ -3,13 +3,13 @@ from calendar import isleap, monthrange
 from datetime import datetime, timedelta
 from typing import List, Optional
 
-from aiogram import types
+from aiogram import types as t
 from asyncinit import asyncinit
 from bot import bot, client
 from libs.classes.Errors import ArgumentError, UserNotFound
 from libs.src import system
 
-from . import User, UserText, Admin
+from . import User, UserText, AdminPanel
 
 
 def get_days_years(year: int, now: datetime):
@@ -40,26 +40,26 @@ def get_days_month(month: int, now: datetime):
 
 
 @asyncinit
-class CommandParser:
+class AdminCommandParser:
     """
     Инструмент для парсинга команд
     """
 
-    async def __init__(self, msg: types.Message, text: Optional[str] = None) -> None:
+    async def __init__(self, msg: t.Message, text: Optional[str] = None, user: Optional[AdminPanel] = None) -> None:
         self.src = UserText(msg.from_user.language_code)
 
         self.msg = msg
         self.chat = msg.chat
-        self.owner: User = await User(msg.from_user, msg.chat)
+        self.owner: User = await User(user=msg.from_user)
 
-        self.command = text if text else msg.text
+        self.text = text if text else msg.text
         self.entities = msg.entities
 
         self.cmd: str = None
         self.action: str = None
         self.bot: str = None
 
-        self.users: List[Admin] = []
+        self.users: List[AdminPanel] = [user] if user else []
 
         self.now: datetime = datetime.now()
         self.until: datetime = self.now
@@ -71,14 +71,14 @@ class CommandParser:
 
         if not self.reason:
             self.reason = self.src.text.chat.admin.reason_empty
-        if not (self.users or self.cmd or self.bot):
+        if not self.users or not self.cmd:
             raise ArgumentError(self.src.lang)
 
     async def parse(self):
         """
         Парс по regex
         """
-        all = re.finditer(system.regex.parse.all, self.command)
+        all = re.finditer(system.regex.parse.all, self.text)
 
         for match in all:
             group = match.lastgroup
@@ -94,12 +94,24 @@ class CommandParser:
             elif group == "until":
                 await self.to_date(match)
             elif group == "reason":
-                self.reason += text
+                self.reason += match.group("raw_reason")
 
         delta = self.until - self.now
         if (delta.total_seconds() < 30 or delta.days > 366) and self.until.timestamp() != self.now.timestamp():
             await self.msg.answer(self.src.text.errors.UntilWaring)
             # self.until = self.now
+
+    @classmethod
+    async def chek(cls, text: str, *chek: str):
+        all = re.finditer(system.regex.parse.all, text)
+        groups = []
+        for math in all:
+            groups.append(math.lastgroup)
+
+        for c in chek:
+            if c in groups:
+                return False
+        return True
 
     async def entities_parse(self):
         """
@@ -107,19 +119,18 @@ class CommandParser:
         """
         for entity in self.entities:
             if entity.type == "text_mention":
-                usr = entity.user.id
-                user = await Admin(user, self.chat, self.owner)
+                user = await AdminPanel(user=entity.user, creator=self.owner)
                 self.users.append(user)
 
-    async def to_user(self, user: str) -> User:
+    async def to_user(self, auth: str) -> User:
         """
         Преобразует упоминание в User
         """
+        user = await AdminPanel(auth, creator=self.owner)
         try:
-            usr = await client.get_users(user)
-        except Exception:
+            pass
+        except Exception as e:
             raise UserNotFound(self.msg.from_user.language_code)
-        user = await Admin(usr, self.chat, self.owner)
         self.users.append(user)
 
     async def to_date(self, match: re.Match) -> int:

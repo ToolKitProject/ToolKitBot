@@ -1,7 +1,26 @@
 {
-    "python.pythonPath": "/bin/python",
     "cSpell.words": [
+        "ptypes",
         "usrc",
         "utext"
-    ]
+    ],
+    "colorTabs.config": [
+        {
+            "regex": "libs/src/.*",
+            "color": "#e76f51"
+        },
+        {
+            "regex": "libs/classes/.*",
+            "color": "#2a9d8f"
+        },
+        {
+            "regex": "handlers/.*",
+            "color": "#843b62"
+        }
+    ],
+    "workbench.colorCustomizations": {
+        "tab.activeBorder": "#e76f51",
+        "statusBar.background": "#e76f51",
+        "statusBar.foreground": "#000000"
+    }
 }
