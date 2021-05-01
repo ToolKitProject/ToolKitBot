@@ -17,5 +17,10 @@
             "regex": "handlers/.*",
             "color": "#843b62"
         }
-    ]
+    ],
+    "workbench.colorCustomizations": {
+        "tab.activeBorder": "#2a9d8f",
+        "statusBar.background": "#2a9d8f",
+        "statusBar.foreground": "#ffffff"
+    }
 }
