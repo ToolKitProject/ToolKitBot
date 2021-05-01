@@ -49,6 +49,8 @@ async def alias(msg: t.Message, handler=True) -> Union[bool, str]:
     elif msg.text and "command_alias" in chat.settings:
         text: str = msg.text
         aliases: Dict[str, str] = chat.settings["command_alias"]
+    else:
+        return False
 
     if handler:
         return text in aliases
