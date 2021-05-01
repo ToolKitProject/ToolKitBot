@@ -107,4 +107,4 @@ async def get_text(parser: AdminCommandParser) -> Tuple[str, IM]:
         until=parser.format_until
     )
 
-    return text, rm.inline
+    return text, rm.inline if rm else None
