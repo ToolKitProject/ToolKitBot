@@ -43,10 +43,10 @@ def clb(data):
 
 async def alias(msg: t.Message, handler=True) -> Union[bool, str]:
     chat: Chat = await Chat(chat=msg.chat)
-    if msg.sticker:
+    if msg.sticker and "sticker_alias" in chat.settings:
         text: str = msg.sticker.file_unique_id
         aliases: Dict[str, str] = chat.settings["sticker_alias"]
-    elif msg.text:
+    elif msg.text and "command_alias" in chat.settings:
         text: str = msg.text
         aliases: Dict[str, str] = chat.settings["command_alias"]
 
