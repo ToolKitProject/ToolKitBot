@@ -1,4 +1,5 @@
 from .Localisation import UserText as usr
+from aiogram.utils import exceptions as ex
 
 
 class CommandNotFound(Exception):
@@ -73,6 +74,15 @@ class NotReply(Exception):
         return self.args[0]
 
 
+class BotHasNotPermission(Exception):
+    def __init__(self, lang, *args) -> None:
+        usrc = usr(lang)
+        super().__init__(usrc.text.errors.BotHasNotPermission, *args)
+
+    def __str__(self):
+        return self.args[0]
+
+
 ERRORS = [
     CommandNotFound,
     UserNotFound,
@@ -81,9 +91,10 @@ ERRORS = [
     EmptyOwns,
     TypeError,
     AlreadyExists,
-    NotReply
+    NotReply,
+    BotHasNotPermission
 ]
 
 IGNORE = [
-
+    ex.MessageNotModified
 ]

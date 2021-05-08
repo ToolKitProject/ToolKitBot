@@ -1,6 +1,7 @@
 import config
 from aiogram.dispatcher.dispatcher import Dispatcher
 from aiogram import executor
+from aiogram import types as t
 import optparse
 import logging
 
@@ -45,4 +46,5 @@ async def startup(dp: Dispatcher):
 
 
 if __name__ == "__main__":
-    executor.start_polling(dp, on_startup=startup, on_shutdown=shutdown)
+    executor.start_polling(dp, on_startup=startup,
+                           on_shutdown=shutdown, allowed_updates=t.AllowedUpdates.all())

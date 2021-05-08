@@ -4,24 +4,20 @@ from aiogram import types as t
 from aiogram.types import InlineKeyboardMarkup as IM
 from bot import dp
 from libs.classes import AdminCommandParser, AdminPanel
-from libs.classes import Errors as e
-from libs.classes import User, UserText, alias, get_help, is_chat
 from libs.classes.Errors import *
+from libs.classes.Utils import (alias, bot_has_permission, get_help, is_chat,
+                                is_reply, mark_write)
 from libs.objects import MessageData
-from libs.src import buttons
+from libs.classes import User
+from libs.src import buttons, system
 
 
-@dp.message_handler(is_chat, alias, content_types=[t.ContentType.TEXT, t.ContentType.STICKER])
+@dp.message_handler(is_chat, bot_has_permission("can_restrict_members"), mark_write, is_reply, alias, content_types=[t.ContentType.TEXT, t.ContentType.STICKER])
 async def alias_command(msg: t.Message):
-    if not msg.reply_to_message:
-        return
-        # raise e.NotReply(msg.from_user.language_code)
-    else:
-        await msg.answer_chat_action(t.ChatActions.TYPING)
-        user: AdminPanel = await AdminPanel(user=msg.reply_to_message.from_user, creator=msg.from_user)
+    target: AdminPanel = await AdminPanel(user=msg.reply_to_message.from_user, creator=msg.from_user)
 
     command = await alias(msg, False)
-    parser: AdminCommandParser = await AdminCommandParser(msg, command, user=user)
+    parser: AdminCommandParser = await AdminCommandParser(msg, command, target=target)
     await execute_action(parser)
 
     text, rm = await get_text(parser)
@@ -31,20 +27,24 @@ async def alias_command(msg: t.Message):
         data.user = msg.from_user
 
 
-@dp.message_handler(is_chat, commands=["ban", "unban", "kick", "mute", "unmute"])
+@dp.message_handler(is_chat, bot_has_permission("can_restrict_members"), mark_write, commands=system.restrict_commands)
 async def command(msg: t.Message):
     """
     Обрабочик команды
     """
-    await msg.answer_chat_action(t.ChatActions.TYPING)
-    if await get_help(msg):
+    target = None
+    if await is_reply.check(msg):
+        target: AdminPanel = await AdminPanel(
+            user=msg.reply_to_message.from_user,
+            creator=msg.from_user
+        )
+    elif not await get_help(msg):
         return
 
-    parser: AdminCommandParser = await AdminCommandParser(msg)
-
-    await execute_action(parser)
+    parser: AdminCommandParser = await AdminCommandParser(msg, target=target)
     text, rm = await get_text(parser)
 
+    await execute_action(parser)
     message = await msg.reply(text, reply_markup=rm)
     with await MessageData(message) as data:
         data.parser = parser
@@ -71,7 +71,7 @@ async def undo(clb: t.CallbackQuery):
 
 
 async def execute_action(parser: AdminCommandParser):
-    users = parser.users
+    users = parser.targets
     action = parser.action
     until = parser.until
 
@@ -92,7 +92,7 @@ async def get_text(parser: AdminCommandParser) -> Tuple[str, IM]:
     action = parser.action
     src = parser.owner.src
 
-    if len(parser.users) > 1:
+    if len(parser.targets) > 1:
         action = "multi_" + action
 
     text: str = getattr(src.text.chat.admin, action)

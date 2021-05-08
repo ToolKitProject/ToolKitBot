@@ -1,9 +1,4 @@
 {
-    "cSpell.words": [
-        "ptypes",
-        "usrc",
-        "utext"
-    ],
     "colorTabs.config": [
         {
             "regex": "libs/src/.*",
@@ -19,8 +14,8 @@
         }
     ],
     "workbench.colorCustomizations": {
-        "tab.activeBorder": "#2a9d8f",
-        "statusBar.background": "#2a9d8f",
-        "statusBar.foreground": "#ffffff"
+        "tab.activeBorder": "#843b62",
+        "statusBar.background": "#843b62",
+        "statusBar.foreground": "#000000"
     }
 }

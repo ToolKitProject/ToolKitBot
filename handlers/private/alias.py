@@ -1,4 +1,3 @@
-from os import system
 import re
 from copy import deepcopy as copy
 from typing import *
@@ -6,12 +5,13 @@ from typing import *
 from aiogram import types as t
 from aiogram.dispatcher.storage import FSMContext
 from bot import dp
-from libs.classes import Button, Chat
+from libs.classes import AdminCommandParser, Button, Chat
 from libs.classes import Errors as e
-from libs.classes import User, UserText, clb, is_private, AdminCommandParser
+from libs.classes import User, UserText
+from libs.classes.Utils import clb, is_private
 from libs.objects import MessageData
-from libs.src import buttons
-from libs.src.system import regex, states, back
+from libs.src import buttons, system
+from libs.src.system import regex, states
 
 
 async def get_alias_menu(msg: t.Message, type: str, src: UserText, update: bool = False):
@@ -185,7 +185,7 @@ async def alias(msg: t.Message, state: FSMContext):
     await states.add_alias.next()
 
 
-@dp.message_handler(is_private, commands=["ban", "unban", "kick", "mute", "unmute"], state=states.add_alias.command)
+@dp.message_handler(is_private, commands=system.restrict_commands, state=states.add_alias.command)
 async def sticker(msg: t.Message, state: FSMContext):
     src = UserText(msg.from_user.language_code)
 

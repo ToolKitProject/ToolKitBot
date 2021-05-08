@@ -1,5 +1,6 @@
 import datetime
 from json import loads, dumps
+from libs.src import system
 from libs.classes.Localisation import UserText
 from typing import *
 
@@ -29,7 +30,8 @@ class User:  # TODO:Добавить коментарии
         self.first_name: str = self.user.first_name
         self.last_name: str = self.user.last_name
         self.language_code: str = self.user.language_code
-        self.src: UserText = UserText(self.language_code)
+        self.lang: str = self.language_code
+        self.src: UserText = UserText(self.lang)
 
         DB_user = Database.get_user(self.id)
         if not DB_user:
@@ -121,11 +123,11 @@ class AdminPanel(User):
 
     async def has_permission(self, action, chat: t.Chat):
         member = await chat.get_member(self.creator.id)
-        if action in ["ban", "unban", "kick", "mute", "unmute"]:
+        if action in system.restrict_commands:
             perm = member.can_restrict_members
 
         if not (perm or member.is_chat_creator()):
-            raise HasNotPermission(self.creator.language_code)
+            raise HasNotPermission(self.creator.lang)
 
     async def ban(self, until: datetime, chat: t.Chat):
         await self.has_permission("ban", chat)

@@ -31,6 +31,12 @@ class Database:
         result = [i[0] for i in result]
         return result
 
+    def delete_user(self, id: int) -> bool:
+        self.run(f"DELETE FROM Uses WHERE id = {id}")
+
+    def delete_chat(self, id: int) -> bool:
+        self.run(f"DELETE FROM Chats WHERE id = {id}")
+
     def run(self, sql: str, one: bool = False) -> Union[Any, List]:
         with self.connect:
             result = self.cursor.execute(sql)

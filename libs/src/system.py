@@ -14,6 +14,8 @@ commands = [
     C("settings", "⚙ Settings")
 ]
 
+restrict_commands = ["ban", "unban", "kick", "mute", "unmute"]
+
 
 class regex:
     class parse:
