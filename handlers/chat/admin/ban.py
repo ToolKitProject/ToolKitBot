@@ -12,8 +12,9 @@ from libs.classes import User
 from libs.src import buttons, system
 
 
-@dp.message_handler(is_chat, bot_has_permission("can_restrict_members"), mark_write, is_reply, alias, content_types=[t.ContentType.TEXT, t.ContentType.STICKER])
+@dp.message_handler(is_chat, bot_has_permission("can_restrict_members"), is_reply, alias, content_types=[t.ContentType.TEXT, t.ContentType.STICKER])
 async def alias_command(msg: t.Message):
+    await mark_write(msg)
     target: AdminPanel = await AdminPanel(user=msg.reply_to_message.from_user, creator=msg.from_user)
 
     command = await alias(msg, False)
@@ -27,11 +28,12 @@ async def alias_command(msg: t.Message):
         data.user = msg.from_user
 
 
-@dp.message_handler(is_chat, bot_has_permission("can_restrict_members"), mark_write, commands=system.restrict_commands)
+@dp.message_handler(is_chat, bot_has_permission("can_restrict_members"), commands=system.restrict_commands)
 async def command(msg: t.Message):
     """
     Обрабочик команды
     """
+    await mark_write(msg)
     target = None
     if await is_reply.check(msg):
         target: AdminPanel = await AdminPanel(
