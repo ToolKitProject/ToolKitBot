@@ -45,7 +45,7 @@ class AdminCommandParser:
     Инструмент для парсинга команд
     """
 
-    async def __init__(self, msg: t.Message, text: Optional[str] = None, user: Optional[AdminPanel] = None) -> None:
+    async def __init__(self, msg: t.Message, text: Optional[str] = None, target: Optional[AdminPanel] = None) -> None:
         self.src = UserText(msg.from_user.language_code)
 
         self.msg = msg
@@ -59,7 +59,7 @@ class AdminCommandParser:
         self.action: str = None
         self.bot: str = None
 
-        self.users: List[AdminPanel] = [user] if user else []
+        self.targets: List[AdminPanel] = [target] if target else []
 
         self.now: datetime = datetime.now()
         self.until: datetime = self.now
@@ -71,7 +71,7 @@ class AdminCommandParser:
 
         if not self.reason:
             self.reason = self.src.text.chat.admin.reason_empty
-        if not self.users or not self.cmd:
+        if not self.targets or not self.cmd:
             raise ArgumentError(self.src.lang)
 
     async def parse(self):
@@ -120,7 +120,7 @@ class AdminCommandParser:
         for entity in self.entities:
             if entity.type == "text_mention":
                 user = await AdminPanel(user=entity.user, creator=self.owner)
-                self.users.append(user)
+                self.targets.append(user)
 
     async def to_user(self, auth: str) -> User:
         """
@@ -131,7 +131,7 @@ class AdminCommandParser:
             pass
         except Exception as e:
             raise UserNotFound(self.msg.from_user.language_code)
-        self.users.append(user)
+        self.targets.append(user)
 
     async def to_date(self, match: re.Match) -> int:
         """
@@ -176,6 +176,6 @@ class AdminCommandParser:
         Возвращает форматированных пользователей 
         """
         result = ""
-        for user in self.users:
+        for user in self.targets:
             result += f"{user.link},"
         return result.removesuffix(",")

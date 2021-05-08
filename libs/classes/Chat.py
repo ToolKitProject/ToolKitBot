@@ -25,7 +25,10 @@ class Chat:
         self.type: str = self.chat.type
         self.title: str = self.chat.title
         self.username: str = self.chat.username
-        self.invite_link: str = self.chat.invite_link
+        try:
+            self.invite_link: str = await self.chat.get_url()
+        except:
+            self.invite_link = None
         self.owner = await self._owner()
 
         DB_chat = Database.get_chat(self.id)
@@ -68,6 +71,18 @@ class Chat:
             return f"@{self.username}"
         else:
             return self.link
+
+    @property
+    def sticker_aliases(self) -> Dict[str, str]:
+        if "sticker_alias" in self.settings:
+            return self.settings["sticker_alias"]
+        return {}
+
+    @property
+    def command_aliases(self) -> Dict[str, str]:
+        if "command_alias" in self.settings:
+            return self.settings["command_alias"]
+        return {}
 
     async def _owner(self):
         from .User import User

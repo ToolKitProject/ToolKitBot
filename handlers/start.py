@@ -1,13 +1,17 @@
 import asyncio
+
+from libs.classes.Utils import promote_admin, removed_member, restrict_admin
+
+from libs.classes.Utils import add_member, chek
 import logging
 import traceback
 from typing import List
 
 from aiogram import types as t
 from bot import dp, bot
-from libs.classes import chek, Menu
+from libs.classes import Menu, Chat
 from libs.classes.Errors import *
-from libs.objects import MessageData
+from libs.objects import MessageData, Database
 from libs.src import system
 
 
@@ -24,7 +28,33 @@ async def back(clb: t.CallbackQuery):
             pass
 
 
-@dp.message_handler(chek, content_types=[t.ContentType.ANY])
+@dp.my_chat_member_handler(add_member)
+async def bot_join(upd: t.ChatMemberUpdated):
+    chat: Chat = await Chat(chat=upd.chat)
+    src = chat.owner.src
+    await bot.send_message(chat.id, src.text.chat.start_text)
+
+
+@dp.my_chat_member_handler(removed_member)
+async def removed_member(upd: t.ChatMemberUpdated):
+    Database.delete_chat(upd.chat.id)
+
+
+@dp.my_chat_member_handler(promote_admin)
+async def bot_promote(upd: t.ChatMemberUpdated):
+    chat: Chat = await Chat(chat=upd.chat)
+    src = chat.owner.src
+    await bot.send_message(chat.id, src.text.chat.promote_admin)
+
+
+@dp.my_chat_member_handler(restrict_admin)
+async def bot_restrict(upd: t.ChatMemberUpdated):
+    chat: Chat = await Chat(chat=upd.chat)
+    src = chat.owner.src
+    await bot.send_message(chat.id, src.text.chat.restrict_admin)
+
+
+@dp.message_handler(chek, content_types=[t.ContentType.TEXT, t.ContentType.PHOTO])
 async def chek(msg: t.Message):
     pass
 
@@ -49,6 +79,8 @@ async def errors(update: t.Update, error: Exception):
     elif update.callback_query:
         msg = update.callback_query.message
         answer = update.callback_query.answer
+    else:
+        return
 
     errorText: str
     if error.__class__ in ERRORS:
