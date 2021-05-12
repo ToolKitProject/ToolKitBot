@@ -1,29 +1,21 @@
-# ToolKit bot
+# 🛠 [ToolKit bot](t.me/Tool_Kit_Bot)
 
-## For start
+<div align="center">
+<img alt="GitHub" src="https://img.shields.io/github/license/igorechek06/ToolKit?style=for-the-badge"/>
+<img alt="Telegram" src="https://img.shields.io/badge/Telegam-bot-0088cc?style=for-the-badge&logo=telegram" />
 
-__________________________________
+<br> 
 
->## In English
+<img alt="GitHub last commit (main)" src="https://img.shields.io/github/last-commit/igorechek06/ToolKit/main?label=Last%20main%20commit&style=for-the-badge"/>
+<img alt="GitHub last commit (dev)" src="https://img.shields.io/github/last-commit/igorechek06/ToolKit/dev?label=Last%20dev%20commit&style=for-the-badge"/>
+</div>
 
-Download libs
+<!-- I know it is wrong -->
 
-```sh
-pip install pyrogram aiogram tgcrypto asyncinit -U
-```
+## Dependencies
 
-Fill in **config.sample.py** and rename it to **config.py**
+    pip install -r dependencies
 
-This is end ;)
+## Config
 
->## На Русском
-
-Скачайте библиотеки
-
-```sh
-pip install pyrogram aiogram tgcrypto asyncinit -U
-```
-
-Заполните **config.sample.py** и переименуйте его в **config.py**
-
-И это конец, а ты че думал
+### 👉 [Chek this config file](https://github.com/igorechek06/ToolKit/blob/main/config.sample.py) 👈
