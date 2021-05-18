@@ -12,4 +12,4 @@ bot = Bot(token=config.token, parse_mode=t.ParseMode.HTML)
 storage = MemoryStorage()
 dp = Dispatcher(bot, storage=storage, no_throttle_error=True)
 
-logging.basicConfig(level=logging.WARNING, filename="log.log", filemode="w")
+logging.basicConfig(level=logging.INFO)

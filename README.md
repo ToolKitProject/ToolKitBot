@@ -18,4 +18,4 @@
 
 ## Config
 
-### 👉 [Chek this config file](https://github.com/igorechek06/ToolKit/blob/main/config.sample.py) 👈
+### 👉 [Chek this config file](https://github.com/igorechek06/ToolKit/blob/main/config.sample.py) | [and this](https://github.com/igorechek06/ToolKit/blob/main/ToolKit.semple.service) 👈

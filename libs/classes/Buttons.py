@@ -2,17 +2,17 @@ from typing import *
 
 from aiogram.types import InlineKeyboardMarkup as IM
 from aiogram.types import InlineKeyboardButton as IB
-from aiogram.types import *
+from aiogram import types as t
 from bot import dp
 
-global id_button
-id_button = 0
+global registered
+registered = []
 
 
 class Menu:
-    def __init__(self, title: str, undo: bool = True, row: Optional[int] = None) -> None:
+    def __init__(self, title: str, undo: bool = True, row: int = 1) -> None:
         self.buttons: List[Button] = []
-        self.row: Optional[int] = row if row else 1
+        self.row: int = row
         self.undo = undo
         self.title: str = title
 
@@ -21,7 +21,7 @@ class Menu:
             self.buttons.append(btn)
         return self
 
-    async def answer(self, msg: Message):
+    async def send(self, msg: t.Message):
         from libs.objects import MessageData
 
         m = await msg.answer(self.title, reply_markup=self.menu)
@@ -29,15 +29,18 @@ class Menu:
             data.history = [self]
         return m
 
-    async def edit(self, msg: Message, save: bool = True):
+    async def edit(self, msg: t.Message, save: bool = True):
         from libs.objects import MessageData
 
         text = self.title
         m = await msg.edit_text(text, reply_markup=self.menu)
         if save:
             with await MessageData(m) as data:
-                history: List[Menu] = data.history
-                history.append(self)
+                if "history" not in data:
+                    data.history = [self]
+                else:
+                    history: List[Menu] = data.history
+                    history.append(self)
 
     @property
     def menu(self):
@@ -52,27 +55,11 @@ class Menu:
         return im
 
 
-class MenuButton(Menu):
-    def __init__(self, text: str, title: str, row: Optional[int] = None) -> None:
-        super().__init__(title, row=row)
-        self.text = text
-
-        global id_button
-        self.data = str(id_button)
-        id_button += 1
-
-        self._button = Button(self.text, self.data)
-        self._button.menu(self)
-
-    @property
-    def button(self):
-        return self._button.button
-
-
 class Button:
     def __init__(self, text: str, data: str) -> None:
         self.text: str = text
         self.data = data
+        self.middleware = None
 
     def set_action(self, *filters, state=None):
         filters = list(filters)
@@ -88,9 +75,20 @@ class Button:
 
         return handler
 
-    def menu(self, menu: Menu):
+    def set_menu(self, menu: Menu):
+        global registered
+        if self.data in registered:
+            return
+        else:
+            registered.append(self.data)
+
         hander = self._send_menu(menu)
         dp.register_callback_query_handler(hander, self._filter)
+
+    def set_middleware(self):
+        def middleware(func):
+            self.middleware = func
+        return middleware
 
     @property
     def button(self):
@@ -102,10 +100,24 @@ class Button:
         im = IM().add(self.button)
         return im
 
-    def _filter(self, clb: CallbackQuery):
+    async def _filter(self, clb: t.CallbackQuery):
+        if self.middleware:
+            self.middleware(clb)
+
         return self.data == clb.data
 
     def _send_menu(self, menu: Menu):
-        async def handler(clb: CallbackQuery):
-            await clb.message.edit_text(menu.title, reply_markup=menu.menu)
+        async def handler(clb: t.CallbackQuery):
+            await menu.edit(clb.message)
         return handler
+
+    __call__ = set_action
+
+
+class MenuButton(Menu, Button):
+    def __init__(self, text: str, title: str, data: str, undo: bool = True, row: int = 1) -> None:
+        super().__init__(title, undo=undo, row=row)
+        self.text = text
+        self.data = data
+        self.middleware = None
+        self.set_menu(self)

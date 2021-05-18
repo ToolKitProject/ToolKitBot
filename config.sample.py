@@ -1,3 +1,5 @@
+# mv config.sample.py config.py
+
 from aiogram import types as t
 
 token = ""

@@ -16,6 +16,7 @@ class errors:
     AlreadyExists = "⚠ Already exists"
     NotReply = "⚠ Not replied"
     BotHasNotPermission = "⚠ The bot has no or not enough rights"
+    BackError = "⚠ Back error"
 
 
 class private:
@@ -31,10 +32,16 @@ class private:
         chat_loading = "🕒 Please wait,chats is loading"
         sticker = "1⃣ Send me sticker" + cancel
         text = "1⃣ Send me text" + cancel
+
         command = "2⃣ Send me command"
 
 
 class chat:
+    _perm = "┣ /ban /unban ⛔ \n" +\
+            "┣ /mute /unmute 🔇 \n" +\
+            "┣ /purge 🔥\n" +\
+            "┗ /kick ⚠"
+
     start_text = "Hello i am ToolKit bot\n" +\
                  "What i can do this chat\n" +\
                  "┣ Moderate ⚙️ \n" +\
@@ -46,46 +53,53 @@ class chat:
                  "┗ Ban users ⛔"
     promote_admin = "The bot now <b>has</b> administrator rights \n" +\
                     "Now you <b>can</b> use commands like \n" +\
-                    "┣ /ban /unban ⛔ \n" +\
-                    "┣ /mute /unmute ⚠\n" +\
-                    "┗ /kick 🔇"
+                    _perm
     restrict_admin = "The bot now <b>hasn't</b> administrator rights \n" +\
                      "Now you <b>can't</b> use commands like \n" +\
-                     "┣ /ban /unban ⛔ \n" +\
-                     "┣ /mute /unmute ⚠ \n" +\
-                     "┗ /kick 🔇"
+                     _perm
 
     class admin:
-        reason = "Reason - {reason} \n"
-        admin = "Moderator - {admin} \n"
-        until = "Until - {until} \n"
+        reason = "Reason ❔ - {reason} \n"
+        admin = "Moderator 👤 - {admin} \n"
+        until = "Until ⌛ - {until} \n"
 
-        unmute = "{users} unmuted \n" + reason + admin
+        unmute = "{users} unmuted 🔈 \n" + reason + admin
         multi_unmute = unmute
 
-        mute = "{users} muted \n" + reason + admin + until
+        mute = "{users} muted 🔇 \n" + reason + admin + until
         multi_mute = mute
 
-        kick = "{users} kicked out \n" + reason + admin
+        kick = "{users} kicked out ⚠ \n" + reason + admin
         multi_kick = kick
 
-        unban = "{users} unbanned \n" + reason + admin
+        unban = "{users} unbanned ✅ \n" + reason + admin
         multi_unban = unban
 
-        ban = "{users} banned \n" + reason + admin + until
+        ban = "{users} banned ⛔ \n" + reason + admin + until
         multi_ban = ban
 
         forever = "February 31, 1970"
         reason_empty = "Without reasons"
 
+        purge = "🔥 Chat purged of {count} messages"
+
 
 class help:
-    users = f"\nMentions (@username,{l('Jack Jackson','t.me/username')})"
-    until = "\nDate[s|m|h|d|M|y] (1m 30s, 1M)"
-    reason = "\n\"Reason\" (Yes in a quote)"
+    users = f"\n👥 Mentions (@username,{l('Jack Jackson','t.me/username')} or reply)"
+    until = "\n⏳ Date[s|m|h|d|M|y] (1m 30s, 1M)"
+    reason = "\n❔ \"Reason\" (Yes in the quote)"
+    # revoke_admin = "\n🚫 -r revoke admin"
+    # delete_all_message = "\n🔥 -d delete all messages"
+    revoke_admin = ""
+    delete_all_message = ""
 
-    ban = f"/ban" + users + until + reason
-    unban = f"/unban" + users + reason
-    kick = f"/kick" + users + reason
-    mute = f"/mute" + users + until + reason
-    unmute = f"/unmute" + users + reason
+    ban = "⛔ /ban" + users + until + reason + revoke_admin + delete_all_message
+    unban = "✅ /unban" + users + reason
+    kick = "⚠ /kick" + users + reason + revoke_admin + delete_all_message
+    mute = "🔇 /mute" + users + until + reason + delete_all_message
+    unmute = "🔈 /unmute" + users + reason
+
+    count = "\n🔢 Count (0 - 1000)"
+    reply = "\n⤴ Reply to delete above"
+
+    purge = "🔥 /purge" + count + reply

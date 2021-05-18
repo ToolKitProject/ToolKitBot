@@ -9,7 +9,7 @@ from bot import bot, client
 from libs.classes.Errors import ArgumentError, UserNotFound
 from libs.src import system
 
-from . import User, UserText, AdminPanel
+from . import User, UserText
 
 
 def get_days_years(year: int, now: datetime):
@@ -45,12 +45,12 @@ class AdminCommandParser:
     Инструмент для парсинга команд
     """
 
-    async def __init__(self, msg: t.Message, text: Optional[str] = None, target: Optional[AdminPanel] = None) -> None:
+    async def __init__(self, msg: t.Message, text: Optional[str] = None, target: Optional[User] = None) -> None:
         self.src = UserText(msg.from_user.language_code)
 
         self.msg = msg
         self.chat = msg.chat
-        self.owner: User = await User(user=msg.from_user)
+        self.owner: User = await User(msg.from_user, chat=self.chat)
 
         self.text = text if text else msg.text
         self.entities = msg.entities
@@ -59,10 +59,15 @@ class AdminCommandParser:
         self.action: str = None
         self.bot: str = None
 
-        self.targets: List[AdminPanel] = [target] if target else []
+        self.targets: List[User] = [target] if target else []
 
+        self.raw_date: str = None
         self.now: datetime = datetime.now()
         self.until: datetime = self.now
+
+        self.flags = []
+        self.revoke_admin = False
+        self.delete_all_messages = False
 
         self.reason: str = ""
 
@@ -78,7 +83,7 @@ class AdminCommandParser:
         """
         Парс по regex
         """
-        all = re.finditer(system.regex.parse.all, self.text)
+        all = system.regex.parse.all.finditer(self.text)
 
         for match in all:
             group = match.lastgroup
@@ -88,13 +93,18 @@ class AdminCommandParser:
                 self.cmd = text
                 self.bot = match.group("bot")
                 self.action = match.group("action")
-
             elif group in ["id", "user"]:
                 await self.to_user(text)
             elif group == "until":
+                self.raw_date = text
                 await self.to_date(match)
             elif group == "reason":
                 self.reason += match.group("raw_reason")
+            elif group == "flags":
+                self.flags += list(text.replace("-", ""))
+
+        self.delete_all_messages = "d" in self.flags
+        self.revoke_admin = "r" in self.flags
 
         delta = self.until - self.now
         if (delta.total_seconds() < 30 or delta.days > 366) and self.until.timestamp() != self.now.timestamp():
@@ -119,14 +129,14 @@ class AdminCommandParser:
         """
         for entity in self.entities:
             if entity.type == "text_mention":
-                user = await AdminPanel(user=entity.user, creator=self.owner)
+                user = await User(entity.user, chat=self.chat)
                 self.targets.append(user)
 
     async def to_user(self, auth: str) -> User:
         """
         Преобразует упоминание в User
         """
-        user = await AdminPanel(auth, creator=self.owner)
+        user = await User(auth, chat=self.chat)
         try:
             pass
         except Exception as e:
@@ -154,6 +164,14 @@ class AdminCommandParser:
             delta = timedelta(days=get_days_years(num, self.now))
 
         self.until += + delta
+
+    async def re_parse_date(self):
+        if not self.raw_date:
+            return
+        self.now = datetime.now()
+        self.until = self.now
+        match = re.match(system.regex.parse.until, self.raw_date)
+        await self.to_date(match)
 
     async def undo(self) -> str:
         if self.action.startswith("un"):
