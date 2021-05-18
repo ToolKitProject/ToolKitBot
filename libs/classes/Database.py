@@ -1,5 +1,20 @@
 import sqlite3
 from typing import *
+from dataclasses import dataclass
+
+
+@dataclass
+class chat:
+    id: int
+    settings: str
+    owner: int
+
+
+@dataclass
+class user:
+    id: int
+    settings: str
+    permission: str
 
 
 class Database:
@@ -7,28 +22,38 @@ class Database:
         self.connect = sqlite3.connect(path)
         self.cursor = self.connect.cursor()
 
-    def add_user(self, id: int):
+    def add_user(self, id: int) -> user:
         self.run(f"INSERT INTO Users (id) VALUES ({id})")
+        return self.get_user(id)
 
-    def add_chat(self, id: int, owner: int):
+    def add_chat(self, id: int, owner: int) -> chat:
         self.run(f"INSERT INTO Chats (id,owner) VALUES ({id},{owner})")
+        return self.get_chat(id)
 
-    def get_user(self, id: int) -> Tuple[int, str, str]:
+    def get_user(self, id: int) -> user:
         result = self.run(f"SELECT * FROM Users WHERE id={id}", True)
-        return result
 
-    def get_chat(self, id: int) -> Tuple[int, str, int]:
+        if not result:
+            return
+
+        return user(*result)
+
+    def get_chat(self, id: int) -> chat:
         result = self.run(f"SELECT * FROM Chats WHERE id={id}", True)
-        return result
 
-    def get_users(self) -> List[int]:
+        if not result:
+            return
+
+        return chat(*result)
+
+    def get_users(self) -> List[user]:
         result = self.run("SELECT id FROM Users")
-        result = [i[0] for i in result]
+        result = [user(*i) for i in result]
         return result
 
-    def get_chats(self) -> List[int]:
+    def get_chats(self) -> List[chat]:
         result = self.run("SELECT id FROM Chats")
-        result = [i[0] for i in result]
+        result = [chat(*i) for i in result]
         return result
 
     def delete_user(self, id: int) -> bool:
@@ -47,9 +72,9 @@ class Database:
 
             return result
 
-    def get_owns(self, id: int) -> List[int]:
-        result = self.run(f"SELECT id FROM Chats WHERE owner={id}")
-        return [i[0] for i in result]
+    def get_owns(self, id: int) -> List[chat]:
+        result = self.run(f"SELECT * FROM Chats WHERE owner={id}")
+        return [chat(*i) for i in result]
 
 
 if __name__ == "__main__":

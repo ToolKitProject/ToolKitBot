@@ -127,3 +127,4 @@ config.py
 database.db
 test*.*
 *.session*
+ToolKit.service

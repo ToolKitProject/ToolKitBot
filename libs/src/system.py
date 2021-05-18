@@ -5,12 +5,15 @@ from libs.classes import Button
 from aiogram.dispatcher.filters.state import State, StatesGroup
 
 back = Button("↩", "back")
+delete_this = Button("🔥", "delete_this")
+
 commands = [
     C("ban", "⛔ Block user"),
     C("unban", "✅ Unblock user"),
     C("kick", "⚠ Kick user"),
     C("mute", "🔇 Mute user"),
     C("unmute", "🔈 Unmute user"),
+    C("purge", "🔥 Purge message"),
     C("settings", "⚙ Settings")
 ]
 
@@ -23,6 +26,7 @@ class regex:
         until = r"(?P<until>(?P<num>[1-9][0-9]*)(?P<type>[s|m|h|d|M|y]))"
         user = r"(?P<user>@[a-zA-Z][a-zA-Z0-9_]{4,})|(?P<id>[1-9][0-9]*)"
         reason = r"(?P<reason>[(|\"|\'](?P<raw_reason>.+)[)|\"|\'])"
+        flags = r"(?P<flags>-[d|r]+)"
         all = re.compile(f"{cmd}|{until}|{user}|{reason}")
 
     class settings:

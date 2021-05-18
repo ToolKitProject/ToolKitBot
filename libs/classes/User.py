@@ -1,6 +1,5 @@
 import datetime
 from json import loads, dumps
-from libs.src import system
 from libs.classes.Localisation import UserText
 from typing import *
 
@@ -8,6 +7,7 @@ from aiogram import types as t
 from asyncinit import asyncinit
 from bot import bot, client
 from libs.objects import Database
+from datetime import datetime
 
 from .Errors import *
 
@@ -22,8 +22,13 @@ class User:  # TODO:Добавить коментарии
     ]
     _init = False
 
-    async def __init__(self, auth: int = None, user: Optional[t.User] = None):
-        self.user = user if user else await client.get_users(auth)
+    async def __init__(self, auth: Union[str, int, t.User], chat: Optional[t.Chat] = None):
+        if isinstance(auth, t.User):
+            self.user = auth
+        else:
+            self.user = await client.get_users(auth)
+
+        self.chat = chat if chat else await bot.get_chat(self.user.id)
 
         self.id: int = self.user.id
         self.username: str = self.user.username
@@ -35,12 +40,10 @@ class User:  # TODO:Добавить коментарии
 
         DB_user = Database.get_user(self.id)
         if not DB_user:
-            # Database.run(f"INSERT INTO Users(id) VALUES ({self.id});")
-            Database.add_user(self.id)
-            DB_user = (self.id, "{}", "{}")
+            DB_user = Database.add_user(self.id)
 
-        self.settings: dict = loads(DB_user[1])
-        self.permission: dict = loads(DB_user[2])
+        self.settings: dict = loads(DB_user.settings)
+        self.permission: dict = loads(DB_user.permission)
         self.owns = Database.get_owns(self.id)
 
         self._init = True
@@ -79,12 +82,11 @@ class User:  # TODO:Добавить коментарии
 
     async def iter_owns(self):
         from . import Chat
-        for id in self.owns:
-            result: Chat = await Chat(id)
+        for chat in self.owns:
+            result: Chat = await Chat(chat.id)
             yield result
 
     async def get_owns(self):
-        from . import Chat
         result = []
         async for chat in self.iter_owns():
             result.append(chat)
@@ -113,46 +115,51 @@ class User:  # TODO:Добавить коментарии
                                allow_sending_without_reply=allow_sending_without_reply,
                                reply_markup=reply_markup,)
 
+    async def ban(self, until: Optional[datetime] = None, delete_all_messages: bool = False, revoke_admin: bool = False):
+        if revoke_admin:
+            await self.revoke_admin()
+        await self.chat.kick(self.id, until, revoke_messages=delete_all_messages)
 
-@asyncinit
-class AdminPanel(User):
-    async def __init__(self, auth: int = None, user: Optional[t.User] = None, creator: t.User = None):
-        await super().__init__(auth=auth, user=user)
-        self.creator: User = await User(user=creator)
-        self._init = False
+    async def unban(self):
+        await self.chat.unban(self.id, True)
 
-    async def has_permission(self, action, chat: t.Chat):
-        member = await chat.get_member(self.creator.id)
-        if action in system.restrict_commands:
-            perm = member.can_restrict_members
+    async def kick(self, delete_all_messages: bool = False, revoke_admin: bool = False):
+        if revoke_admin:
+            await self.revoke_admin()
+        await self.ban(delete_all_messages=delete_all_messages)
+        await self.unban()
 
-        if not (perm or member.is_chat_creator()):
-            raise HasNotPermission(self.creator.lang)
-
-    async def ban(self, until: datetime, chat: t.Chat):
-        await self.has_permission("ban", chat)
-
-        await chat.kick(self.id, until)
-
-    async def unban(self, chat: t.Chat):
-        await self.has_permission("unban", chat)
-
-        await chat.unban(self.id, True)
-
-    async def kick(self, chat: t.Chat):
-        await self.has_permission("kick", chat)
-
-        await chat.unban(self.id, False)
-
-    async def mute(self, until: datetime, chat: t.Chat):
-        await self.has_permission("mute", chat)
-
+    async def mute(self, until: Optional[datetime] = None, revoke_admin: bool = False):
+        if revoke_admin:
+            await self.revoke_admin()
         perm = t.ChatPermissions(can_send_messages=False)
-        await chat.restrict(self.id, perm, until)
+        await self.chat.restrict(self.id, perm, until)
 
-    async def unmute(self, chat: t.Chat):
-        await self.has_permission("unmute", chat)
-
+    async def unmute(self):
         perm = t.ChatPermissions(
             True, True, True, True, True, True, True, True)
-        await chat.restrict(self.id, perm)
+        await self.chat.restrict(self.id, perm)
+
+    async def revoke_admin(self):
+        await bot.promote_chat_member(
+            self.chat.id,
+            self.id,
+            False,
+            False,
+            False,
+            False,
+            False,
+            False,
+            False,
+            False,
+            False,
+            False,
+            False
+        )
+
+    async def has_permission(self, *permissions: str):
+        member = await self.chat.get_member(self.id)
+        for perm in permissions:
+            if not (getattr(member, perm) or member.is_chat_creator()):
+                return False
+        return True

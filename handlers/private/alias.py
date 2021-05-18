@@ -8,7 +8,7 @@ from bot import dp
 from libs.classes import AdminCommandParser, Button, Chat
 from libs.classes import Errors as e
 from libs.classes import User, UserText
-from libs.classes.Utils import clb, is_private
+from libs.classes.Utils import msg, is_private
 from libs.objects import MessageData
 from libs.src import buttons, system
 from libs.src.system import regex, states
@@ -60,18 +60,18 @@ async def get_chat_menu(msg: t.Message, user: User):
 @dp.message_handler(is_private, commands=["settings"])
 async def settings_command(msg: t.Message):
     buttons = UserText(msg.from_user.language_code).buttons.private.settings
-    await buttons.settings.answer(msg)
+    await buttons.settings.send(msg)
 
 
 @buttons.private.settings.chats.set_action(is_private)
-async def chat_menu(clb: t.CallbackQuery, state: FSMContext):
+async def chat_menu(clb: t.CallbackQuery):
     msg = clb.message
-    user: User = await User(user=clb.from_user)
+    user: User = await User(clb.from_user)
     settings = await get_chat_menu(msg, user)
     await settings.edit(msg)
 
 
-@dp.callback_query_handler(is_private, clb(regex.settings.chat_settings))
+@dp.callback_query_handler(is_private, msg(regex.settings.chat_settings))
 async def chat_settings(clb: t.CallbackQuery):
     msg = clb.message
     id = int(re.match(regex.settings.chat_settings, clb.data).group("id"))
@@ -94,7 +94,7 @@ async def alias_menu(clb: t.CallbackQuery):
     await settings.edit(msg)
 
 
-@dp.callback_query_handler(is_private, clb(regex.settings.alias_delete))
+@dp.callback_query_handler(is_private, msg(regex.settings.alias_delete))
 async def del_alias(clb: t.CallbackQuery):
     msg = clb.message
     buttons = UserText(clb.from_user.language_code).buttons.private.settings
@@ -103,7 +103,7 @@ async def del_alias(clb: t.CallbackQuery):
         aliases: Dict[str, str] = data.aliases
         data.key = list(aliases.keys())[id]
 
-    await buttons.delete_alias_menu.edit(msg, False)
+    await buttons.delete_title.edit(msg, False)
 
 
 @buttons.private.settings.delete_accept.set_action(is_private)
@@ -156,7 +156,7 @@ async def cancel(clb: t.CallbackQuery, state: FSMContext):
     if clb.__class__ == t.CallbackQuery:
         await settings.edit(clb.message)
     else:
-        msg = await settings.answer(settings_msg)
+        msg = await settings.send(settings_msg)
         await MessageData.move(msg, settings_msg)
 
 
@@ -205,7 +205,7 @@ async def sticker(msg: t.Message, state: FSMContext):
 
     await state.finish()
     settings = await get_alias_menu(settings_msg, type, src, True)
-    msg = await settings.answer(settings_msg)
+    msg = await settings.send(settings_msg)
     await MessageData.move(msg, settings_msg)
 
 

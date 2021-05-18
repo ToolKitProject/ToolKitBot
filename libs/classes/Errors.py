@@ -83,6 +83,15 @@ class BotHasNotPermission(Exception):
         return self.args[0]
 
 
+class BackError(Exception):
+    def __init__(self, lang, *args) -> None:
+        usrc = usr(lang)
+        super().__init__(usrc.text.errors.BackError, *args)
+
+    def __str__(self):
+        return self.args[0]
+
+
 ERRORS = [
     CommandNotFound,
     UserNotFound,
@@ -92,7 +101,8 @@ ERRORS = [
     TypeError,
     AlreadyExists,
     NotReply,
-    BotHasNotPermission
+    BotHasNotPermission,
+    BackError
 ]
 
 IGNORE = [

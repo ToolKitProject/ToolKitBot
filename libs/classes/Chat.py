@@ -15,8 +15,11 @@ class Chat:
     ]
     _init = False
 
-    async def __init__(self, auth: str = None, chat: Optional[t.Chat] = None) -> None:
-        self.chat = chat if chat else await bot.get_chat(auth)
+    async def __init__(self, auth: Union[int, str, t.Chat]) -> None:
+        if isinstance(auth, t.Chat):
+            self.chat = auth
+        else:
+            self.chat = await bot.get_chat(auth)
 
         if self.chat.type not in [t.ChatType.GROUP, t.ChatType.SUPERGROUP]:
             ValueError("Чет не так")
@@ -33,14 +36,13 @@ class Chat:
 
         DB_chat = Database.get_chat(self.id)
         if not DB_chat:
-            Database.add_chat(self.id, self.owner.id)
-            DB_chat = (self.id, "{}", self.owner.id)
+            DB_chat = Database.add_chat(self.id, self.owner.id)
 
-        self.settings = loads(DB_chat[1])
+        self.settings = loads(DB_chat.settings)
 
         self._init = True
 
-        if DB_chat[2] != self.owner.id:
+        if DB_chat.owner != self.owner.id:
             self.owner = self.owner
 
     def __setattr__(self, name: str, value: Any) -> None:
@@ -89,5 +91,5 @@ class Chat:
         admins = await self.chat.get_administrators()
         for admin in admins:
             if admin.is_chat_creator():
-                result: User = await User(user=admin.user)
+                result: User = await User(admin.user)
                 return result

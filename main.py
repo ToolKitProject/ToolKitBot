@@ -41,8 +41,6 @@ async def startup(dp: Dispatcher):
     await client.start()
     await dp.bot.set_my_commands(commands)
     config.bot = await dp.bot.get_me()
-    logging.warning(
-        f"{config.bot.full_name} [{config.bot.mention}]")
 
 
 if __name__ == "__main__":
