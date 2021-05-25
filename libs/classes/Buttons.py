@@ -5,12 +5,11 @@ from aiogram.types import InlineKeyboardButton as IB
 from aiogram import types as t
 from bot import dp
 
-global registered
 registered = []
 
 
 class Menu:
-    def __init__(self, title: str, undo: bool = True, row: int = 1) -> None:
+    def __init__(self, title: str, undo: bool = False, row: int = 1) -> None:
         self.buttons: List[Button] = []
         self.row: int = row
         self.undo = undo
@@ -25,7 +24,7 @@ class Menu:
         from libs.objects import MessageData
 
         m = await msg.answer(self.title, reply_markup=self.menu)
-        with await MessageData(m) as data:
+        with await MessageData.state(m) as data:
             data.history = [self]
         return m
 
@@ -35,7 +34,7 @@ class Menu:
         text = self.title
         m = await msg.edit_text(text, reply_markup=self.menu)
         if save:
-            with await MessageData(m) as data:
+            with await MessageData.state(m) as data:
                 if "history" not in data:
                     data.history = [self]
                 else:
@@ -82,12 +81,13 @@ class Button:
         else:
             registered.append(self.data)
 
-        hander = self._send_menu(menu)
-        dp.register_callback_query_handler(hander, self._filter)
+        handler = self._send_menu(menu)
+        dp.register_callback_query_handler(handler, self._filter)
 
     def set_middleware(self):
         def middleware(func):
             self.middleware = func
+
         return middleware
 
     @property
@@ -106,9 +106,11 @@ class Button:
 
         return self.data == clb.data
 
-    def _send_menu(self, menu: Menu):
+    @staticmethod
+    def _send_menu(menu: Menu):
         async def handler(clb: t.CallbackQuery):
             await menu.edit(clb.message)
+
         return handler
 
     __call__ = set_action

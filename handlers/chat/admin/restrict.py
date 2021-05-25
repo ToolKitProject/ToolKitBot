@@ -12,23 +12,25 @@ from libs.objects import MessageData
 from libs.src import buttons, system
 
 
-@dp.message_handler(is_chat, is_reply, alias, bot_has_permission("can_restrict_members"), has_permission("can_restrict_members"), content_types=[t.ContentType.TEXT, t.ContentType.STICKER])
+@dp.message_handler(is_chat, is_reply, alias, bot_has_permission("can_restrict_members"),
+                    has_permission("can_restrict_members"), content_types=[t.ContentType.TEXT, t.ContentType.STICKER])
 async def alias_command(msg: t.Message):
     await mark_write(msg)
 
     target: User = await User(msg.reply_to_message.from_user, chat=msg.chat)
 
-    command = await alias(msg, False)
-    parser: AdminCommandParser = await AdminCommandParser(msg, command, target=target)
+    cmd = await alias(msg, False)
+    parser: AdminCommandParser = await AdminCommandParser(msg, cmd, target=target)
     await execute_action(parser)
 
     text, rm = await get_text(parser)
     message = await msg.reply(text, reply_markup=rm)
-    with await MessageData(message) as data:
+    with await MessageData.state(message) as data:
         data.parser = parser
 
 
-@dp.message_handler(is_chat, get_help, bot_has_permission("can_restrict_members"), has_permission("can_restrict_members"),  commands=system.restrict_commands)
+@dp.message_handler(is_chat, get_help, bot_has_permission("can_restrict_members"),
+                    has_permission("can_restrict_members"), commands=system.restrict_commands)
 async def command(msg: t.Message):
     """
     Обрабочик команды
@@ -44,7 +46,7 @@ async def command(msg: t.Message):
 
     await execute_action(parser)
     message = await msg.reply(text, reply_markup=rm)
-    with await MessageData(message) as data:
+    with await MessageData.state(message) as data:
         data.parser = parser
 
 
@@ -54,7 +56,7 @@ async def undo(clb: t.CallbackQuery):
     Обрабочик кнопки undo
     """
     msg = clb.message
-    with await MessageData(msg) as data:
+    with await MessageData.state(msg) as data:
         parser: AdminCommandParser = data.parser
         parser.action = await parser.undo()
         parser.owner = await User(clb.from_user, chat=clb.message.chat)

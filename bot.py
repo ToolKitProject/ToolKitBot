@@ -3,7 +3,6 @@ import logging
 from aiogram import Bot, Dispatcher, types as t
 from pyrogram import Client
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
-from aiogram.dispatcher import storage
 
 import config
 

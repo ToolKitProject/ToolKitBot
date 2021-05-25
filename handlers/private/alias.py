@@ -16,7 +16,7 @@ from libs.src.system import regex, states
 
 async def get_alias_menu(msg: t.Message, type: str, src: UserText, update: bool = False):
     settings = copy(src.buttons.private.settings.alias_menu)
-    with await MessageData(msg) as data:
+    with await MessageData.state(msg) as data:
         data.type = type
         chat: Chat = await Chat(data.chat.id) if update else data.chat
 

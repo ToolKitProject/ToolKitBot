@@ -60,7 +60,7 @@ class Data:
         Добавляет или изменяет данные
         """
         self.__dict__[key] = value
-        return self.__dict__(key)
+        return self.__dict__[key]
 
 
 class MessageData:
@@ -140,3 +140,5 @@ class MessageData:
         Возвращает данные 
         """
         return self.storage[chat_id][message_id]
+
+    state = __call__

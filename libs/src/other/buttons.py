@@ -1,6 +1,6 @@
 from aiogram.types import InlineKeyboardButton as IB
 from aiogram.types import InlineKeyboardMarkup as IM
-from libs.classes import Button, Menu, MenuButton
+from libs.classes import Button, Menu, MenuButton, Settings, DictSettings, Element
 
 
 class chat:
@@ -10,45 +10,10 @@ class chat:
 
 class private:
     class settings:
-        settings = Menu("Choose what you want customize", row=2, undo=False)
-        chats = Button("Chats", "chats_menu")
+        settings = Settings("Test", "Text button", "settings")
 
-        chats_menu = Menu("Choose a chat")  # Вывод кнопок
-
-        chat_settings = Menu("Choose option", row=2)  # При выборе чата
-        sticker_alias = Button(
-            "Manage a sticker aliases",
-            "alias_menu@sticker_alias"
-        )
-        command_alias = Button(
-            "Manage a command aliases",
-            "alias_menu@command_alias"
-        )
-
-        alias_menu = Menu(
-            "Choose action\n" +
-            "Click on the existing alias to delete"
-        )  # При выборе типа настройки
-        add_alias = Button("Add alias", "add_alias")
-
-        delete_alias_menu = Menu("⚠ Delete alias ?", False)
-        delete_accept = Button("✅ Delete", "delete_accept")
-        delete_cancel = Button("⛔ Cancel", "delete_cancel")
-
-        # private_settings = MenuButton("Youself", "private_settings") #TODO
-
-        # ?____compile
         settings.add(
-            chats
-        )
-        chat_settings.add(
-            sticker_alias,
-            command_alias
-        )
-        alias_menu.add(
-            add_alias
-        )
-        delete_alias_menu.add(
-            delete_cancel,
-            delete_accept
+            DictSettings("Dick", "Text", "dick_settings").add(
+                Element("Button", "element")
+            )
         )

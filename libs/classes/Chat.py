@@ -15,7 +15,7 @@ class Chat:
     ]
     _init = False
 
-    async def __init__(self, auth: Union[int, str, t.Chat]) -> None:
+    async def __init__(self, auth: Union[int, str, t.Chat]):
         if isinstance(auth, t.Chat):
             self.chat = auth
         else:
