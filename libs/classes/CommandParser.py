@@ -17,7 +17,7 @@ def get_days_years(year: int, now: datetime):
     Превращает года в дни
     """
     days = 0
-    for y in range(now.year, now.year+year):
+    for y in range(now.year, now.year + year):
         year_days = 365
         if isleap(y):
             year_days += 1

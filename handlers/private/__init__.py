@@ -1,1 +1,1 @@
-# from . import alias
+from . import settings

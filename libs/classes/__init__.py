@@ -1,4 +1,4 @@
-from .Settings import Settings, ListSettings, DictSettings, Element
+from .Settings import Settings, ListSettings, DictSettings, Elements
 from .Buttons import Menu, Button, MenuButton
 from .Localisation import UserText
 from .Message import MessageConstructor, MessageData, Data

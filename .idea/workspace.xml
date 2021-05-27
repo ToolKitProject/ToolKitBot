@@ -2,27 +2,25 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="ef69e248-51ef-4d55-b965-cbc8bd553459" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/lang_conf.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/dataSources.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/webResources.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/handlers/private/settings.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/ToolKit.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/ToolKit.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/inspectionProfiles/profiles_settings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/profiles_settings.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bot.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/config.sample.py" beforeDir="false" afterPath="$PROJECT_DIR$/config.sample.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/handlers/chat/admin/restrict.py" beforeDir="false" afterPath="$PROJECT_DIR$/handlers/chat/admin/restrict.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/handlers/private/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/handlers/private/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/handlers/private/alias.py" beforeDir="false" afterPath="$PROJECT_DIR$/handlers/private/alias.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/handlers/private/alias.py" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/handlers/start.py" beforeDir="false" afterPath="$PROJECT_DIR$/handlers/start.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/libs/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/libs/__init__.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/libs/classes/Buttons.py" beforeDir="false" afterPath="$PROJECT_DIR$/libs/classes/Buttons.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/libs/classes/Chat.py" beforeDir="false" afterPath="$PROJECT_DIR$/libs/classes/Chat.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/libs/classes/CommandParser.py" beforeDir="false" afterPath="$PROJECT_DIR$/libs/classes/CommandParser.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/libs/classes/Errors.py" beforeDir="false" afterPath="$PROJECT_DIR$/libs/classes/Errors.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/libs/classes/Localisation.py" beforeDir="false" afterPath="$PROJECT_DIR$/libs/classes/Localisation.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/libs/classes/Message.py" beforeDir="false" afterPath="$PROJECT_DIR$/libs/classes/Message.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/libs/classes/Settings.py" beforeDir="false" afterPath="$PROJECT_DIR$/libs/classes/Settings.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/libs/classes/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/libs/classes/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/libs/src/.vscode/settings.json" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/libs/src/other/buttons.py" beforeDir="false" afterPath="$PROJECT_DIR$/libs/src/other/buttons.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/libs/src/ru/buttons.py" beforeDir="false" afterPath="$PROJECT_DIR$/libs/src/ru/buttons.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/libs/src/ru/text.py" beforeDir="false" afterPath="$PROJECT_DIR$/libs/src/ru/text.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -72,10 +70,11 @@
     <property name="ASKED_SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
+    <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="restartRequiresConfirmation" value="false" />
-    <property name="settings.editor.selected.configurable" value="editing.templates" />
+    <property name="settings.editor.selected.configurable" value="preferences.keymap" />
     <property name="settings.editor.splitter.proportion" value="0.13705055" />
   </component>
   <component name="RunManager" selected="Python.Test">
@@ -150,7 +149,11 @@
       <workItem from="1621857129037" duration="567000" />
       <workItem from="1621859779281" duration="6076000" />
       <workItem from="1621910489493" duration="2973000" />
-      <workItem from="1621914274982" duration="8657000" />
+      <workItem from="1621914274982" duration="13107000" />
+      <workItem from="1621938002631" duration="5879000" />
+      <workItem from="1621944431486" duration="1294000" />
+      <workItem from="1621953793101" duration="1470000" />
+      <workItem from="1621989168136" duration="29956000" />
     </task>
     <servers />
   </component>
@@ -169,8 +172,26 @@
     </option>
     <option name="oldMeFiltersMigrated" value="true" />
   </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/handlers/private/settings.py</url>
+          <line>51</line>
+          <option name="timeStamp" value="33" />
+        </line-breakpoint>
+      </breakpoints>
+      <default-breakpoints>
+        <breakpoint type="python-exception">
+          <properties notifyOnTerminate="true" exception="BaseException">
+            <option name="notifyOnTerminate" value="true" />
+          </properties>
+        </breakpoint>
+      </default-breakpoints>
+    </breakpoint-manager>
+  </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/ToolKit$Main.coverage" NAME="Main Coverage Results" MODIFIED="1621579202332" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/ToolKit$Test.coverage" NAME="Test Coverage Results" MODIFIED="1621921964667" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/ToolKit$Test.coverage" NAME="Test Coverage Results" MODIFIED="1622095978224" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
 </project>

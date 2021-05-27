@@ -6,6 +6,7 @@ from aiogram import types as t
 from bot import dp
 
 registered = []
+count = 0
 
 
 class Menu:
@@ -31,8 +32,7 @@ class Menu:
     async def edit(self, msg: t.Message, save: bool = True):
         from libs.objects import MessageData
 
-        text = self.title
-        m = await msg.edit_text(text, reply_markup=self.menu)
+        m = await msg.edit_text(self.title, reply_markup=self.menu)
         if save:
             with await MessageData.state(m) as data:
                 if "history" not in data:
@@ -56,6 +56,8 @@ class Menu:
 
 class Button:
     def __init__(self, text: str, data: str) -> None:
+        global count
+
         self.text: str = text
         self.data = data
         self.middleware = None
@@ -101,10 +103,11 @@ class Button:
         return im
 
     async def _filter(self, clb: t.CallbackQuery):
+        result = True
         if self.middleware:
-            self.middleware(clb)
+            result = await self.middleware(clb, self)
 
-        return self.data == clb.data
+        return str(self.data) == str(clb.data) and result
 
     @staticmethod
     def _send_menu(menu: Menu):
@@ -117,9 +120,13 @@ class Button:
 
 
 class MenuButton(Menu, Button):
-    def __init__(self, text: str, title: str, data: str, undo: bool = True, row: int = 1) -> None:
+    def __init__(self, text: str, title: str, data: str, undo: bool = True, row: int = 1, unique: bool = True) -> None:
+        global count
+
         super().__init__(title, undo=undo, row=row)
         self.text = text
-        self.data = data
+        self.data = f"{data}:{count}" if unique else data
         self.middleware = None
         self.set_menu(self)
+
+        count += 1

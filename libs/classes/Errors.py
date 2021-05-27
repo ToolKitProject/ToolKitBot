@@ -40,21 +40,22 @@ class MyError(Exception):
     async def answer(self, upd: t.Update):
         rm = None
         if self.delete:
-            rm = delete_this
+            rm = delete_this.inline
 
         if upd.message:
             msg = await upd.message.answer(self.text, reply_markup=rm)
             if self.auto_delete:
-                await sleep(self.auto_delete)
-                await msg.delete()
+                try:
+                    await sleep(self.auto_delete)
+                    await msg.delete()
+                except Exception:
+                    pass
         elif upd.callback_query:
             await upd.callback_query.answer(self.text, self.alert, cache_time=int(self.auto_delete))
         else:
             pass
 
     async def log(self, upd: t.Update):
-        await self.answer(upd)
-
         error = f"{format_exc()}" + \
                 f"User: {self.get_user(upd).mention}\n" + \
                 f"Message: {self.get_text(upd)} \n"

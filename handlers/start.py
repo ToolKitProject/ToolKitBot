@@ -1,23 +1,25 @@
 import typing as p
 
 from aiogram import types as t
+
 from bot import bot, dp
-from libs.classes import Chat, Menu, Button
-from libs.classes.Errors import BackError, MyError, ERRORS, IGNORE, ForceError, EmptyOwns
+from libs.classes import Chat, Menu, UserText
+from libs.classes.Errors import BackError, MyError, ERRORS, IGNORE, ForceError
 from libs.classes.Utils import (add_member, chek, is_chat, is_private,
-                                promote_admin, removed_member, restrict_admin, UserText)
+                                promote_admin, removed_member, restrict_admin)
 from libs.objects import Database, MessageData
 from libs.src import system
 
 
 async def test_clb(clb: t.CallbackQuery):
-    await clb.answer(clb.data)
+    await clb.answer(dp.callback_query_handlers.handlers.__len__())
 
 
 # @dp.callback_query_handler(test_clb)
 @dp.message_handler(commands=["test"])
 async def test_xd(msg: t.Message):
     src = UserText(msg.from_user.language_code)
+    await src.buttons.test.send(msg)
 
 
 @dp.message_handler(is_private, commands=["start"])
@@ -87,7 +89,7 @@ async def errors(upd: t.Update, error: p.Union[MyError, Exception]):
         pass
     else:
         my_err = ForceError(error.args[0], 5, True, False)
-        await my_err.answer(upd)
         await my_err.log(upd)
+        await my_err.answer(upd)
 
     return True

@@ -30,4 +30,4 @@
 
 ___
 
-Thank JetBrains <img src="https://www.jetbrains.com/company/brand/img/jetbrains_logo.png" style="width: 1.7em"/>
+<img src="https://www.jetbrains.com/company/brand/img/jetbrains_logo.png" style="width: 1em"/> Thank JetBrains

@@ -15,7 +15,7 @@ class errors:
     TypeError = "⚠ Не тот тип"
     AlreadyExists = "⚠ Уже существует"
     NotReply = "⚠ Нет ответа"
-    BotHasNotPermission = "⚠ У бота нет прав или их не достаточно"
+    BotHasNotPermission = "⚠ У бота нет1 прав или их не достаточно"
     BackError = "⚠ Ошибка возврата"
 
 

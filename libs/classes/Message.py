@@ -71,7 +71,7 @@ class MessageData:
     def __init__(self):
         self.storage: Dict[int, Dict[int, Data]] = {}
 
-    async def __call__(self, msg: t.Message) -> Data:
+    async def state(self, msg: t.Message) -> Data:
         """ 
         Создает или возвращает данные
         """
@@ -140,5 +140,3 @@ class MessageData:
         Возвращает данные 
         """
         return self.storage[chat_id][message_id]
-
-    state = __call__
