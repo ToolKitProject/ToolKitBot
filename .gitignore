@@ -128,3 +128,4 @@ database.db
 test*.*
 *.session*
 ToolKit.service
+.idea/workspace.xml
