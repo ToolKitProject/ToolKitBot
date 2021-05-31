@@ -29,7 +29,3 @@
 [Unit file - systemd file](https://github.com/igorechek06/ToolKit/blob/main/ToolKit.semple.service)
 
 [Lang conf - supported translations](https://github.com/igorechek06/ToolKit/blob/main/lang_conf.py)
-
-___
-
-> <img src="https://www.jetbrains.com/company/brand/img/jetbrains_logo.png" style="width: 1em" alt="JetBrains logo"/> Thank JetBrains
