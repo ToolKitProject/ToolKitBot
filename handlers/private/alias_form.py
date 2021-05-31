@@ -2,7 +2,7 @@ from aiogram import types as t
 from aiogram.dispatcher import FSMContext
 
 from bot import dp
-from libs.classes import Errors as e, Settings, DictSettings, AdminCommandParser, Chat, MenuButton
+from libs.classes import Errors as e, Settings, DictSettings, AdminCommandParser, Chat
 from libs.classes import UserText
 from libs.classes.Utils import is_private
 from libs.objects import MessageData
