@@ -1,165 +1,160 @@
-from json import loads
 import typing as p
+from copy import deepcopy
 
-from aiogram import types as t
-from libs.classes.Localisation import UserText
-from bot import dp
-from libs.objects import Database
+from aiogram.utils.callback_data import CallbackData
 
-from .Buttons import Button, Menu, MenuButton
-from .Chat import Chat
-from .Message import Data
-from libs.objects import MessageData
+from .Buttons import Button, MenuButton
 
-DictType = p.Dict[str, str]
-ListType = p.List[str]
-SettingsType = p.Dict[str, p.Union[ListType, DictType, str]]
+clb_data = CallbackData("chat_settings", "chat_id", "lang")
 
-#! i hate this file
+ElementType = p.Union[str, bool]
+ListType = p.List[ElementType]
+DictType = p.Dict[str, ElementType]
+SettingType = p.Dict[str, p.Union[ListType, DictType]]
 
 
-class _List:
-    def __init__(self, settings: ListType, lang: str) -> None:
-        self.src = UserText(lang)
-        self.lang = lang
-        self.setting = settings
+class _ElementIter:
+    def __init__(self, values: p.Union[DictType, ListType]):
+        self.values = values
 
     def __iter__(self):
-        return self.setting
+        value: p.Optional[ElementType] = None
+        key: ElementType
+        num: int
+        for num, key in enumerate(self.values):
+            if isinstance(self.values, dict):
+                value = self.values[key]
+            yield num, key, value
 
 
-class _Dict:
-    def __init__(self, settings: SettingsType, lang: str) -> None:
-        self.lang = lang
-        self.src = UserText(lang)
-        self.settings = settings
+class _Settings:
+    def __init__(self, title: str, text: str, key: str, *elements, undo: bool = False, row: int = 1):
+        ParametersType = p.List[p.Union[ListSettings, DictSettings, Elements, Button]]
 
-    @property
-    def menu(self):
-        return
-
-    @property
-    def items(self):
-        return self.settings.items()
-
-    @property
-    def values(self) -> p.List[str]:
-        return list(self.settings.values())
-
-    @property
-    def keys(self) -> p.List[str]:
-        return list(self.settings.keys())
-
-    def __getitem__(self, key):
-        if isinstance(key, str):
-            return self.settings[key]
-        elif isinstance(key, int):
-            return self.settings[self.keys[key]]
-
-    def __iter__(self):
-        return self.settings
-
-
-class _Alias:
-    def __init__(self, lang: str, settings: DictType, text: str, data: str) -> None:
-        self.src = UserText(lang)
-        self.lang = lang
-        self.settings = settings
-
-        self.text = text
-        self.data = data
-
-    @property
-    def delete_menu(self):
-        s = self.src.buttons.private.settings
-        menu = MenuButton(s.delete_text, s.delete_title,
-                          f"delete@{self.data}", False, 2)
-
-        delete_accept = Button(s.delete_accept, "delete_accept")
-
-        @delete_accept.set_action()
-        async def delete(clb: t.CallbackQuery):
-            self.settings.pop(self.data)
-
-        menu.add(
-            delete_accept,
-            Button(s.delete_cancel, "back")
-        )
-
-        return menu
-
-    @property
-    def edit_menu(self):
-        pass
-
-    @property
-    def button(self):
-        menu = MenuButton(self.text, f"{self.data} ➡ {self.text}", self.data)
-        menu.add(
-            self.delete_menu,
-            # self.edit_menu
-        )
-        return menu
-
-
-class DictSettings(_Dict):
-    def __init__(self, settings: DictType, lang: str, data: str, text: str, title: str) -> None:
-        super().__init__(settings, lang)
-
-        self.data = data
-        self.text = text
         self.title = title
+        self.text = text
+        self.key = key
+        self.undo = undo
+        self.row = row
+        self.elements: ParametersType = list(elements)
 
-    @property
-    def menu(self):
-        s = self.src.buttons.private.settings
-        menu = MenuButton(self.text, self.title, self.data)
+        self.settings: SettingType = None
+        self.menu: MenuButton = None
 
-        add_alias = Button(s.add_alias, "add_alias")
+        self.data = CallbackData(key, "chat_id", "lang")
+        self.chat_id = None
+        self.lang = None
 
-        @add_alias.set_action()
-        async def add(clb: t.CallbackQuery):
-            await clb.answer("Не работет")
+    def add(self, *elements):
+        self.elements += elements
+        return self
 
-        menu.add(add_alias)
-        for key, item in self.items:
-            alias = _Alias(self.lang, self.settings, item, key)
-            menu.add(alias.button)
-        return menu
+    def get_menu(self, settings: SettingType, chat_id: int, lang: str):
+        menu = MenuButton(self.text, self.title, self.data.new(chat_id=chat_id, lang=lang),
+                          make_unique=False, undo=self.undo, row=self.row)
 
+        if isinstance(self, Settings):
+            values = settings
+        elif self.key not in settings:
+            settings[self.key] = {}
+            values = settings[self.key]
+        else:
+            values = settings[self.key]
 
-class ListSettings(_List):
-    def __init__(self, settings: ListType, lang: str) -> None:
-        super().__init__(settings, lang)
-
-
-class ChatSettings(_Dict):
-    @classmethod
-    def get(cls, chat_id: int, lang: str):
-        settings = ChatSettings(
-            loads(Database.get_chat(chat_id).settings),
-            lang
-        )
-        return settings
-
-    def __init__(self, settings: SettingsType, lang: str) -> None:
-        super().__init__(settings, lang)
-        s = self.src.buttons.private.settings
-
-        self.title = s.settings
-        self.sticker_alias = DictSettings(self["sticker_alias"], lang, "sticker_alias",
-                                          s.sticker_alias, s.alias_menu)
-        self.command_alias = DictSettings(self["command_alias"], lang, "command_alias",
-                                          s.command_alias, s.alias_menu)
-
-    @property
-    def menu(self):
-        menu = Menu(self.title, False, row=2)
         menu.add(
-            self.sticker_alias.menu,
-            self.command_alias.menu
+            *self.get_buttons(values, chat_id, lang)
         )
+
+        self.menu = menu
+        self.settings = values
+        self.chat_id = chat_id
+        self.lang = lang
         return menu
 
-    async def send(self, msg: t.Message):
-        return await self.menu.send(msg)
+    def update_buttons(self):
+        self.menu.buttons.clear()
+
+        self.menu.add(
+            *self.get_buttons(self.settings, self.chat_id, self.lang)
+        )
+
+        return self.menu
+
+    def get_buttons(self, values: p.Union[ListType, DictType], chat_id: int, lang: str):
+        buttons = []
+        for elem in self.elements:
+            if isinstance(elem, Elements):
+                buttons += elem.buttons(values)
+                continue
+            elif isinstance(elem, Button):
+                button = elem
+            elif isinstance(elem, _Settings):
+                button = elem.get_menu(values, chat_id, lang)
+                button.storage["current_element"] = elem
+                button.storage["current_menu"] = button
+            else:
+                continue
+            buttons.append(button)
+
+        return buttons
+
+    @property
+    def copy(self):
+        return deepcopy(self)
+
+
+class Elements:
+    def __init__(self, text: str, data: str):
+        """
+        text и data "{num} {key} {value}"
+        """
+        self.text = text
+        self.data = data
+
+    def buttons(self, values: p.Union[DictType, ListType]):
+        buttons = []
+        values = _ElementIter(values)
+        for num, key, value in values:
+            text = self.format_text(num, key, value)
+            data = self.format_data(num, key, value)
+            buttons.append(Button(text, data))
+
+        return buttons
+
+    def format_data(self, num: int, key: str, value: ElementType):
+        return self.data.format(
+            num=num,
+            key=key,
+            value=value
+        )
+
+    def format_text(self, num: int, key: str, value: ElementType):
+        return self.text.format(
+            num=num,
+            key=key,
+            value=value
+        )
+
+
+class ListSettings(_Settings):
+    def __init__(self, title: str, text: str, key: str, *elements, undo: bool = True, row: int = 1):
+        super().__init__(title, text, key, *elements, undo=undo, row=row)
+
+
+class DictSettings(_Settings):
+    def __init__(self, title: str, text: str, key: str, *elements, undo: bool = True, row: int = 1):
+        super().__init__(title, text, key, *elements, undo=undo, row=row)
+
+
+class Settings(_Settings):
+
+    def __init__(self, title: str, text: str, key: str, *elements, undo: bool = True, row: int = 1):
+        super().__init__(title, text, key, *elements, undo=undo, row=row)
+
+    def save(self, chat):
+        chat.settings = self.settings
+
+    def get_menu(self, settings: SettingType, chat_id: int, lang: str,
+                 edit: bool = False, text: p.Optional[str] = None):
+        self.text = text or self.text
+        return super().get_menu(settings, chat_id, lang)

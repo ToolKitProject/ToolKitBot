@@ -3,8 +3,6 @@ from aiogram.dispatcher.dispatcher import Dispatcher
 from aiogram import executor
 from aiogram import types as t
 import optparse
-import logging
-
 
 parser = optparse.OptionParser(conflict_handler="resolve")
 parser.add_option('-t', '--test',

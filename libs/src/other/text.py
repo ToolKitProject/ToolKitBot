@@ -10,7 +10,7 @@ class errors:
     CommandNotFound = "⚠ Command not found"
     UserNotFound = "⚠ User not found"
     ArgumentError = "⚠ Invalid argument"
-    HasNotPermission = "⚠ You has not not permission"
+    HasNotPermission = "⚠ You have not not permission"
     EmptyOwns = "⚠ You do not own chats"
     TypeError = "⚠ Wrong type"
     AlreadyExists = "⚠ Already exists"

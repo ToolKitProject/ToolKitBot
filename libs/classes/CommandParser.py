@@ -17,7 +17,7 @@ def get_days_years(year: int, now: datetime):
     Превращает года в дни
     """
     days = 0
-    for y in range(now.year, now.year+year):
+    for y in range(now.year, now.year + year):
         year_days = 365
         if isleap(y):
             year_days += 1
@@ -104,7 +104,7 @@ class AdminCommandParser:
                 self.flags += list(text.replace("-", ""))
 
         self.delete_all_messages = "d" in self.flags
-        self.revoke_admin = "r" in self.flags
+        self.revoke_admin = "r" in self.flagsStructure
 
         delta = self.until - self.now
         if (delta.total_seconds() < 30 or delta.days > 366) and self.until.timestamp() != self.now.timestamp():

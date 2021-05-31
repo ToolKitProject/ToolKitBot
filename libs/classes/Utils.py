@@ -10,7 +10,7 @@ from libs.objects import Database
 from . import Chat, User, UserText, Errors as e
 
 is_chat = f.ChatTypeFilter((t.ChatType.GROUP, t.ChatType.SUPERGROUP))
-is_private = f.ChatTypeFilter((t.ChatType.PRIVATE))
+is_private = f.ChatTypeFilter(t.ChatType.PRIVATE)
 is_reply = f.IsReplyFilter(True)
 
 
@@ -47,6 +47,7 @@ def bot_has_permission(*permissions: str):
             if not can:
                 return False
         return True
+
     return filter
 
 
@@ -98,17 +99,18 @@ def msg(data):
         if pattern.match(clb.data):
             return True
         return False
+
     return filter
 
 
 async def alias(msg: t.Message, handler=True) -> Union[bool, str]:
-    chat: Chat = await Chat(msg.chat)
+    chat = Database.get_chat(msg.chat.id)
     if msg.sticker:
         text = msg.sticker.file_unique_id
-        aliases = chat.sticker_aliases
+        aliases = chat.sticker_alias
     elif msg.text:
         text = msg.text
-        aliases = chat.command_aliases
+        aliases = chat.text_alias
 
     if handler:
         return text in aliases

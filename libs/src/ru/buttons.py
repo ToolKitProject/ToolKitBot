@@ -1,6 +1,7 @@
 from aiogram.types import InlineKeyboardButton as IB
 from aiogram.types import InlineKeyboardMarkup as IM
-from libs.classes import Button, Menu, MenuButton
+from libs.classes import (Button, DictSettings, Elements, Menu, MenuButton,
+                          Settings)
 
 
 class chat:
@@ -10,45 +11,22 @@ class chat:
 
 class private:
     class settings:
-        settings = Menu("Выбери что хочешь настроить", row=2, undo=False)
-        chats = Button("Чаты", "chats_menu")
+        add_alias = Button("Добавить сокращение", "add_sticker_alias")
 
-        chats_menu = Menu("Выбери чат")
-
-        chat_settings = Menu("Выбери что хочешь настроить", row=2)
-        sticker_alias = Button(
-            "Сокращения к стикерам",
-            "alias_menu@sticker_alias"
-        )
-        command_alias = Button(
-            "Сокращения к командам",
-            "alias_menu@command_alias"
+        chat_settings = Settings("Выбери что хочешь настроить", "Имя чата", "chat_settings", row=2).add(
+            DictSettings("Нажми, чтобы удалить", "Сокращения по стикерам", "sticker_alias").add(
+                add_alias,
+                Elements("{value}", "{key}")
+            ),
+            DictSettings("Нажми, чтобы удалить", "Сокращения по тексту", "text_alias").add(
+                add_alias,
+                Elements("{key} ➡ {value}", "{num}")
+            )
         )
 
-        alias_menu = Menu(
-            "Выбери действие\n" +
-            "Щелкните на существующие сокращение, чтобы удалить"
+        chat_list = Button("Чаты", "chat_list")
+        settings = Menu("Выбери что хочешь настроить").add(
+            chat_list
         )
-        add_alias = Button("Добавить сокращение", "add_alias")
 
-        delete_alias_menu = Menu("⚠ Удалить сокращение ?", False)
-        delete_accept = Button("✅ Удалить", "delete_accept")
-        delete_cancel = Button("⛔ Отмена", "delete_cancel")
-
-        # private_settings = MenuButton("Себя", "private_settings")  # TODO
-
-        # ?____compile
-        settings.add(
-            chats
-        )
-        chat_settings.add(
-            sticker_alias,
-            command_alias
-        )
-        alias_menu.add(
-            add_alias
-        )
-        delete_alias_menu.add(
-            delete_cancel,
-            delete_accept
-        )
+        chats = Menu("Выбери чат", True)

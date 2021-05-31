@@ -18,4 +18,18 @@
 
 ## Config
 
-### 👉 [Chek this config file](https://github.com/igorechek06/ToolKit/blob/main/config.sample.py) | [and this](https://github.com/igorechek06/ToolKit/blob/main/ToolKit.semple.service) 👈
+### Required
+
+[Config.py](https://github.com/igorechek06/ToolKit/blob/main/config.sample.py)
+
+[Database - rename to database.db](https://github.com/igorechek06/ToolKit/blob/main/data/database.sample.db)
+
+### Optional
+
+[Unit file - systemd file](https://github.com/igorechek06/ToolKit/blob/main/ToolKit.semple.service)
+
+[Lang conf - supported translations](https://github.com/igorechek06/ToolKit/blob/main/lang_conf.py)
+
+___
+
+> <img src="https://www.jetbrains.com/company/brand/img/jetbrains_logo.png" style="width: 1em" alt="JetBrains logo"/> Thank JetBrains
