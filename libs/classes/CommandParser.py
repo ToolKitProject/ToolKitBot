@@ -5,10 +5,9 @@ from typing import List, Optional
 
 from aiogram import types as t
 from asyncinit import asyncinit
-from bot import bot, client
+
 from libs.classes.Errors import ArgumentError, UserNotFound
 from libs.src import system
-
 from . import User, UserText
 
 
@@ -104,7 +103,7 @@ class AdminCommandParser:
                 self.flags += list(text.replace("-", ""))
 
         self.delete_all_messages = "d" in self.flags
-        self.revoke_admin = "r" in self.flagsStructure
+        self.revoke_admin = "r" in self.flags
 
         delta = self.until - self.now
         if (delta.total_seconds() < 30 or delta.days > 366) and self.until.timestamp() != self.now.timestamp():
