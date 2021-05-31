@@ -1,13 +1,30 @@
 import sqlite3
-from typing import *
 from dataclasses import dataclass
+from json import loads
+from typing import *
 
 
 @dataclass
 class chat:
     id: int
-    settings: str
+    _settings: str
     owner: int
+
+    @property
+    def settings(self) -> dict:
+        return loads(self._settings)
+
+    @property
+    def sticker_alias(self) -> Dict[str, str]:
+        if "sticker_alias" in self.settings:
+            return self.settings["sticker_alias"]
+        return {}
+
+    @property
+    def text_alias(self) -> Dict[str, str]:
+        if "text_alias" in self.settings:
+            return self.settings["text_alias"]
+        return {}
 
 
 @dataclass

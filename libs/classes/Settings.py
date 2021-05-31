@@ -1,7 +1,11 @@
-from aiogram import types as t
 import typing as p
+from copy import deepcopy
+
+from aiogram.utils.callback_data import CallbackData
 
 from .Buttons import Button, MenuButton
+
+clb_data = CallbackData("chat_settings", "chat_id", "lang")
 
 ElementType = p.Union[str, bool]
 ListType = p.List[ElementType]
@@ -9,9 +13,23 @@ DictType = p.Dict[str, ElementType]
 SettingType = p.Dict[str, p.Union[ListType, DictType]]
 
 
+class _ElementIter:
+    def __init__(self, values: p.Union[DictType, ListType]):
+        self.values = values
+
+    def __iter__(self):
+        value: p.Optional[ElementType] = None
+        key: ElementType
+        num: int
+        for num, key in enumerate(self.values):
+            if isinstance(self.values, dict):
+                value = self.values[key]
+            yield num, key, value
+
+
 class _Settings:
     def __init__(self, title: str, text: str, key: str, *elements, undo: bool = False, row: int = 1):
-        ParametersType = p.List[p.Union[ListSettings, DictSettings, Elements]]
+        ParametersType = p.List[p.Union[ListSettings, DictSettings, Elements, Button]]
 
         self.title = title
         self.text = text
@@ -20,20 +38,20 @@ class _Settings:
         self.row = row
         self.elements: ParametersType = list(elements)
 
-        self.settings = None
+        self.settings: SettingType = None
+        self.menu: MenuButton = None
+
+        self.data = CallbackData(key, "chat_id", "lang")
+        self.chat_id = None
+        self.lang = None
 
     def add(self, *elements):
         self.elements += elements
         return self
 
-    def menu(self, settings: SettingType, title: str = None, text: str = None, key: str = None):
-        self.settings = settings
-
-        self.title = title or self.title
-        self.text = text or self.text
-        self.key = key or self.key
-
-        menu = MenuButton(self.text, self.title, self.key, undo=self.undo, row=self.row, unique=False)
+    def get_menu(self, settings: SettingType, chat_id: int, lang: str):
+        menu = MenuButton(self.text, self.title, self.data.new(chat_id=chat_id, lang=lang),
+                          make_unique=False, undo=self.undo, row=self.row)
 
         if isinstance(self, Settings):
             values = settings
@@ -42,8 +60,28 @@ class _Settings:
             values = settings[self.key]
         else:
             values = settings[self.key]
-        buttons = []
 
+        menu.add(
+            *self.get_buttons(values, chat_id, lang)
+        )
+
+        self.menu = menu
+        self.settings = values
+        self.chat_id = chat_id
+        self.lang = lang
+        return menu
+
+    def update_buttons(self):
+        self.menu.buttons.clear()
+
+        self.menu.add(
+            *self.get_buttons(self.settings, self.chat_id, self.lang)
+        )
+
+        return self.menu
+
+    def get_buttons(self, values: p.Union[ListType, DictType], chat_id: int, lang: str):
+        buttons = []
         for elem in self.elements:
             if isinstance(elem, Elements):
                 buttons += elem.buttons(values)
@@ -51,15 +89,18 @@ class _Settings:
             elif isinstance(elem, Button):
                 button = elem
             elif isinstance(elem, _Settings):
-                button = elem.menu(values)
+                button = elem.get_menu(values, chat_id, lang)
+                button.storage["current_element"] = elem
+                button.storage["current_menu"] = button
             else:
                 continue
             buttons.append(button)
 
-        menu.add(
-            *buttons
-        )
-        return menu
+        return buttons
+
+    @property
+    def copy(self):
+        return deepcopy(self)
 
 
 class Elements:
@@ -72,26 +113,11 @@ class Elements:
 
     def buttons(self, values: p.Union[DictType, ListType]):
         buttons = []
-
-        if isinstance(values, list):
-            key = ""
-            for num, value in enumerate(values):
-                text = self.format_text(num, key, value)
-                data = self.format_data(num, key, value)
-                buttons.append(
-                    Button(text, data)
-                )
-
-        elif isinstance(values, dict):
-            num = 0
-            for key, value in values.items():
-                text = self.format_text(num, key, value)
-                data = self.format_data(num, key, value)
-                buttons.append(
-                    Button(text, data)
-                )
-
-                num += 1
+        values = _ElementIter(values)
+        for num, key, value in values:
+            text = self.format_text(num, key, value)
+            data = self.format_data(num, key, value)
+            buttons.append(Button(text, data))
 
         return buttons
 
@@ -127,3 +153,8 @@ class Settings(_Settings):
 
     def save(self, chat):
         chat.settings = self.settings
+
+    def get_menu(self, settings: SettingType, chat_id: int, lang: str,
+                 edit: bool = False, text: p.Optional[str] = None):
+        self.text = text or self.text
+        return super().get_menu(settings, chat_id, lang)

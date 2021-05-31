@@ -37,7 +37,8 @@ class regex:
 
 class states:
     class add_alias(StatesGroup):
-        alias = State()
+        sticker = State()
+        text = State()
         command = State()
 
 

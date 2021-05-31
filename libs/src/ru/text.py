@@ -10,7 +10,7 @@ class errors:
     CommandNotFound = "⚠ Команда не найдена"
     UserNotFound = "⚠ Пользователь не найден"
     ArgumentError = "⚠ Неверный аргумент"
-    HasNotPermission = "⚠ У вас нет прав"
+    HasNotPermission = "⚠ У вас недостаточно прав"
     EmptyOwns = "⚠ Ты не владеешь чатами"
     TypeError = "⚠ Не тот тип"
     AlreadyExists = "⚠ Уже существует"

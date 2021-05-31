@@ -1,6 +1,6 @@
 from typing import *
+
 from aiogram import types as t
-from copy import copy
 
 
 class MessageConstructor:
@@ -62,6 +62,18 @@ class Data:
         self.__dict__[key] = value
         return self.__dict__[key]
 
+    async def close(self, markup: bool = True):
+        try:
+            if markup:
+                await self.msg.delete_reply_markup()
+            else:
+                await self.msg.delete()
+        except:
+            pass
+
+    async def auto_close(self, time: int):
+        pass
+
 
 class MessageData:
     """
@@ -71,7 +83,7 @@ class MessageData:
     def __init__(self):
         self.storage: Dict[int, Dict[int, Data]] = {}
 
-    async def state(self, msg: t.Message) -> Data:
+    async def data(self, msg: t.Message) -> Data:
         """ 
         Создает или возвращает данные
         """
@@ -102,17 +114,9 @@ class MessageData:
         """
         Удаляет ВСЕ данные и ВСЕ сообщение 
         """
-        for chat_id in self.storage:
-            storage = copy(self.storage[chat_id])
-            for id in storage:
-                data = await self.get_id(chat_id, id)
-                try:
-                    if markup:
-                        await data.msg.delete_reply_markup()
-                    else:
-                        await data.msg.delete()
-                except:
-                    pass
+        for storage in self.storage.values():
+            for data in storage.values():
+                await data.close(markup)
 
     async def new(self, msg: t.Message) -> Data:
         """
@@ -124,9 +128,10 @@ class MessageData:
         self.storage[msg.chat.id][msg.message_id] = data
         return data
 
-    async def move(self, to_msg: t.Message, msg: t.Message):
-        data = await self.get(msg)
-        await self.remove(msg)
+    async def move(self, from_msg: t.Message, to_msg: t.Message):
+        data = await self.get(from_msg)
+        await data.close(True)
+        data.msg = to_msg
         self.storage[to_msg.chat.id][to_msg.message_id] = data
 
     async def get(self, msg: t.Message) -> Data:
@@ -135,7 +140,7 @@ class MessageData:
         """
         return self.storage[msg.chat.id][msg.message_id]
 
-    async def get_id(self, chat_id: int, message_id: int):
+    async def get_by_id(self, chat_id: int, message_id: int):
         """
         Возвращает данные 
         """

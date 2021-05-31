@@ -1,9 +1,9 @@
-from copy import deepcopy
-
 from aiogram import types as t
+from aiogram.dispatcher import FSMContext
 
 from bot import dp
-from libs.classes import UserText, User, Settings, Chat
+from handlers.private import alias_form
+from libs.classes import UserText, User, DictSettings
 from libs.classes.Errors import EmptyOwns
 from libs.classes.Utils import is_private
 from libs.objects import MessageData, Database
@@ -13,44 +13,42 @@ s = buttons.private.settings
 
 
 @dp.message_handler(is_private, commands=["settings"])
-async def settings(msg: t.Message):
+async def settings_cmd(msg: t.Message):
     src = UserText(msg.from_user.language_code)
     await src.buttons.private.settings.settings.send(msg)
 
 
 @s.chat_list()
-async def chat_list(clb: t.CallbackQuery):
+async def chat_list_menu(clb: t.CallbackQuery):
     src = UserText(clb.from_user.language_code)
 
-    owns = Database.get_owns(clb.from_user.id)
-    if not owns:
+    if not Database.get_owns(clb.from_user.id):
         raise EmptyOwns(src.lang)
     await clb.message.edit_text(src.text.private.settings.chat_loading)
 
-    user: User = await User(clb.from_user)
+    user: User = await User(clb.from_user, clb.message.chat)
     chats = user.iter_owns()
 
-    menu = deepcopy(src.buttons.private.settings.chats)
-    chat_settings = src.buttons.private.settings.chat_settings
+    menu = src.buttons.private.settings.chats.copy
     async for chat in chats:
-        button = chat_settings.menu(chat.settings, text=chat.title, key=chat.id)
+        chat_settings = src.buttons.private.settings.chat_settings.copy
+        settings = chat_settings.get_menu(chat.settings, chat.id, src.lang, text=chat.title)
+        settings.storage["settings"] = chat_settings
+        settings.storage["chat"] = chat
 
-        @button.set_middleware()
-        async def button_middleware(clb_middleware: t.CallbackQuery, _):
-            with await MessageData.state(clb_middleware.message) as data:
-                data.chat = chat
-                data.settings = chat_settings
-            return True
-
-        menu.add(button)
+        menu.add(settings)
 
     await menu.edit(clb.message)
 
 
 @s.add_alias()
-async def chat_list(clb: t.CallbackQuery):
-    with await MessageData.state(clb.message) as data:
-        chat: Chat = data.chat
-        chat_settings: Settings = data.settings
+async def add_alias_button(clb: t.CallbackQuery, state: FSMContext):
+    async with state.proxy() as data:
+        data["settings_message"] = clb.message
+    with await MessageData.data(clb.message) as data:
+        element: DictSettings = data.current_element
 
-    chat_settings.save(chat)
+    if element.key == "sticker_alias":
+        await alias_form.start_sticker(clb)
+    elif element.key == "text_alias":
+        await alias_form.start_text(clb)

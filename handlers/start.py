@@ -19,7 +19,7 @@ async def test_clb(clb: t.CallbackQuery):
 @dp.message_handler(commands=["test"])
 async def test_xd(msg: t.Message):
     src = UserText(msg.from_user.language_code)
-    await src.buttons.test.send(msg)
+    src.buttons.private.settings.chat_settings.copy.re_compile()
 
 
 @dp.message_handler(is_private, commands=["start"])
@@ -28,7 +28,7 @@ async def start(msg: t.Message):
     await msg.answer(src.text.private.start_text)
 
 
-@system.delete_this.set_action(is_chat)
+@system.delete_this.set_action(is_chat, state="*")
 async def delete_this(clb: t.CallbackQuery):
     await clb.message.delete()
 
@@ -36,7 +36,7 @@ async def delete_this(clb: t.CallbackQuery):
 @system.back.set_action()
 async def back(clb: t.CallbackQuery):
     msg = clb.message
-    with await MessageData.state(msg) as data:
+    with await MessageData.data(msg) as data:
         try:
             history: p.List[Menu] = data.history
             history.pop(-1)
@@ -47,14 +47,14 @@ async def back(clb: t.CallbackQuery):
 
 
 @dp.my_chat_member_handler(add_member)
-async def bot_join(upd: t.ChatMemberUpdated):
+async def bot_chat_added(upd: t.ChatMemberUpdated):
     chat: Chat = await Chat(upd.chat)
     src = chat.owner.src
     await bot.send_message(chat.id, src.text.chat.start_text)
 
 
 @dp.my_chat_member_handler(removed_member)
-async def removed_member(upd: t.ChatMemberUpdated):
+async def bot_chat_removed(upd: t.ChatMemberUpdated):
     Database.delete_chat(upd.chat.id)
 
 
@@ -66,7 +66,7 @@ async def bot_promote(upd: t.ChatMemberUpdated):
 
 
 @dp.my_chat_member_handler(restrict_admin)
-async def bot_restrict(upd: t.ChatMemberUpdated):
+async def bot_chat_restrict(upd: t.ChatMemberUpdated):
     chat: Chat = await Chat(upd.chat)
     src = chat.owner.src
     await bot.send_message(chat.id, src.text.chat.restrict_admin)
@@ -80,7 +80,7 @@ async def chek():
 @dp.errors_handler()
 async def errors(upd: t.Update, error: p.Union[MyError, Exception]):
     """
-    Обрабочик ошибок
+    Обработчик ошибок
     """
 
     if error.__class__ in ERRORS:

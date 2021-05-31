@@ -11,7 +11,3 @@ class UserText:
         self.src = lang_conf.lang_map[self.lang]
         self.text = self.src.text
         self.buttons = self.src.buttons
-
-    @property
-    def encode_lang(self) -> str:
-        return lang_conf.lang_map[self.lang]

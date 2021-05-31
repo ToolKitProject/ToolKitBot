@@ -1,3 +1,4 @@
+from copy import deepcopy
 from typing import *
 
 from aiogram.types import InlineKeyboardMarkup as IM
@@ -16,30 +17,38 @@ class Menu:
         self.undo = undo
         self.title: str = title
 
+        self.storage = {}
+
     def add(self, *buttons):
         for btn in buttons:
             self.buttons.append(btn)
         return self
 
     async def send(self, msg: t.Message):
-        from libs.objects import MessageData
-
-        m = await msg.answer(self.title, reply_markup=self.menu)
-        with await MessageData.state(m) as data:
-            data.history = [self]
-        return m
+        msg = await msg.answer(self.title, reply_markup=self.menu)
+        await self.save_storage(msg)
+        return msg
 
     async def edit(self, msg: t.Message, save: bool = True):
-        from libs.objects import MessageData
-
-        m = await msg.edit_text(self.title, reply_markup=self.menu)
+        await msg.edit_text(self.title, reply_markup=self.menu)
         if save:
-            with await MessageData.state(m) as data:
-                if "history" not in data:
-                    data.history = [self]
-                else:
-                    history: List[Menu] = data.history
-                    history.append(self)
+            await self.save_storage(msg)
+        return msg
+
+    async def save_storage(self, msg: t.Message):
+        from libs.objects import MessageData
+        with await MessageData.data(msg) as data:
+            if "history" not in data:
+                data.history = [self]
+            else:
+                data.history.append(self)
+
+            for key, value in self.storage.items():
+                data.set(key, value)
+
+    @property
+    def copy(self):
+        return deepcopy(self)
 
     @property
     def menu(self):
@@ -60,7 +69,6 @@ class Button:
 
         self.text: str = text
         self.data = data
-        self.middleware = None
 
     def set_action(self, *filters, state=None):
         filters = list(filters)
@@ -86,12 +94,6 @@ class Button:
         handler = self._send_menu(menu)
         dp.register_callback_query_handler(handler, self._filter)
 
-    def set_middleware(self):
-        def middleware(func):
-            self.middleware = func
-
-        return middleware
-
     @property
     def button(self):
         ib = IB(self.text, callback_data=self.data)
@@ -103,11 +105,7 @@ class Button:
         return im
 
     async def _filter(self, clb: t.CallbackQuery):
-        result = True
-        if self.middleware:
-            result = await self.middleware(clb, self)
-
-        return str(self.data) == str(clb.data) and result
+        return str(self.data) == str(clb.data)
 
     @staticmethod
     def _send_menu(menu: Menu):
@@ -120,13 +118,12 @@ class Button:
 
 
 class MenuButton(Menu, Button):
-    def __init__(self, text: str, title: str, data: str, undo: bool = True, row: int = 1, unique: bool = True) -> None:
+    def __init__(self, text: str, title: str, data: str, undo: bool = True, row: int = 1, make_unique: bool = True):
         global count
 
         super().__init__(title, undo=undo, row=row)
         self.text = text
-        self.data = f"{data}:{count}" if unique else data
-        self.middleware = None
+        self.data = f"{data}:{count}" if make_unique else data
         self.set_menu(self)
 
-        count += 1
+        count += 1 if make_unique else 0

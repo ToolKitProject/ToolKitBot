@@ -9,7 +9,6 @@ from libs.objects import Database
 
 @asyncinit
 class Chat:
-
     __database__ = [
         "settings", "owner"
     ]
@@ -38,7 +37,7 @@ class Chat:
         if not DB_chat:
             DB_chat = Database.add_chat(self.id, self.owner.id)
 
-        self.settings = loads(DB_chat.settings)
+        self.settings = DB_chat.settings
 
         self._init = True
 
@@ -73,18 +72,6 @@ class Chat:
             return f"@{self.username}"
         else:
             return self.link
-
-    @property
-    def sticker_aliases(self) -> Dict[str, str]:
-        if "sticker_alias" in self.settings:
-            return self.settings["sticker_alias"]
-        return {}
-
-    @property
-    def command_aliases(self) -> Dict[str, str]:
-        if "command_alias" in self.settings:
-            return self.settings["command_alias"]
-        return {}
 
     async def _owner(self):
         from .User import User

@@ -1,15 +1,7 @@
 from aiogram.types import InlineKeyboardButton as IB
 from aiogram.types import InlineKeyboardMarkup as IM
-from libs.classes import Button, Menu, MenuButton, Settings, DictSettings, Elements
-
-test = Menu("Test").add(
-    MenuButton("Test menu", "Test menu", "test_menu").add(
-        Button("Test", "test_btn")
-    ),
-    MenuButton("Test menu 2", "Test menu 2", "test_menu2").add(
-        Button("Тест2", "test_btn2")
-    )
-)
+from libs.classes import (Button, DictSettings, Elements, Menu, MenuButton,
+                          Settings)
 
 
 class chat:
@@ -19,7 +11,7 @@ class chat:
 
 class private:
     class settings:
-        add_alias = Button("Add alias", "add_alias")
+        add_alias = Button("Add alias", "add_sticker_alias")
 
         chat_settings = Settings("Choose what you want to customize", "Имя чата", "chat_settings", row=2).add(
             DictSettings("Click to delete", "Alias for sticker", "sticker_alias").add(

@@ -25,7 +25,7 @@ async def alias_command(msg: t.Message):
 
     text, rm = await get_text(parser)
     message = await msg.reply(text, reply_markup=rm)
-    with await MessageData.state(message) as data:
+    with await MessageData.data(message) as data:
         data.parser = parser
 
 
@@ -46,7 +46,7 @@ async def command(msg: t.Message):
 
     await execute_action(parser)
     message = await msg.reply(text, reply_markup=rm)
-    with await MessageData.state(message) as data:
+    with await MessageData.data(message) as data:
         data.parser = parser
 
 
@@ -56,7 +56,7 @@ async def undo(clb: t.CallbackQuery):
     Обрабочик кнопки undo
     """
     msg = clb.message
-    with await MessageData.state(msg) as data:
+    with await MessageData.data(msg) as data:
         parser: AdminCommandParser = data.parser
         parser.action = await parser.undo()
         parser.owner = await User(clb.from_user, chat=clb.message.chat)
