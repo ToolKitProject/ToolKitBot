@@ -18,12 +18,14 @@ class _ElementIter:
         self.values = values
 
     def __iter__(self):
-        value: p.Optional[ElementType] = None
-        key: ElementType
-        num: int
-        for num, key in enumerate(self.values):
-            if isinstance(self.values, dict):
-                value = self.values[key]
+        if isinstance(self.values, dict):
+            _iter = self.values.items()
+        else:
+            _iter = enumerate(self.values)
+
+        num = 0
+        for key, value in _iter:
+            num += 1
             yield num, key, value
 
 
@@ -111,13 +113,19 @@ class Elements:
         self.text = text
         self.data = data
 
+        self._func = None
+
     def buttons(self, values: p.Union[DictType, ListType]):
         buttons = []
         values = _ElementIter(values)
         for num, key, value in values:
             text = self.format_text(num, key, value)
             data = self.format_data(num, key, value)
-            buttons.append(Button(text, data))
+
+            button = Button(text, data)
+            if self._func:
+                button.set_action(func=self._func)
+            buttons.append(button)
 
         return buttons
 

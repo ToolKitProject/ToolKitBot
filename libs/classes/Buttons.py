@@ -70,19 +70,22 @@ class Button:
         self.text: str = text
         self.data = data
 
-    def set_action(self, *filters, state=None):
+    def __call__(self, *filters, state=None):
+        def handler(func):
+            self.set_action(*filters, func=func, state=state)
+
+        return handler
+
+    def set_action(self, *filters, func, state=None):
         filters = list(filters)
         filters.append(self._filter)
 
-        def handler(func):
-            dp.register_callback_query_handler(
-                func,
-                *filters,
-                state=state
-            )
-            return func
-
-        return handler
+        dp.register_callback_query_handler(
+            func,
+            *filters,
+            state=state
+        )
+        return func
 
     def set_menu(self, menu: Menu):
         global registered
@@ -113,8 +116,6 @@ class Button:
             await menu.edit(clb.message)
 
         return handler
-
-    __call__ = set_action
 
 
 class MenuButton(Menu, Button):

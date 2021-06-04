@@ -1,15 +1,19 @@
 from aiogram import types as t
+import typing as p
 from aiogram.dispatcher import FSMContext
+from aiogram.utils.callback_data import CallbackData
 
 from bot import dp
 from handlers.private import alias_form
-from libs.classes import UserText, User, DictSettings
+from libs.classes import UserText, User, DictSettings, Settings, Chat
 from libs.classes.Errors import EmptyOwns
+from libs.classes.Settings import clb_data
 from libs.classes.Utils import is_private
 from libs.objects import MessageData, Database
 from libs.src import buttons
 
 s = buttons.private.settings
+alias_data = CallbackData("alias", "key")
 
 
 @dp.message_handler(is_private, commands=["settings"])
@@ -18,7 +22,7 @@ async def settings_cmd(msg: t.Message):
     await src.buttons.private.settings.settings.send(msg)
 
 
-@s.chat_list()
+@s.chat_list(is_private)
 async def chat_list_menu(clb: t.CallbackQuery):
     src = UserText(clb.from_user.language_code)
 
@@ -32,7 +36,7 @@ async def chat_list_menu(clb: t.CallbackQuery):
     menu = src.buttons.private.settings.chats.copy
     async for chat in chats:
         chat_settings = src.buttons.private.settings.chat_settings.copy
-        settings = chat_settings.get_menu(chat.settings, chat.id, src.lang, text=chat.title)
+        settings = chat_settings.get_menu(chat.settings.row, chat.id, src.lang, text=chat.title)
         settings.storage["settings"] = chat_settings
         settings.storage["chat"] = chat
 
@@ -41,7 +45,7 @@ async def chat_list_menu(clb: t.CallbackQuery):
     await menu.edit(clb.message)
 
 
-@s.add_alias()
+@s.add_alias(is_private)
 async def add_alias_button(clb: t.CallbackQuery, state: FSMContext):
     async with state.proxy() as data:
         data["settings_message"] = clb.message
@@ -52,3 +56,26 @@ async def add_alias_button(clb: t.CallbackQuery, state: FSMContext):
         await alias_form.start_sticker(clb)
     elif element.key == "text_alias":
         await alias_form.start_text(clb)
+
+
+@dp.callback_query_handler(is_private, alias_data.filter())
+async def add_alias_button(clb: t.CallbackQuery, callback_data: p.Dict[str, str]):
+    src = UserText(clb.from_user.language_code)
+    with await MessageData.data(clb.message) as data:
+        data.key = callback_data["key"]
+
+    await src.buttons.private.settings.delete.edit(clb.message, False)
+
+
+@s.delete_yes(is_private)
+async def add_alias_button(clb: t.CallbackQuery):
+    with await MessageData.data(clb.message) as data:
+        settings: Settings = data.settings
+        element: DictSettings = data.current_element
+        chat: Chat = data.chat
+        key: str = data.key
+    element.settings.pop(key)
+    menu = element.update_buttons()
+    chat.settings = settings.settings
+
+    await menu.edit(clb.message, False)

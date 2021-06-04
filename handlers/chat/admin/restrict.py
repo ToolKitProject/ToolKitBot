@@ -50,7 +50,7 @@ async def command(msg: t.Message):
         data.parser = parser
 
 
-@buttons.chat.admin.undo.set_action(is_chat, has_permission("can_delete_messages"))
+@buttons.chat.admin.undo(is_chat, has_permission("can_delete_messages"))
 async def undo(clb: t.CallbackQuery):
     """
     Обрабочик кнопки undo

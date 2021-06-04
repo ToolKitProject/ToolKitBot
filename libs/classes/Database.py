@@ -5,26 +5,35 @@ from typing import *
 
 
 @dataclass
+class settings:
+    __settings: dict
+
+    @property
+    def row(self):
+        return self.__settings
+
+    @property
+    def sticker_alias(self) -> Dict[str, str]:
+        if "sticker_alias" in self.__settings:
+            return self.__settings["sticker_alias"]
+        return {}
+
+    @property
+    def text_alias(self) -> Dict[str, str]:
+        if "text_alias" in self.__settings:
+            return self.__settings["text_alias"]
+        return {}
+
+
+@dataclass
 class chat:
     id: int
     _settings: str
     owner: int
 
     @property
-    def settings(self) -> dict:
-        return loads(self._settings)
-
-    @property
-    def sticker_alias(self) -> Dict[str, str]:
-        if "sticker_alias" in self.settings:
-            return self.settings["sticker_alias"]
-        return {}
-
-    @property
-    def text_alias(self) -> Dict[str, str]:
-        if "text_alias" in self.settings:
-            return self.settings["text_alias"]
-        return {}
+    def settings(self) -> settings:
+        return settings(loads(self._settings))
 
 
 @dataclass

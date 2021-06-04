@@ -28,12 +28,12 @@ async def start(msg: t.Message):
     await msg.answer(src.text.private.start_text)
 
 
-@system.delete_this.set_action(is_chat, state="*")
+@system.delete_this(is_chat, state="*")
 async def delete_this(clb: t.CallbackQuery):
     await clb.message.delete()
 
 
-@system.back.set_action()
+@system.back()
 async def back(clb: t.CallbackQuery):
     msg = clb.message
     with await MessageData.data(msg) as data:

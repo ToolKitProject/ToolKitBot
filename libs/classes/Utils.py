@@ -1,5 +1,5 @@
 import re
-from typing import Union
+import typing as p
 
 import config as c
 from aiogram import types as t
@@ -12,6 +12,20 @@ from . import Chat, User, UserText, Errors as e
 is_chat = f.ChatTypeFilter((t.ChatType.GROUP, t.ChatType.SUPERGROUP))
 is_private = f.ChatTypeFilter(t.ChatType.PRIVATE)
 is_reply = f.IsReplyFilter(True)
+
+
+def lower_dict(dict: p.Dict[str, p.Any]):
+    result = {}
+    for key, value in dict.items():
+        result[key.lower()] = value
+    return result
+
+
+def find_key(dict: p.Dict[str, p.Any], key: str):
+    for k in dict.keys():
+        if k.lower() == key.lower():
+            return k
+    return key
 
 
 async def get_help(msg: t.Message):
@@ -76,7 +90,7 @@ def restrict_admin(upd: t.ChatMemberUpdated):
 
 
 def has_permission(*permissions: str):
-    async def filter(msg: Union[t.Message, t.CallbackQuery]):
+    async def filter(msg: p.Union[t.Message, t.CallbackQuery]):
         if isinstance(msg, t.Message):
             member = await msg.chat.get_member(msg.from_user.id)
         elif isinstance(msg, t.CallbackQuery):
@@ -103,14 +117,14 @@ def msg(data):
     return filter
 
 
-async def alias(msg: t.Message, handler=True) -> Union[bool, str]:
+async def alias(msg: t.Message, handler=True) -> p.Union[bool, str]:
     chat = Database.get_chat(msg.chat.id)
     if msg.sticker:
         text = msg.sticker.file_unique_id
-        aliases = chat.sticker_alias
+        aliases = chat.settings.sticker_alias
     elif msg.text:
-        text = msg.text
-        aliases = chat.text_alias
+        text = msg.text.lower()
+        aliases = lower_dict(chat.settings.text_alias)
 
     if handler:
         return text in aliases
