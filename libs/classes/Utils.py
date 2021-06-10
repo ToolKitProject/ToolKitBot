@@ -132,7 +132,7 @@ async def alias(msg: t.Message, handler=True) -> p.Union[bool, str]:
         return aliases[text]
 
 
-async def chek(msg: t.Message):
+async def check(msg: t.Message):
     if await is_chat.check(msg):
         await Chat(msg.chat)
     if not Database.get_user(msg.from_user.id):

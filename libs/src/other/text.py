@@ -1,9 +1,19 @@
+from aiogram.utils.markdown import hbold as b
+from aiogram.utils.markdown import hcode as c
+from aiogram.utils.markdown import hitalic as i
 from aiogram.utils.markdown import hlink as l
+from aiogram.utils.markdown import text as t
+
 
 cancel = "\n/cancel - to cancel"
 
 
 class errors:
+    class command:
+        CommandNotFound = "⚠ Command not found"
+        ArgumentError = "⚠ Invalid argument"
+        required = "{arg} required"
+
     until = "If user is banned for more than 366 days or less than 30 seconds from the current time they are considered to be banned forever."
     UntilWaring = f"❗ {until}"
 
@@ -39,7 +49,7 @@ class private:
 class chat:
     _perm = "┣ /ban /unban ⛔ \n" +\
             "┣ /mute /unmute 🔇 \n" +\
-            "┣ /purge 🔥\n" +\
+            "┣ /purge 🗑\n" +\
             "┗ /kick ⚠"
 
     start_text = "Hello i am ToolKit bot\n" +\
@@ -59,9 +69,9 @@ class chat:
                      _perm
 
     class admin:
-        reason = "Reason ❔ - {reason} \n"
-        admin = "Moderator 👤 - {admin} \n"
-        until = "Until ⌛ - {until} \n"
+        reason = f"Reason ❔ - {c('{reason}')} \n"
+        admin = f"Moderator 👤 - {i('{admin}')} \n"
+        until = f"Until ⌛ - {b('{until}')} \n"
 
         unmute = "{users} unmuted 🔈 \n" + reason + admin
         multi_unmute = unmute
@@ -81,7 +91,7 @@ class chat:
         forever = "February 31, 1970"
         reason_empty = "Without reasons"
 
-        purge = "🔥 Chat purged of {count} messages"
+        purge = "🗑 Chat purged of {count} messages"
 
 
 class help:
@@ -89,7 +99,7 @@ class help:
     until = "\n⏳ Date[s|m|h|d|M|y] (1m 30s, 1M)"
     reason = "\n❔ \"Reason\" (Yes in the quote)"
     # revoke_admin = "\n🚫 -r revoke admin"
-    # delete_all_message = "\n🔥 -d delete all messages"
+    # delete_all_message = "\n🗑 -d delete all messages"
     revoke_admin = ""
     delete_all_message = ""
 
@@ -102,4 +112,4 @@ class help:
     count = "\n🔢 Count (0 - 1000)"
     reply = "\n⤴ Reply to delete above"
 
-    purge = "🔥 /purge" + count + reply
+    purge = "🗑 /purge" + count + reply

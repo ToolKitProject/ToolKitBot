@@ -1,14 +1,193 @@
 import re
+import typing as p
 from calendar import isleap, monthrange
 from datetime import datetime, timedelta
 from typing import List, Optional
 
-from aiogram import types as t
+from aiogram import types as t, filters as f
 from asyncinit import asyncinit
 
+from bot import dp
 from libs.classes.Errors import ArgumentError, UserNotFound
 from libs.src import system
 from . import User, UserText
+
+
+class dates:
+    minimal = timedelta(seconds=30)
+    maximal = timedelta(days=366)
+
+    def forever(self, date: datetime):
+        return \
+            date < self.minimal or \
+            date > self.maximal
+
+    @property
+    def now(self):
+        return datetime.now()
+
+
+CommandType = p.Union[p.List[str], str]
+ArgType = p.Dict[str, p.Any]
+
+
+class ParseArgs:
+    def __init__(self, **kwargs: str):
+        self.expand(kwargs)
+
+    def __getitem__(self, name):
+        return self.__dict__[name]
+
+    def __setitem__(self, key, value):
+        self.add(key, value)
+
+    def __getattr__(self, name):
+        return None
+
+    def __setattr__(self, key, value):
+        self.add(key, value)
+
+    def __iter__(self):
+        return self.__dict__
+
+    def __len__(self):
+        return len(self.__dict__)
+
+    def __str__(self):
+        return str(self.__dict__)
+
+    def __bool__(self):
+        return bool(len(self))
+
+    def items(self):
+        return self.__dict__.items()
+
+    def keys(self):
+        return self.__dict__.keys()
+
+    def values(self):
+        return self.__dict__.values()
+
+    def expand(self, items: ArgType):
+        for key, value in items.items():
+            self.add(key, value)
+
+    def add(self, key: str, value: p.Any):
+        if value:
+            self.__dict__[key] = value
+
+
+class BaseArg:
+    def __init__(self, type: str, required: bool, default: p.Any):
+        self.type = type
+        self.required = required
+        self.default = default
+
+    def set_parser(self):
+        def wrapper(parser: p.Coroutine):
+            self.parse = parser
+
+        return wrapper
+
+    def set_checker(self):
+        def wrapper(checker: p.Coroutine):
+            self.check = checker
+
+        return wrapper
+
+    async def check(self, msg: t.Message):
+        pass
+
+    async def parse(self, msg: t.Message):
+        items = ParseArgs()
+        return items
+
+
+class Command:
+    def __init__(self, commands: CommandType, text: str, prefix: str = "/", separator: str = " "):
+        self.commands = commands
+        self.prefix = prefix
+        self.separator = separator
+
+        self.args: p.List[BaseArg] = []
+
+    def __call__(self, *filters, state=None):
+        def wrapper(func):
+            return self.set_action(*filters, func=func, state=state)
+
+        return wrapper
+
+    def add(self, *args: BaseArg):
+        self.args += list(args)
+
+    async def check(self, parse: ParseArgs):
+        pass
+
+    async def parse(self, msg: t.Message):
+        items = ParseArgs()
+        for arg in self.args:
+            item = await arg.parse(msg)
+            items.add(arg.type, item)
+        return items
+
+    def set_action(self, *filters, func, state=None):
+        filters = list(filters)
+        filters.insert(0, self._filter)
+
+        dp.register_message_handler(
+            func,
+            *filters,
+            state=state
+        )
+        return func
+
+    @property
+    def _filter(self):
+        return f.Command(self.commands, self.prefix)
+
+
+class Arg(BaseArg):
+    def __init__(self, regexp: p.Union[re.Pattern, str], type: str, required: bool = True, default: p.Any = None):
+        self.regexp = regexp if isinstance(regexp, re.Pattern) else re.compile(regexp)
+        super().__init__(type, required=required, default=default)
+
+    async def parse(self, msg: t.Message):
+        items = ParseArgs()
+        matches, msg.text = await self.match(msg.text)
+        for match in matches:
+            groups = match.groupdict()
+            items.expand(groups)
+        return items
+
+    async def match(self, text: str):
+        matches = self.regexp.finditer(text)
+        text = self.regexp.sub("", text)
+        return matches, text
+
+
+class UserArg(BaseArg):
+    def __init__(self):
+        pass
+
+
+class DateArg(BaseArg):
+    def __init__(self):
+        pass
+
+
+class FlagsParser(BaseArg):
+    def __init__(self):
+        pass
+
+
+class Flag:
+    def __init__(self):
+        pass
+
+
+class ValueFlag(Flag):
+    def __init__(self):
+        super().__init__()
 
 
 def get_days_years(year: int, now: datetime):
@@ -111,13 +290,13 @@ class AdminCommandParser:
             # self.until = self.now
 
     @classmethod
-    async def chek(cls, text: str, *chek: str):
+    async def check(cls, text: str, *check: str):
         all = re.finditer(system.regex.parse.all, text)
         groups = []
         for math in all:
             groups.append(math.lastgroup)
 
-        for c in chek:
+        for c in check:
             if c in groups:
                 return False
         return True

@@ -11,3 +11,4 @@ class UserText:
         self.src = lang_conf.lang_map[self.lang]
         self.text = self.src.text
         self.buttons = self.src.buttons
+        self.any = self.src.any

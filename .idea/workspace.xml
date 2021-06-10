@@ -1,19 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
   <component name="ChangeListManager">
     <list default="true" id="ef69e248-51ef-4d55-b965-cbc8bd553459" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/libs/filters.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/handlers/chat/admin/restrict.py" beforeDir="false" afterPath="$PROJECT_DIR$/handlers/chat/admin/restrict.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/handlers/end.py" beforeDir="false" afterPath="$PROJECT_DIR$/handlers/end.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/handlers/private/alias_form.py" beforeDir="false" afterPath="$PROJECT_DIR$/handlers/private/alias_form.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/handlers/private/settings.py" beforeDir="false" afterPath="$PROJECT_DIR$/handlers/private/settings.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/handlers/start.py" beforeDir="false" afterPath="$PROJECT_DIR$/handlers/start.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/libs/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/libs/__init__.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/libs/classes/Buttons.py" beforeDir="false" afterPath="$PROJECT_DIR$/libs/classes/Buttons.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/libs/classes/Database.py" beforeDir="false" afterPath="$PROJECT_DIR$/libs/classes/Database.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/libs/classes/Settings.py" beforeDir="false" afterPath="$PROJECT_DIR$/libs/classes/Settings.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/libs/classes/CommandParser.py" beforeDir="false" afterPath="$PROJECT_DIR$/libs/classes/CommandParser.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/libs/classes/Errors.py" beforeDir="false" afterPath="$PROJECT_DIR$/libs/classes/Errors.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/libs/classes/Localisation.py" beforeDir="false" afterPath="$PROJECT_DIR$/libs/classes/Localisation.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/libs/classes/Message.py" beforeDir="false" afterPath="$PROJECT_DIR$/libs/classes/Message.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/libs/classes/Utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/libs/classes/Utils.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/libs/src/other/buttons.py" beforeDir="false" afterPath="$PROJECT_DIR$/libs/src/other/buttons.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/libs/src/ru/buttons.py" beforeDir="false" afterPath="$PROJECT_DIR$/libs/src/ru/buttons.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/libs/src/other/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/libs/src/other/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/libs/src/other/text.py" beforeDir="false" afterPath="$PROJECT_DIR$/libs/src/other/text.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/libs/src/ru/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/libs/src/ru/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/libs/src/ru/text.py" beforeDir="false" afterPath="$PROJECT_DIR$/libs/src/ru/text.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/libs/src/system.py" beforeDir="false" afterPath="$PROJECT_DIR$/libs/src/system.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -65,14 +73,15 @@
     <option name="showLibraryContents" value="true" />
   </component>
   <component name="PropertiesComponent">
+    <property name="ASKED_ADD_EXTERNAL_FILES" value="true" />
     <property name="ASKED_SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/../self-bot" />
     <property name="restartRequiresConfirmation" value="false" />
-    <property name="settings.editor.selected.configurable" value="preferences.editor" />
+    <property name="settings.editor.selected.configurable" value="preferences.keymap" />
     <property name="settings.editor.splitter.proportion" value="0.13705055" />
   </component>
   <component name="RecentsManager">
@@ -80,8 +89,8 @@
       <recent name="$PROJECT_DIR$/handlers/private" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.Test">
-    <configuration name="Main" type="PythonConfigurationType" factoryName="Python">
+  <component name="RunManager" selected="Python.Test Token">
+    <configuration name="Main Token" type="PythonConfigurationType" factoryName="Python">
       <module name="ToolKit" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -103,7 +112,7 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="Test" type="PythonConfigurationType" factoryName="Python">
+    <configuration name="Test Token" type="PythonConfigurationType" factoryName="Python">
       <module name="ToolKit" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -148,8 +157,8 @@
       <method v="2" />
     </configuration>
     <list>
-      <item itemvalue="Python.Main" />
-      <item itemvalue="Python.Test" />
+      <item itemvalue="Python.Main Token" />
+      <item itemvalue="Python.Test Token" />
       <item itemvalue="Python.test" />
     </list>
     <recent_temporary>
@@ -201,7 +210,16 @@
       <workItem from="1622684326026" duration="1242000" />
       <workItem from="1622728901893" duration="6358000" />
       <workItem from="1622773305583" duration="1000" />
-      <workItem from="1622804633628" duration="8433000" />
+      <workItem from="1622804633628" duration="12274000" />
+      <workItem from="1622858057199" duration="7402000" />
+      <workItem from="1622906306070" duration="14284000" />
+      <workItem from="1622978346047" duration="4365000" />
+      <workItem from="1623032209343" duration="8966000" />
+      <workItem from="1623063210476" duration="5628000" />
+      <workItem from="1623126384742" duration="3877000" />
+      <workItem from="1623207659789" duration="104000" />
+      <workItem from="1623207784838" duration="6826000" />
+      <workItem from="1623283997080" duration="13799000" />
     </task>
     <servers />
   </component>
@@ -235,9 +253,10 @@
     </breakpoint-manager>
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
+    <SUITE FILE_PATH="coverage/ToolKit$Test_Token.coverage" NAME="Test Token Coverage Results" MODIFIED="1623300687237" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/ToolKit$Main.coverage" NAME="Main Coverage Results" MODIFIED="1622732119488" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/ToolKit$test.coverage" NAME="test Coverage Results" MODIFIED="1622816580622" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/ToolKit$Test.coverage" NAME="Test Coverage Results" MODIFIED="1622818042331" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/ToolKit$test.coverage" NAME="test Coverage Results" MODIFIED="1623078661561" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/ToolKit$Test.coverage" NAME="Test Token Coverage Results" MODIFIED="1622865751809" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/ToolKit$Settings.coverage" NAME="Settings Coverage Results" MODIFIED="1622209229840" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/libs/classes" />
   </component>
 </project>

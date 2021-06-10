@@ -66,8 +66,8 @@ async def command_form(msg: t.Message, state: FSMContext):
         element: DictSettings = data.current_element
         chat: Chat = data.chat
 
-    chek = await AdminCommandParser.chek(value, "user", "id")
-    if not chek:
+    check = await AdminCommandParser.check(value, "user", "id")
+    if not check:
         await msg.delete()
         raise e.ArgumentError(src.lang)
 

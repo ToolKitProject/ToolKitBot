@@ -34,8 +34,7 @@ class Data:
         return self.__dict__[name]
 
     def __iter__(self):
-        for key in self.__dict__:
-            yield key
+        return self.__dict__
 
     @property
     def storage(self):
@@ -84,7 +83,7 @@ class MessageData:
         self.storage: Dict[int, Dict[int, Data]] = {}
 
     async def data(self, msg: t.Message) -> Data:
-        """ 
+        """
         Создает или возвращает данные
         """
         if msg.chat.id in self.storage and msg.message_id in self.storage[msg.chat.id]:
@@ -94,7 +93,7 @@ class MessageData:
 
     async def delete(self, msg: t.Message, markup: bool = True):
         """
-        Удаляет данные и сообщение 
+        Удаляет данные и сообщение
         """
         await self.remove(msg)
         if markup:
@@ -112,7 +111,7 @@ class MessageData:
 
     async def close(self, markup: bool = True):
         """
-        Удаляет ВСЕ данные и ВСЕ сообщение 
+        Удаляет ВСЕ данные и ВСЕ сообщение
         """
         for storage in self.storage.values():
             for data in storage.values():
@@ -120,7 +119,7 @@ class MessageData:
 
     async def new(self, msg: t.Message) -> Data:
         """
-        Добавляет данные к сообщению 
+        Добавляет данные к сообщению
         """
         if msg.chat.id not in self.storage:
             self.storage[msg.chat.id] = {}
@@ -136,12 +135,12 @@ class MessageData:
 
     async def get(self, msg: t.Message) -> Data:
         """
-        Возвращает данные 
+        Возвращает данные
         """
         return self.storage[msg.chat.id][msg.message_id]
 
     async def get_by_id(self, chat_id: int, message_id: int):
         """
-        Возвращает данные 
+        Возвращает данные
         """
         return self.storage[chat_id][message_id]

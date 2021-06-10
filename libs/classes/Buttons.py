@@ -72,13 +72,13 @@ class Button:
 
     def __call__(self, *filters, state=None):
         def handler(func):
-            self.set_action(*filters, func=func, state=state)
+            return self.set_action(*filters, func=func, state=state)
 
         return handler
 
     def set_action(self, *filters, func, state=None):
         filters = list(filters)
-        filters.append(self._filter)
+        filters.insert(0, self._filter)
 
         dp.register_callback_query_handler(
             func,

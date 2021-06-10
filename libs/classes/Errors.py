@@ -92,9 +92,10 @@ class UserNotFound(MyError):
 
 
 class ArgumentError(MyError):
-    def __init__(self, lang: str):
+    def __init__(self, lang: str, context: str = ""):
         super().__init__(lang)
-        self.text = self.src.text.errors.ArgumentError
+        self.text = f"{self.src.text.errors.ArgumentError}\n" \
+                    f"{context}"
         self.auto_delete = 5
         self.delete = True
         self.alert = True

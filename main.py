@@ -42,5 +42,9 @@ async def startup(dp: Dispatcher):
 
 
 if __name__ == "__main__":
-    executor.start_polling(dp, on_startup=startup,
-                           on_shutdown=shutdown, allowed_updates=t.AllowedUpdates.all())
+    executor.start_polling(
+        dp,
+        on_startup=startup,
+        on_shutdown=shutdown,
+        allowed_updates=t.AllowedUpdates.all()
+    )
