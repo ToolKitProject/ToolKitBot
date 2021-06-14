@@ -60,7 +60,7 @@ class chat:
                  "For administration commands to work, please grant these rights\n" +\
                  "┣ Delete messages ⚠ \n" +\
                  "┣ Invite links 🔗 \n" +\
-                 "┗ Ban users ⛔"
+                 "┗ Ban user ⛔"
     promote_admin = "The bot now <b>has</b> administrator rights \n" +\
                     "Now you <b>can</b> use commands like \n" +\
                     _perm
@@ -73,19 +73,19 @@ class chat:
         admin = f"Moderator 👤 - {i('{admin}')} \n"
         until = f"Until ⌛ - {b('{until}')} \n"
 
-        unmute = "{users} unmuted 🔈 \n" + reason + admin
+        unmute = "{user} unmuted 🔈 \n" + reason + admin
         multi_unmute = unmute
 
-        mute = "{users} muted 🔇 \n" + reason + admin + until
+        mute = "{user} muted 🔇 \n" + reason + admin + until
         multi_mute = mute
 
-        kick = "{users} kicked out ⚠ \n" + reason + admin
+        kick = "{user} kicked out ⚠ \n" + reason + admin
         multi_kick = kick
 
-        unban = "{users} unbanned ✅ \n" + reason + admin
+        unban = "{user} unbanned ✅ \n" + reason + admin
         multi_unban = unban
 
-        ban = "{users} banned ⛔ \n" + reason + admin + until
+        ban = "{user} banned ⛔ \n" + reason + admin + until
         multi_ban = ban
 
         forever = "February 31, 1970"

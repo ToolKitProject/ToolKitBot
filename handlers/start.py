@@ -23,13 +23,13 @@ async def test_xd(msg: t.Message):
     cmd = parser.Command("wtf", "Нету")
     cmd.add(
         parser.Arg(system.regex.parse.command, "command"),
-        parser.Arg(system.regex.parse.reason, "reason"),
-        parser.Arg(system.regex.parse.until, "until"),
-        parser.Arg(system.regex.parse.user, "users"),
-        parser.Arg(system.regex.parse.flags, "flags")
+        parser.Arg(system.regex.parse.reason, "reason", False),
+        parser.DateArg(),
+        parser.UserArg(),
     )
     args = await cmd.parse(msg)
-    txt = ""
+    check = await cmd.check(msg)
+    txt = f"{check}\n{'=' * 50}\n"
     for group, text in args.items():
         txt += f"{group} | {text}\n"
     await msg.answer(txt, "None")

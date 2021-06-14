@@ -1,6 +1,8 @@
 import re
 import typing as p
+from abc import ABC, abstractmethod
 from calendar import isleap, monthrange
+from copy import copy
 from datetime import datetime, timedelta
 from typing import List, Optional
 
@@ -17,21 +19,46 @@ class dates:
     minimal = timedelta(seconds=30)
     maximal = timedelta(days=366)
 
-    def forever(self, date: datetime):
+    @classmethod
+    def forever(cls, date: timedelta):
         return \
-            date < self.minimal or \
-            date > self.maximal
+            date < cls.minimal or \
+            date > cls.maximal
 
-    @property
-    def now(self):
+    @staticmethod
+    def now():
         return datetime.now()
+
+    @classmethod
+    def get_years(cls, years: int):
+        days = 0
+        now = cls.now()
+
+        for y in range(now.year, now.year + years):
+            year_days = 365
+            if isleap(y):
+                year_days += 1
+            days += year_days
+        return days
+
+    @classmethod
+    def get_month(cls, months: int):
+        days = 0
+        now = cls.now()
+        years = months // 12
+        month = months % 12
+
+        for m in range(now.month, now.month + month - 1):
+            days += monthrange(now.year, m)[1]
+        days += cls.get_years(years)
+        return days
 
 
 CommandType = p.Union[p.List[str], str]
 ArgType = p.Dict[str, p.Any]
 
 
-class ParseArgs:
+class _ParsedArgs:
     def __init__(self, **kwargs: str):
         self.expand(kwargs)
 
@@ -77,30 +104,27 @@ class ParseArgs:
             self.__dict__[key] = value
 
 
-class BaseArg:
-    def __init__(self, type: str, required: bool, default: p.Any):
+class _ParseObj:
+    def __init__(self, msg: t.Message):
+        self.text = msg.text
+        self.entities = msg.entities
+
+        self.original_text = self.text
+
+
+class BaseArg(ABC):
+    def __init__(self, type: str, required: bool, default: p.Any = None):
         self.type = type
         self.required = required
         self.default = default
 
-    def set_parser(self):
-        def wrapper(parser: p.Coroutine):
-            self.parse = parser
-
-        return wrapper
-
-    def set_checker(self):
-        def wrapper(checker: p.Coroutine):
-            self.check = checker
-
-        return wrapper
-
-    async def check(self, msg: t.Message):
+    @abstractmethod
+    async def parse(self, parse: _ParseObj):
         pass
 
-    async def parse(self, msg: t.Message):
-        items = ParseArgs()
-        return items
+    @abstractmethod
+    async def check(self, parse: _ParseObj):
+        pass
 
 
 class Command:
@@ -120,15 +144,21 @@ class Command:
     def add(self, *args: BaseArg):
         self.args += list(args)
 
-    async def check(self, parse: ParseArgs):
-        pass
-
     async def parse(self, msg: t.Message):
-        items = ParseArgs()
+        items = _ParsedArgs()
+        obj = _ParseObj(msg)
         for arg in self.args:
-            item = await arg.parse(msg)
+            item = await arg.parse(obj)
             items.add(arg.type, item)
         return items
+
+    async def check(self, msg: t.Message, check_all: bool = False):
+        obj = _ParseObj(msg)
+        for arg in self.args:
+            if arg.required or check_all:
+                if not await arg.check(obj):
+                    return False
+        return True
 
     def set_action(self, *filters, func, state=None):
         filters = list(filters)
@@ -151,13 +181,19 @@ class Arg(BaseArg):
         self.regexp = regexp if isinstance(regexp, re.Pattern) else re.compile(regexp)
         super().__init__(type, required=required, default=default)
 
-    async def parse(self, msg: t.Message):
-        items = ParseArgs()
-        matches, msg.text = await self.match(msg.text)
+    async def parse(self, parse: _ParseObj):
+        items = _ParsedArgs()
+        matches, parse.text = await self.match(parse.text)
         for match in matches:
             groups = match.groupdict()
             items.expand(groups)
         return items
+
+    async def check(self, parse: t.Message):
+        matches, parse.text = await self.match(parse.text)
+        for _ in matches:
+            return True
+        return False
 
     async def match(self, text: str):
         matches = self.regexp.finditer(text)
@@ -166,18 +202,76 @@ class Arg(BaseArg):
 
 
 class UserArg(BaseArg):
-    def __init__(self):
-        pass
+    def __init__(self, required: bool = True, default: p.Any = None):
+        super().__init__("user", required, default)
+
+    async def parse(self, parse: _ParseObj):
+        items = _ParsedArgs()
+        users = []
+        for e in parse.entities:
+            type = e.type
+            if type == "text_mention":
+                users.append(await User(e.user))
+            elif type == "mention":
+                mention = e.get_text(parse.original_text)
+                users.append(await User(mention))
+
+        items.users = users
+        return items
+
+    async def check(self, parse: t.Message):
+        for e in parse.entities:
+            if e.type in ["text_mention", "mention"]:
+                return True
+        return False
 
 
 class DateArg(BaseArg):
-    def __init__(self):
-        pass
+    def __init__(self, required: bool = False, default: p.Any = None):
+        super().__init__("date", required, default)
+        self.regexp = re.compile(system.regex.parse.date)
+
+    async def parse(self, parse: _ParseObj):
+        items = _ParsedArgs()
+        matches, parse.text = await self.match(parse.text)
+
+        delta = timedelta()
+        for match in matches:
+            num, type = int(match.group("num")), match.group("type")
+            if type == "s":
+                delta += timedelta(seconds=num)
+            elif type == "m":
+                delta += timedelta(minutes=num)
+            elif type == "h":
+                delta += timedelta(hours=num)
+            elif type == "d":
+                delta += timedelta(days=num)
+            elif type == "M":
+                delta += timedelta(days=dates.get_month(num))
+            elif type == "y":
+                delta += timedelta(days=dates.get_years(num))
+
+        date = dates.now() + delta
+
+        items.date = date if delta > timedelta() else None
+        return items
+
+    async def check(self, parse: _ParseObj):
+        matches, parse.text = await self.match(parse.text)
+        for _ in matches:
+            return True
+        return False
+
+    async def match(self, text: str):
+        matches = self.regexp.finditer(text)
+        text = self.regexp.sub("", text)
+        return matches, text
 
 
+# Потом сделаю )))
 class FlagsParser(BaseArg):
-    def __init__(self):
-        pass
+    def __init__(self, required: bool = False, default: p.Any = None):
+        super().__init__("flags", required, default)
 
 
 class Flag:
@@ -348,7 +442,7 @@ class AdminCommandParser:
             return
         self.now = datetime.now()
         self.until = self.now
-        match = re.match(system.regex.parse.until, self.raw_date)
+        match = re.match(system.regex.parse.date, self.raw_date)
         await self.to_date(match)
 
     async def undo(self) -> str:

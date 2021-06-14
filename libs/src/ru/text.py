@@ -70,20 +70,20 @@ class chat:
         admin = f"Администратор 👤 - {i('{admin}')} \n"
         until = f"До ⌛ - {b('{until}')} \n"
 
-        unmute = "{users} размучен 🔈 \n" + reason + admin
-        multi_unmute = "{users} размучены 🔈 \n" + reason + admin
+        unmute = "{user} размучен 🔈 \n" + reason + admin
+        multi_unmute = "{user} размучены 🔈 \n" + reason + admin
 
-        mute = "{users} замучен 🔇 \n" + reason + admin + until
-        multi_mute = "{users} замучены 🔇 \n" + reason + admin + until
+        mute = "{user} замучен 🔇 \n" + reason + admin + until
+        multi_mute = "{user} замучены 🔇 \n" + reason + admin + until
 
-        kick = "{users} исключён ⚠ \n" + reason + admin
-        multi_kick = "{users} исключёны ⚠ \n" + reason + admin
+        kick = "{user} исключён ⚠ \n" + reason + admin
+        multi_kick = "{user} исключёны ⚠ \n" + reason + admin
 
-        unban = "{users} разаблокирован ✅ \n" + reason + admin
-        multi_unban = "{users} разаблокированы ✅ \n" + reason + admin
+        unban = "{user} разаблокирован ✅ \n" + reason + admin
+        multi_unban = "{user} разаблокированы ✅ \n" + reason + admin
 
-        ban = "{users} заблокирован ⛔ \n" + reason + admin + until
-        multi_ban = "{users} заблокированы ⛔ \n" + reason + admin + until
+        ban = "{user} заблокирован ⛔ \n" + reason + admin + until
+        multi_ban = "{user} заблокированы ⛔ \n" + reason + admin + until
 
         forever = "31 Февраля 1970 года"
         reason_empty = "Без причины"
