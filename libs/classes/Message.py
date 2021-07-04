@@ -22,16 +22,16 @@ class Data:
         pass
 
     def __setattr__(self, name: str, value: Any):
-        self.__dict__[name] = value
+        self.set(name, value)
 
     def __getattr__(self, name: str) -> Any:
-        return self.__dict__[name]
+        return self.get(name)
 
     def __setitem__(self, name: str, value: Any):
-        self.__dict__[name] = value
+        self.set(name, value)
 
     def __getitem__(self, name: str) -> Any:
-        return self.__dict__[name]
+        return self.get(name)
 
     def __iter__(self):
         return self.__dict__
@@ -52,14 +52,14 @@ class Data:
         """
         Возвращает данные
         """
-        return self.__dict__[key]
+        return self.__dict__[key] if key in self.__dict__ else None
 
     def set(self, key: str, value: str) -> object:
         """
         Добавляет или изменяет данные
         """
         self.__dict__[key] = value
-        return self.__dict__[key]
+        return value
 
     async def close(self, markup: bool = True):
         try:

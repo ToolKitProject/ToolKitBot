@@ -1,12 +1,13 @@
 from bot import client, dp
 from libs.classes import Errors as e
-from libs.classes import UserText
+from libs.classes.Localisation import UserText
 from aiogram import types as t
-from libs.src import system
+from libs import system
 from libs.classes.Utils import is_chat, is_reply, bot_has_permission, has_permission, get_help, mark_write
 
 
-@dp.message_handler(is_chat, get_help, bot_has_permission("can_delete_messages"), has_permission("can_delete_messages"),  commands=["purge"])
+@dp.message_handler(is_chat, get_help, bot_has_permission("can_delete_messages"), has_permission("can_delete_messages"),
+                    commands=["purge"])
 async def purge(msg: t.Message):
     await msg.delete()
     await mark_write(msg)
@@ -28,7 +29,7 @@ async def purge(msg: t.Message):
 
     delete = list(range(from_id, to_id, -1))
     for l in range(0, count, 100):
-        d = delete[l:l+100]
+        d = delete[l:l + 100]
         await client.delete_messages(msg.chat.id, d)
 
     msg = await msg.answer(src.text.chat.admin.purge.format(count=len(delete)), reply_markup=system.delete_this.inline)

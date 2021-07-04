@@ -3,7 +3,7 @@ from aiogram.utils import exceptions as ex
 from aiogram import types as t
 from asyncio import sleep
 import logging
-from libs.src.system import delete_this
+from libs.system import delete_this
 from traceback import format_exc
 
 
@@ -92,13 +92,45 @@ class UserNotFound(MyError):
 
 
 class ArgumentError(MyError):
-    def __init__(self, lang: str, context: str = ""):
+    def __init__(self, lang: str, context: str, arg_name: str):
         super().__init__(lang)
-        self.text = f"{self.src.text.errors.ArgumentError}\n" \
-                    f"{context}"
-        self.auto_delete = 5
+        self.arg_name = arg_name
+        self.text = f"{self.src.text.errors.command.ArgumentError}\n" \
+                    f"┗━{context.format(**self.__dict__)}"
+        self.auto_delete = 0
         self.delete = True
         self.alert = True
+
+
+class ArgumentError(MyError):
+    def __init__(self, lang: str):
+        super().__init__(lang)
+        self.text = f"{self.src.text.errors.command.ArgumentError}"
+        self.auto_delete = 0
+        self.delete = True
+        self.alert = True
+
+    class ArgumentRequired(MyError):
+        def __init__(self, lang: str, arg_name: str):
+            super().__init__(lang)
+            self.arg_name = arg_name
+            self.context = self.src.text.errors.command.required
+            self.text = f"{self.src.text.errors.command.ArgumentError}\n" \
+                        f"┗━{self.context.format(**self.__dict__)}"
+            self.auto_delete = 0
+            self.delete = True
+            self.alert = True
+
+    class ArgumentIncorrect(MyError):
+        def __init__(self, lang: str, arg_name: str):
+            super().__init__(lang)
+            self.arg_name = arg_name
+            self.context = self.src.text.errors.command.incorrect
+            self.text = f"{self.src.text.errors.command.ArgumentError}\n" \
+                        f"┗━{self.context.format(**self.__dict__)}"
+            self.auto_delete = 0
+            self.delete = True
+            self.alert = True
 
 
 class HasNotPermission(MyError):
@@ -168,6 +200,8 @@ ERRORS = [
     ForceError,
     CommandNotFound,
     UserNotFound,
+    ArgumentError.ArgumentRequired,
+    ArgumentError.ArgumentIncorrect,
     ArgumentError,
     HasNotPermission,
     EmptyOwns,
@@ -175,7 +209,7 @@ ERRORS = [
     AlreadyExists,
     NotReply,
     BotHasNotPermission,
-    BackError
+    BackError,
 ]
 
 IGNORE = [

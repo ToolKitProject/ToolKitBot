@@ -1,7 +1,7 @@
 import re
 
 from aiogram.types.bot_command import BotCommand as C
-from libs.classes import Button
+from libs.classes.Buttons import Button
 from aiogram.dispatcher.filters.state import State, StatesGroup
 
 back = Button("↩", "back")
@@ -23,7 +23,7 @@ restrict_commands = ["ban", "unban", "kick", "mute", "unmute"]
 class regex:
     class parse:
         command = r"(?P<command>^/(?P<command_text>[0-9a-zA-Z_]+)(?P<command_bot>@[0-9a-zA-Z_]+)?)"
-        date = r"(?P<date>(?P<num>[1-9][0-9]*)(?P<type>[s|m|h|d|M|y]))"
+        date = r"(?P<date>(?P<num>[1-9][0-9]*)(?P<type>[s|m|h|d|w|M|y]))"
         user = r"(?P<user>@[a-zA-Z][a-zA-Z0-9_]{4,})|(?P<id>[1-9][0-9]*)"
         reason = r"(?P<reason>[(|\"|\'](?P<raw_reason>.+)[)|\"|\'])"
         flags = r"(?P<flags>-[d|r]+)"

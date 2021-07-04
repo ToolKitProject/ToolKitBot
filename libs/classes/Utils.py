@@ -1,13 +1,16 @@
 import re
 import typing as p
 
-import config as c
 from aiogram import types as t
 from aiogram.dispatcher import filters as f
+
+import config as c
 from bot import bot
 from libs.objects import Database
-
-from . import Chat, User, UserText, Errors as e
+from . import Errors as e
+from .Chat import Chat
+from .Localisation import UserText
+from .User import User
 
 is_chat = f.ChatTypeFilter((t.ChatType.GROUP, t.ChatType.SUPERGROUP))
 is_private = f.ChatTypeFilter(t.ChatType.PRIVATE)
@@ -133,9 +136,9 @@ async def alias(msg: t.Message, handler=True) -> p.Union[bool, str]:
 
 
 async def check(msg: t.Message):
-    if await is_chat.check(msg):
-        await Chat(msg.chat)
+    if await is_chat.check(msg) and not Database.get_chat(msg.chat.id):
+        await Chat.create(msg.chat)
     if not Database.get_user(msg.from_user.id):
-        await User(msg.from_user)
+        await User.create(msg.from_user)
 
     return False

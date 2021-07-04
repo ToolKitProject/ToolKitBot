@@ -1,59 +1,62 @@
-import datetime
-from json import loads, dumps
-from libs.classes.Localisation import UserText
-from typing import *
+import typing as p
+from json import loads
 
 from aiogram import types as t
-from asyncinit import asyncinit
+
 from bot import bot, client
+from libs.classes import Database as d
 from libs.objects import Database
-from datetime import datetime
+from .Chat import Chat
+from .Database import permissionOBJ, settingsOBJ
+from .Localisation import UserText
 
-from .Errors import *
 
-
-@asyncinit
 class User:  # TODO:Добавить коментарии
     """
     Пользователь
     """
-    __database__ = [
-        "settings", "permission"
-    ]
-    _init = False
+    _user: t.User
+    id: int
+    username: str
+    first_name: str
+    last_name: str
+    language_code: str
+    lang: str
+    src: UserText
 
-    async def __init__(self, auth: Union[str, int, t.User], chat: Optional[t.Chat] = None):
+    settings: settingsOBJ
+    permission: permissionOBJ
+    owns: p.List[d.chatOBJ]
+
+    @staticmethod
+    async def create(auth: p.Union[str, int, t.User]):
+        """
+
+        @rtype: User
+        """
+        cls = User()
+
         if isinstance(auth, t.User):
-            self.user = auth
+            cls._user = auth
         else:
-            self.user = await client.get_users(auth)
+            cls._user = await client.get_users(auth)
+        cls.user = Database.get_user(cls._user.id)
+        if not cls.user:
+            cls.user = Database.add_user(cls._user.id)
 
-        self.chat = chat if chat else await bot.get_chat(self.user.id)
+        cls.id = cls._user.id
+        cls.username = cls._user.username
+        cls.first_name = cls._user.first_name
+        cls.last_name = cls._user.last_name
+        cls.language_code = cls._user.language_code
+        cls.lang = cls.language_code
+        cls.src = UserText(cls.lang)
 
-        self.id: int = self.user.id
-        self.username: str = self.user.username
-        self.first_name: str = self.user.first_name
-        self.last_name: str = self.user.last_name
-        self.language_code: str = self.user.language_code
-        self.lang: str = self.language_code
-        self.src: UserText = UserText(self.lang)
+        cls.settings = cls.user.settings
+        cls.permission = cls.user.permission
+        cls.owns = Database.get_owns(cls.id)
 
-        DB_user = Database.get_user(self.id)
-        if not DB_user:
-            DB_user = Database.add_user(self.id)
-
-        self.settings: dict = loads(DB_user.settings)
-        self.permission: dict = loads(DB_user.permission)
-        self.owns = Database.get_owns(self.id)
-
-        self._init = True
-
-    def __setattr__(self, name: str, value: Any) -> None:
-        if name in self.__database__ and self._init:
-            Database.run(
-                f"UPDATE Users SET {name}='{dumps(value)}' WHERE id={self.id};"
-            )
-        self.__dict__[name] = value
+        return cls
 
     @property
     def full_name(self):
@@ -80,30 +83,18 @@ class User:  # TODO:Добавить коментарии
         else:
             return self.link
 
-    async def iter_owns(self):
-        from . import Chat
-        for chat in self.owns:
-            result: Chat = await Chat(chat.id)
-            yield result
-
-    async def get_owns(self):
-        result = []
-        async for chat in self.iter_owns():
-            result.append(chat)
-        return result
-
     async def send(self,
                    text: str,
-                   parse_mode: Optional[str] = None,
-                   entities: Optional[List[t.MessageEntity]] = None,
-                   disable_web_page_preview: Optional[bool] = None,
-                   disable_notification: Optional[bool] = None,
-                   reply_to_message_id: Optional[int] = None,
-                   allow_sending_without_reply: Optional[bool] = None,
-                   reply_markup: Union[t.InlineKeyboardMarkup,
-                                       t.ReplyKeyboardMarkup,
-                                       t.ReplyKeyboardRemove,
-                                       t.ForceReply, None] = None,
+                   parse_mode: p.Optional[str] = None,
+                   entities: p.Optional[p.List[t.MessageEntity]] = None,
+                   disable_web_page_preview: p.Optional[bool] = None,
+                   disable_notification: p.Optional[bool] = None,
+                   reply_to_message_id: p.Optional[int] = None,
+                   allow_sending_without_reply: p.Optional[bool] = None,
+                   reply_markup: p.Union[t.InlineKeyboardMarkup,
+                                         t.ReplyKeyboardMarkup,
+                                         t.ReplyKeyboardRemove,
+                                         t.ForceReply, None] = None,
                    ):
         await bot.send_message(self.id,
                                text=text,
@@ -113,53 +104,14 @@ class User:  # TODO:Добавить коментарии
                                disable_notification=disable_notification,
                                reply_to_message_id=reply_to_message_id,
                                allow_sending_without_reply=allow_sending_without_reply,
-                               reply_markup=reply_markup,)
+                               reply_markup=reply_markup, )
 
-    async def ban(self, until: Optional[datetime] = None, delete_all_messages: bool = False, revoke_admin: bool = False):
-        if revoke_admin:
-            await self.revoke_admin()
-        await self.chat.kick(self.id, until, revoke_messages=delete_all_messages)
-
-    async def unban(self):
-        await self.chat.unban(self.id, True)
-
-    async def kick(self, delete_all_messages: bool = False, revoke_admin: bool = False):
-        if revoke_admin:
-            await self.revoke_admin()
-        await self.ban(delete_all_messages=delete_all_messages)
-        await self.unban()
-
-    async def mute(self, until: Optional[datetime] = None, revoke_admin: bool = False):
-        if revoke_admin:
-            await self.revoke_admin()
-        perm = t.ChatPermissions(can_send_messages=False)
-        await self.chat.restrict(self.id, perm, until)
-
-    async def unmute(self):
-        perm = t.ChatPermissions(
-            True, True, True, True, True, True, True, True)
-        await self.chat.restrict(self.id, perm)
-
-    async def revoke_admin(self):
-        await bot.promote_chat_member(
-            self.chat.id,
-            self.id,
-            False,
-            False,
-            False,
-            False,
-            False,
-            False,
-            False,
-            False,
-            False,
-            False,
-            False
-        )
-
-    async def has_permission(self, *permissions: str):
-        member = await self.chat.get_member(self.id)
+    async def has_permission(self, chat_id: int, *permissions: str):
+        member = await bot.get_chat_member(chat_id, self.id)
         for perm in permissions:
             if not (getattr(member, perm) or member.is_chat_creator()):
                 return False
         return True
+
+    async def get_owns(self) -> p.List[Chat]:
+        return [await Chat.create(c.id) for c in self.owns]

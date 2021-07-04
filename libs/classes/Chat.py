@@ -1,59 +1,56 @@
-from json import dumps, loads
 from typing import *
 
 from aiogram import types as t
-from asyncinit import asyncinit
+
 from bot import bot
 from libs.objects import Database
+from .Database import chatOBJ, settingsOBJ
 
 
-@asyncinit
 class Chat:
-    __database__ = [
-        "settings", "owner"
-    ]
-    _init = False
+    _chat: t.Chat
+    chat: chatOBJ
 
-    async def __init__(self, auth: Union[int, str, t.Chat]):
+    id: int
+    type: str
+    title: str
+    username: str
+    invite_link: str
+    settings: settingsOBJ
+
+    @staticmethod
+    async def create(auth: Union[int, str, t.Chat]):
+        """
+
+        @rtype: Chat
+        """
+        cls = Chat()
+
         if isinstance(auth, t.Chat):
-            self.chat = auth
+            cls._chat = auth
         else:
-            self.chat = await bot.get_chat(auth)
+            cls._chat = await bot.get_chat(auth)
 
-        if self.chat.type not in [t.ChatType.GROUP, t.ChatType.SUPERGROUP]:
+        cls.chat = Database.get_chat(cls._chat.id)
+        if not cls.chat:
+            cls.chat = Database.add_chat(cls.chat.id, await cls._owner())
+
+        if cls._chat.type not in [t.ChatType.GROUP, t.ChatType.SUPERGROUP]:
             ValueError("Чет не так")
 
-        self.id: int = self.chat.id
-        self.type: str = self.chat.type
-        self.title: str = self.chat.title
-        self.username: str = self.chat.username
-        try:
-            self.invite_link: str = await self.chat.get_url()
-        except:
-            self.invite_link = None
-        self.owner = await self._owner()
+        cls.id = cls._chat.id
+        cls.type = cls._chat.type
+        cls.title = cls._chat.title
+        cls.username = cls._chat.username
+        cls.invite_link = await cls._chat.get_url()
 
-        DB_chat = Database.get_chat(self.id)
-        if not DB_chat:
-            DB_chat = Database.add_chat(self.id, self.owner.id)
+        cls.settings = cls.chat.settings
+        cls.owner = await cls._owner()
 
-        self.settings = DB_chat.settings
+        if cls.chat.owner.id != cls.owner.id:
+            cls.chat.id = cls.owner.id
 
-        self._init = True
-
-        if DB_chat.owner != self.owner.id:
-            self.owner = self.owner
-
-    def __setattr__(self, name: str, value: Any) -> None:
-        if name in self.__database__ and self._init:
-            if name in ["settings"]:
-                v = dumps(value)
-            elif name in ["owner"]:
-                v = value.id
-            Database.run(
-                f"UPDATE Chats SET {name}='{v}' WHERE id={self.id};"
-            )
-        self.__dict__[name] = value
+        return cls
 
     @property
     def mention(self):
@@ -75,8 +72,8 @@ class Chat:
 
     async def _owner(self):
         from .User import User
-        admins = await self.chat.get_administrators()
+        admins = await self._chat.get_administrators()
         for admin in admins:
             if admin.is_chat_creator():
-                result: User = await User(admin.user)
+                result = await User.create(admin.user)
                 return result

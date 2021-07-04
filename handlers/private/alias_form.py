@@ -2,12 +2,14 @@ from aiogram import types as t
 from aiogram.dispatcher import FSMContext
 
 from bot import dp
-from libs.classes import Errors as e, Settings, DictSettings, AdminCommandParser, Chat
-from libs.classes import UserText
-from libs.classes.Utils import is_private, lower_dict, find_key
+from libs.classes import Errors as e
+from libs.classes.Settings import Settings, DictSettings
+from libs.classes.Chat import Chat
+from libs.classes.Localisation import UserText
+from libs.classes.Utils import is_private, find_key
 from libs.objects import MessageData
-from libs.src.system import restrict_commands
-from libs.src.system import states
+from libs.system import restrict_commands
+from libs.system import states
 
 
 async def start_sticker(clb: t.CallbackQuery):
@@ -66,8 +68,8 @@ async def command_form(msg: t.Message, state: FSMContext):
         element: DictSettings = data.current_element
         chat: Chat = data.chat
 
-    check = await AdminCommandParser.check(value, "user", "id")
-    if not check:
+    check = await src.any.command.AdminCommandParser.check_types(msg, "user")
+    if check:
         await msg.delete()
         raise e.ArgumentError(src.lang)
 

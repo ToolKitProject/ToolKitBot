@@ -1,7 +1,7 @@
 from aiogram.types import InlineKeyboardButton as IB
 from aiogram.types import InlineKeyboardMarkup as IM
-from libs.classes import (Button, DictSettings, Elements, Menu, MenuButton,
-                          Settings)
+from libs.classes.Buttons import Button, Menu, MenuButton
+from libs.classes.Settings import DictSettings, Elements, Settings
 
 
 class chat:

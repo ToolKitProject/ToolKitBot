@@ -1,8 +1,7 @@
-import lang_conf
-
-
 class UserText:
     def __init__(self, lang: str):
+        import lang_conf
+
         if lang in lang_conf.lang_map:
             self.lang = lang
         else:

@@ -1,16 +1,19 @@
-import re
 import typing as p
 
 from aiogram import types as t
 
 from bot import bot, dp
-from libs.classes import Chat, Menu, UserText
 from libs.classes import CommandParser as parser
+from libs.classes.Buttons import Menu
+from libs.classes.Chat import Chat
 from libs.classes.Errors import BackError, MyError, ERRORS, IGNORE, ForceError
+from libs.classes.Localisation import UserText
+from libs.classes.User import User
 from libs.classes.Utils import (add_member, check, is_chat, is_private,
                                 promote_admin, removed_member, restrict_admin)
 from libs.objects import Database, MessageData
-from libs.src import system
+from libs import system
+from libs.src import any
 
 
 async def test_clb(clb: t.CallbackQuery):
@@ -18,21 +21,11 @@ async def test_clb(clb: t.CallbackQuery):
 
 
 # @dp.callback_query_handler(test_clb)
+# @any.command.AdminCommandParser()
 @dp.message_handler(commands=["test"])
 async def test_xd(msg: t.Message):
-    cmd = parser.Command("wtf", "Нету")
-    cmd.add(
-        parser.Arg(system.regex.parse.command, "command"),
-        parser.Arg(system.regex.parse.reason, "reason", False),
-        parser.DateArg(),
-        parser.UserArg(),
-    )
-    args = await cmd.parse(msg)
-    check = await cmd.check(msg)
-    txt = f"{check}\n{'=' * 50}\n"
-    for group, text in args.items():
-        txt += f"{group} | {text}\n"
-    await msg.answer(txt, "None")
+    chat = await Chat.create(msg.chat)
+    chat.chat.settings = {}
 
 
 @dp.message_handler(is_private, commands=["start"])
@@ -61,7 +54,7 @@ async def back(clb: t.CallbackQuery):
 
 @dp.my_chat_member_handler(add_member)
 async def bot_chat_added(upd: t.ChatMemberUpdated):
-    chat: Chat = await Chat(upd.chat)
+    chat: Chat = await Chat.create(upd.chat)
     src = chat.owner.src
     await bot.send_message(chat.id, src.text.chat.start_text)
 
@@ -73,14 +66,14 @@ async def bot_chat_removed(upd: t.ChatMemberUpdated):
 
 @dp.my_chat_member_handler(promote_admin)
 async def bot_promote(upd: t.ChatMemberUpdated):
-    chat: Chat = await Chat(upd.chat)
+    chat: Chat = await Chat.create(upd.chat)
     src = chat.owner.src
     await bot.send_message(chat.id, src.text.chat.promote_admin)
 
 
 @dp.my_chat_member_handler(restrict_admin)
 async def bot_chat_restrict(upd: t.ChatMemberUpdated):
-    chat: Chat = await Chat(upd.chat)
+    chat: Chat = await Chat.create(upd.chat)
     src = chat.owner.src
     await bot.send_message(chat.id, src.text.chat.restrict_admin)
 

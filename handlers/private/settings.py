@@ -1,13 +1,16 @@
-from aiogram import types as t
 import typing as p
+
+from aiogram import types as t
 from aiogram.dispatcher import FSMContext
 from aiogram.utils.callback_data import CallbackData
 
 from bot import dp
 from handlers.private import alias_form
-from libs.classes import UserText, User, DictSettings, Settings, Chat
+from libs.classes.Localisation import UserText
+from libs.classes.User import User
+from libs.classes.Settings import DictSettings, Settings
+from libs.classes.Chat import Chat
 from libs.classes.Errors import EmptyOwns
-from libs.classes.Settings import clb_data
 from libs.classes.Utils import is_private
 from libs.objects import MessageData, Database
 from libs.src import buttons
@@ -30,11 +33,11 @@ async def chat_list_menu(clb: t.CallbackQuery):
         raise EmptyOwns(src.lang)
     await clb.message.edit_text(src.text.private.settings.chat_loading)
 
-    user: User = await User(clb.from_user, clb.message.chat)
-    chats = user.iter_owns()
+    user = await User.create(clb.from_user)
+    chats = await user.get_owns()
 
     menu = src.buttons.private.settings.chats.copy
-    async for chat in chats:
+    for chat in chats:
         chat_settings = src.buttons.private.settings.chat_settings.copy
         settings = chat_settings.get_menu(chat.settings.row, chat.id, src.lang, text=chat.title)
         settings.storage["settings"] = chat_settings
@@ -76,6 +79,6 @@ async def add_alias_button(clb: t.CallbackQuery):
         key: str = data.key
     element.settings.pop(key)
     menu = element.update_buttons()
-    chat.settings = settings.settings
+    settings.save(chat)
 
     await menu.edit(clb.message, False)

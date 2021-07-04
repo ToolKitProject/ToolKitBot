@@ -2,17 +2,14 @@ import re
 import typing as p
 from abc import ABC, abstractmethod
 from calendar import isleap, monthrange
-from copy import copy
 from datetime import datetime, timedelta
-from typing import List, Optional
 
 from aiogram import types as t, filters as f
-from asyncinit import asyncinit
 
 from bot import dp
-from libs.classes.Errors import ArgumentError, UserNotFound
-from libs.src import system
-from . import User, UserText
+from libs.system import regex as r
+from . import Errors as e
+from .User import User
 
 
 class dates:
@@ -45,12 +42,11 @@ class dates:
     def get_month(cls, months: int):
         days = 0
         now = cls.now()
-        years = months // 12
-        month = months % 12
 
-        for m in range(now.month, now.month + month - 1):
+        for m in range(now.month, now.month + months):
+            m = m % 12
+            m = 1 if m == 0 else m
             days += monthrange(now.year, m)[1]
-        days += cls.get_years(years)
         return days
 
 
@@ -63,13 +59,13 @@ class _ParsedArgs:
         self.expand(kwargs)
 
     def __getitem__(self, name):
-        return self.__dict__[name]
-
-    def __setitem__(self, key, value):
-        self.add(key, value)
+        return self.get(name)
 
     def __getattr__(self, name):
         return None
+
+    def __setitem__(self, key, value):
+        self.add(key, value)
 
     def __setattr__(self, key, value):
         self.add(key, value)
@@ -86,13 +82,32 @@ class _ParsedArgs:
     def __bool__(self):
         return bool(len(self))
 
+    def get(self, name):
+        """
+
+        @rtype: p.Optional[_ParsedArgs]
+        """
+        return self.__dict__[name] if name in self.__dict__ else None
+
     def items(self):
+        """
+
+        @rtype: p.ItemsView[str, _ParsedArgs]
+        """
         return self.__dict__.items()
 
     def keys(self):
+        """
+
+        @rtype: p.KeysView[str]
+        """
         return self.__dict__.keys()
 
     def values(self):
+        """
+
+        @rtype: p.ValuesView[_ParsedArgs]
+        """
         return self.__dict__.values()
 
     def expand(self, items: ArgType):
@@ -113,8 +128,9 @@ class _ParseObj:
 
 
 class BaseArg(ABC):
-    def __init__(self, type: str, required: bool, default: p.Any = None):
+    def __init__(self, type: str, name: str, required: bool, default: p.Any = None):
         self.type = type
+        self.name = name
         self.required = required
         self.default = default
 
@@ -128,12 +144,15 @@ class BaseArg(ABC):
 
 
 class Command:
-    def __init__(self, commands: CommandType, text: str, prefix: str = "/", separator: str = " "):
+    def __init__(self, commands: CommandType, name: str):
         self.commands = commands
-        self.prefix = prefix
-        self.separator = separator
+        self.name = name
 
         self.args: p.List[BaseArg] = []
+
+        self.add(
+            Arg(r.parse.command, "command", self.name, True)
+        )
 
     def __call__(self, *filters, state=None):
         def wrapper(func):
@@ -143,19 +162,42 @@ class Command:
 
     def add(self, *args: BaseArg):
         self.args += list(args)
+        return self
 
     async def parse(self, msg: t.Message):
         items = _ParsedArgs()
         obj = _ParseObj(msg)
+
+        await self.check(msg)
+
         for arg in self.args:
-            item = await arg.parse(obj)
+            try:
+                item = await arg.parse(obj)
+            except:
+                raise e.ArgumentError.ArgumentIncorrect(msg.from_user.language_code, arg.name)
             items.add(arg.type, item)
         return items
 
-    async def check(self, msg: t.Message, check_all: bool = False):
+    async def check(self, msg: t.Message):
+        obj = _ParseObj(msg)
+
+        for arg in self.args:
+            if arg.required:
+                if not await arg.check(obj):
+                    raise e.ArgumentError.ArgumentRequired(msg.from_user.language_code, arg.name)
+        return True
+
+    async def check_all(self, msg: t.Message):
         obj = _ParseObj(msg)
         for arg in self.args:
-            if arg.required or check_all:
+            if not await arg.check(obj):
+                return False
+        return True
+
+    async def check_types(self, msg: t.Message, *types: str):
+        obj = _ParseObj(msg)
+        for arg in self.args:
+            if arg.type in types:
                 if not await arg.check(obj):
                     return False
         return True
@@ -173,13 +215,15 @@ class Command:
 
     @property
     def _filter(self):
-        return f.Command(self.commands, self.prefix)
+        return f.Command(self.commands)
 
 
 class Arg(BaseArg):
-    def __init__(self, regexp: p.Union[re.Pattern, str], type: str, required: bool = True, default: p.Any = None):
+
+    def __init__(self, regexp: p.Union[re.Pattern, str], type: str, name: str,
+                 required: bool = True, default: p.Any = None):
         self.regexp = regexp if isinstance(regexp, re.Pattern) else re.compile(regexp)
-        super().__init__(type, required=required, default=default)
+        super().__init__(type, name, required=required, default=default)
 
     async def parse(self, parse: _ParseObj):
         items = _ParsedArgs()
@@ -202,8 +246,8 @@ class Arg(BaseArg):
 
 
 class UserArg(BaseArg):
-    def __init__(self, required: bool = True, default: p.Any = None):
-        super().__init__("user", required, default)
+    def __init__(self, name: str, required: bool = True, default: p.Any = None):
+        super().__init__("user", name, required, default)
 
     async def parse(self, parse: _ParseObj):
         items = _ParsedArgs()
@@ -211,10 +255,10 @@ class UserArg(BaseArg):
         for e in parse.entities:
             type = e.type
             if type == "text_mention":
-                users.append(await User(e.user))
+                users.append(await User.create(e.user))
             elif type == "mention":
                 mention = e.get_text(parse.original_text)
-                users.append(await User(mention))
+                users.append(await User.create(mention))
 
         items.users = users
         return items
@@ -227,9 +271,9 @@ class UserArg(BaseArg):
 
 
 class DateArg(BaseArg):
-    def __init__(self, required: bool = False, default: p.Any = None):
-        super().__init__("date", required, default)
-        self.regexp = re.compile(system.regex.parse.date)
+    def __init__(self, name: str, required: bool = False, default: p.Any = None):
+        super().__init__("date", name, required, default)
+        self.regexp = re.compile(r.parse.date)
 
     async def parse(self, parse: _ParseObj):
         items = _ParsedArgs()
@@ -246,6 +290,8 @@ class DateArg(BaseArg):
                 delta += timedelta(hours=num)
             elif type == "d":
                 delta += timedelta(days=num)
+            elif type == "w":
+                delta += timedelta(weeks=num)
             elif type == "M":
                 delta += timedelta(days=dates.get_month(num))
             elif type == "y":
@@ -309,163 +355,3 @@ def get_days_month(month: int, now: datetime):
         days += monthrange(now.year, m)[1]
     days += get_days_years(years, now)
     return days
-
-
-@asyncinit
-class AdminCommandParser:
-    """
-    Инструмент для парсинга команд
-    """
-
-    async def __init__(self, msg: t.Message, text: Optional[str] = None, target: Optional[User] = None) -> None:
-        self.src = UserText(msg.from_user.language_code)
-
-        self.msg = msg
-        self.chat = msg.chat
-        self.owner: User = await User(msg.from_user, chat=self.chat)
-
-        self.text = text if text else msg.text
-        self.entities = msg.entities
-
-        self.cmd: str = None
-        self.action: str = None
-        self.bot: str = None
-
-        self.targets: List[User] = [target] if target else []
-
-        self.raw_date: str = None
-        self.now: datetime = datetime.now()
-        self.until: datetime = self.now
-
-        self.flags = []
-        self.revoke_admin = False
-        self.delete_all_messages = False
-
-        self.reason: str = ""
-
-        await self.parse()
-        await self.entities_parse()
-
-        if not self.reason:
-            self.reason = self.src.text.chat.admin.reason_empty
-        if not self.targets or not self.cmd:
-            raise ArgumentError(self.src.lang)
-
-    async def parse(self):
-        """
-        Парс по regex
-        """
-        all = system.regex.parse.all.finditer(self.text)
-
-        for match in all:
-            group = match.lastgroup
-            text: str = match.group(group)
-
-            if group == "cmd":
-                self.cmd = text
-                self.bot = match.group("bot")
-                self.action = match.group("action")
-            elif group in ["id", "user"]:
-                await self.to_user(text)
-            elif group == "until":
-                self.raw_date = text
-                await self.to_date(match)
-            elif group == "reason":
-                self.reason += match.group("raw_reason")
-            elif group == "flags":
-                self.flags += list(text.replace("-", ""))
-
-        self.delete_all_messages = "d" in self.flags
-        self.revoke_admin = "r" in self.flags
-
-        delta = self.until - self.now
-        if (delta.total_seconds() < 30 or delta.days > 366) and self.until.timestamp() != self.now.timestamp():
-            await self.msg.answer(self.src.text.errors.UntilWaring)
-            # self.until = self.now
-
-    @classmethod
-    async def check(cls, text: str, *check: str):
-        all = re.finditer(system.regex.parse.all, text)
-        groups = []
-        for math in all:
-            groups.append(math.lastgroup)
-
-        for c in check:
-            if c in groups:
-                return False
-        return True
-
-    async def entities_parse(self):
-        """
-        Парс по message entities
-        """
-        for entity in self.entities:
-            if entity.type == "text_mention":
-                user = await User(entity.user, chat=self.chat)
-                self.targets.append(user)
-
-    async def to_user(self, auth: str) -> User:
-        """
-        Преобразует упоминание в User
-        """
-        user = await User(auth, chat=self.chat)
-        try:
-            pass
-        except Exception as e:
-            raise UserNotFound(self.msg.from_user.language_code)
-        self.targets.append(user)
-
-    async def to_date(self, match: re.Match) -> int:
-        """
-        Преобразует строку в datetime
-        """
-        num: int = int(match.group("num"))
-        datetype: str = match.group("type")
-
-        if datetype == "s":
-            delta = timedelta(seconds=num)
-        elif datetype == "m":
-            delta = timedelta(minutes=num)
-        elif datetype == "h":
-            delta = timedelta(hours=num)
-        elif datetype == "d":
-            delta = timedelta(days=num)
-        elif datetype == "M":
-            delta = timedelta(days=get_days_month(num, self.now))
-        elif datetype == "y":
-            delta = timedelta(days=get_days_years(num, self.now))
-
-        self.until += + delta
-
-    async def re_parse_date(self):
-        if not self.raw_date:
-            return
-        self.now = datetime.now()
-        self.until = self.now
-        match = re.match(system.regex.parse.date, self.raw_date)
-        await self.to_date(match)
-
-    async def undo(self) -> str:
-        if self.action.startswith("un"):
-            return self.action.removeprefix("un")
-        else:
-            return "un" + self.action
-
-    @property
-    def format_until(self):
-        """
-        Возвращает форматированую дату
-        """
-        if self.now == self.until:
-            return self.src.text.chat.admin.forever
-        return f"{self.until.year}-{self.until.month}-{self.until.day}"
-
-    @property
-    def format_users(self):
-        """
-        Возвращает форматированных пользователей 
-        """
-        result = ""
-        for user in self.targets:
-            result += f"{user.link},"
-        return result.removesuffix(",")

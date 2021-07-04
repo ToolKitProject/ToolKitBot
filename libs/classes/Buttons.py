@@ -38,7 +38,7 @@ class Menu:
     async def save_storage(self, msg: t.Message):
         from libs.objects import MessageData
         with await MessageData.data(msg) as data:
-            if "history" not in data:
+            if not data.history:
                 data.history = [self]
             else:
                 data.history.append(self)
@@ -52,7 +52,7 @@ class Menu:
 
     @property
     def menu(self):
-        from libs.src import system
+        from libs import system
 
         im = IM(self.row)
         buttons = [btn.button for btn in self.buttons]

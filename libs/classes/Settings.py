@@ -4,6 +4,7 @@ from copy import deepcopy
 from aiogram.utils.callback_data import CallbackData
 
 from .Buttons import Button, MenuButton
+from .Chat import Chat
 
 clb_data = CallbackData("chat_settings", "chat_id", "lang")
 
@@ -159,8 +160,8 @@ class Settings(_Settings):
     def __init__(self, title: str, text: str, key: str, *elements, undo: bool = True, row: int = 1):
         super().__init__(title, text, key, *elements, undo=undo, row=row)
 
-    def save(self, chat):
-        chat.settings = self.settings
+    def save(self, chat: Chat):
+        chat.chat.settings = self.settings
 
     def get_menu(self, settings: SettingType, chat_id: int, lang: str,
                  edit: bool = False, text: p.Optional[str] = None):
