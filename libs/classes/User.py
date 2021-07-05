@@ -1,5 +1,5 @@
 import typing as p
-from json import loads
+from datetime import timedelta
 
 from aiogram import types as t
 
@@ -28,8 +28,11 @@ class User:  # TODO:Добавить коментарии
     permission: permissionOBJ
     owns: p.List[d.chatOBJ]
 
-    @staticmethod
-    async def create(auth: p.Union[str, int, t.User]):
+    MUTE = t.ChatPermissions(can_send_messages=False)
+    UNMUTE = t.ChatPermissions(*[True] * 8)
+
+    @classmethod
+    async def create(cls, auth: p.Union[str, int, t.User]):
         """
 
         @rtype: User
@@ -106,12 +109,20 @@ class User:  # TODO:Добавить коментарии
                                allow_sending_without_reply=allow_sending_without_reply,
                                reply_markup=reply_markup, )
 
-    async def has_permission(self, chat_id: int, *permissions: str):
-        member = await bot.get_chat_member(chat_id, self.id)
-        for perm in permissions:
-            if not (getattr(member, perm) or member.is_chat_creator()):
-                return False
-        return True
-
     async def get_owns(self) -> p.List[Chat]:
         return [await Chat.create(c.id) for c in self.owns]
+
+    async def ban(self, chat_id: int, until: timedelta):
+        await bot.ban_chat_member(chat_id, self.id, until_date=until)
+
+    async def unban(self, chat_id: int):
+        await bot.unban_chat_member(chat_id, self.id, only_if_banned=True)
+
+    async def mute(self, chat_id: int, until: timedelta):
+        await bot.restrict_chat_member(chat_id, self.id, self.MUTE, until_date=until)
+
+    async def unmute(self, chat_id: int):
+        await bot.restrict_chat_member(chat_id, self.id, self.UNMUTE)
+
+    async def kick(self, chat_id: int):
+        await bot.unban_chat_member(chat_id, self.id, only_if_banned=False)

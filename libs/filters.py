@@ -24,9 +24,9 @@ class _helper:
 
     @staticmethod
     def has_permission(admin: t.ChatMember, permissions: p.Set[str]):
-        if admin.is_chat_creator():
+        if t.ChatMemberStatus.is_chat_creator(admin.status):
             return True
-        elif admin.is_chat_admin():
+        elif t.ChatMemberStatus.is_chat_creator(admin.status):
             for perm in permissions:
                 if not getattr(admin, perm):
                     return False
@@ -45,7 +45,7 @@ class AdminFilter(f.BoundFilter):
             return False
 
         admin = await chat.get_member(self._user_id or user.id)
-        if admin.is_chat_creator() or admin.is_chat_admin():
+        if t.ChatMemberStatus.is_chat_admin(admin.status):
             return True
         else:
             return False

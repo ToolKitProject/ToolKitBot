@@ -8,8 +8,10 @@ cancel = "\n/cancel - отмена"
 
 
 class errors:
-    class command:
-        CommandNotFound = "⚠ Команда не найдена"
+    class restrict:
+        pass
+
+    class argument_error:
         ArgumentError = "⚠ Неверный аргумент"
 
         incorrect = f'Аргумент "{b("{arg_name}")}" неверен'
@@ -69,9 +71,9 @@ class chat:
                      _perm
 
     class admin:
-        reason = f"Причина ❔ - {c('{reason}')} \n"
+        reason = f"Причина ❓ - {c('{reason}')} \n"
         admin = f"Администратор 👤 - {i('{admin}')} \n"
-        until = f"До ⌛ - {b('{until}')} \n"
+        until = f"На ⌛ - {b('{until}')} \n"
 
         unmute = "{user} размучен 🔈 \n" + reason + admin
         multi_unmute = "{user} размучены 🔈 \n" + reason + admin

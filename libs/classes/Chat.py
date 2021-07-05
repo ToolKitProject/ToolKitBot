@@ -18,8 +18,8 @@ class Chat:
     invite_link: str
     settings: settingsOBJ
 
-    @staticmethod
-    async def create(auth: Union[int, str, t.Chat]):
+    @classmethod
+    async def create(cls, auth: Union[int, str, t.Chat]):
         """
 
         @rtype: Chat
@@ -74,6 +74,6 @@ class Chat:
         from .User import User
         admins = await self._chat.get_administrators()
         for admin in admins:
-            if admin.is_chat_creator():
+            if t.ChatMemberStatus.is_chat_creator(admin.status):
                 result = await User.create(admin.user)
                 return result

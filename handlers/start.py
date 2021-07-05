@@ -22,7 +22,7 @@ async def test_clb(clb: t.CallbackQuery):
 
 # @dp.callback_query_handler(test_clb)
 # @any.command.AdminCommandParser()
-@dp.message_handler(commands=["test"])
+# @dp.message_handler(commands=["test"])
 async def test_xd(msg: t.Message):
     chat = await Chat.create(msg.chat)
     chat.chat.settings = {}

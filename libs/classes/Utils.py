@@ -17,15 +17,15 @@ is_private = f.ChatTypeFilter(t.ChatType.PRIVATE)
 is_reply = f.IsReplyFilter(True)
 
 
-def lower_dict(dict: p.Dict[str, p.Any]):
+def lower_dict(d: p.Dict[str, p.Any]):
     result = {}
-    for key, value in dict.items():
+    for key, value in d.items():
         result[key.lower()] = value
     return result
 
 
-def find_key(dict: p.Dict[str, p.Any], key: str):
-    for k in dict.keys():
+def find_key(d: p.Dict[str, p.Any], key: str):
+    for k in d.keys():
         if k.lower() == key.lower():
             return k
     return key
@@ -71,25 +71,25 @@ def bot_has_permission(*permissions: str):
 def add_member(upd: t.ChatMemberUpdated):
     old = upd.old_chat_member
     new = upd.new_chat_member
-    return not old.is_chat_member() and new.is_chat_member()
+    return not t.ChatMemberStatus.is_chat_member(old.status) and t.ChatMemberStatus.is_chat_member(new.status)
 
 
 def removed_member(upd: t.ChatMemberUpdated):
     old = upd.old_chat_member
     new = upd.new_chat_member
-    return old.is_chat_member() and not new.is_chat_member()
+    return t.ChatMemberStatus.is_chat_member(old.status) and not t.ChatMemberStatus.is_chat_member(new.status)
 
 
 def promote_admin(upd: t.ChatMemberUpdated):
     old = upd.old_chat_member
     new = upd.new_chat_member
-    return not old.is_chat_admin() and new.is_chat_admin()
+    return not t.ChatMemberStatus.is_chat_admin(old.status) and t.ChatMemberStatus.is_chat_admin(new.status)
 
 
 def restrict_admin(upd: t.ChatMemberUpdated):
     old = upd.old_chat_member
     new = upd.new_chat_member
-    return old.is_chat_admin() and not new.is_chat_admin()
+    return t.ChatMemberStatus.is_chat_admin(old.status) and not t.ChatMemberStatus.is_chat_admin(new.status)
 
 
 def has_permission(*permissions: str):
@@ -101,9 +101,12 @@ def has_permission(*permissions: str):
         else:
             return TypeError("has_permission не там стоит")
 
-        for perm in permissions:
-            if not (getattr(member, perm) or member.is_chat_creator()):
-                raise e.HasNotPermission(member.user.language_code)
+        if not t.ChatMemberStatus.is_chat_admin(member.status):
+            raise e.HasNotPermission(member.user.language_code)
+        elif member.status == t.ChatMemberStatus.ADMINISTRATOR:
+            for perm in permissions:
+                if not getattr(member, perm):
+                    raise e.HasNotPermission(member.user.language_code)
         return True
 
     return filter

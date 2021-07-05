@@ -103,7 +103,7 @@ class Button:
         return ib
 
     @property
-    def inline(self):
+    def inline(self) -> t.InlineKeyboardMarkup:
         im = IM().add(self.button)
         return im
 

@@ -9,6 +9,7 @@ from aiogram import types as t, filters as f
 from bot import dp
 from libs.system import regex as r
 from . import Errors as e
+from .Localisation import UserText
 from .User import User
 
 
@@ -62,7 +63,7 @@ class _ParsedArgs:
         return self.get(name)
 
     def __getattr__(self, name):
-        return None
+        return _ParsedArgs()
 
     def __setitem__(self, key, value):
         self.add(key, value)
@@ -121,9 +122,11 @@ class _ParsedArgs:
 
 class _ParseObj:
     def __init__(self, msg: t.Message):
+        self.lang = msg.from_user.language_code
         self.text = msg.text
         self.entities = msg.entities
 
+        self.reply_user = msg.reply_to_message.from_user if msg.reply_to_message else None
         self.original_text = self.text
 
 
@@ -233,7 +236,7 @@ class Arg(BaseArg):
             items.expand(groups)
         return items
 
-    async def check(self, parse: t.Message):
+    async def check(self, parse: _ParseObj):
         matches, parse.text = await self.match(parse.text)
         for _ in matches:
             return True
@@ -250,7 +253,6 @@ class UserArg(BaseArg):
         super().__init__("user", name, required, default)
 
     async def parse(self, parse: _ParseObj):
-        items = _ParsedArgs()
         users = []
         for e in parse.entities:
             type = e.type
@@ -260,10 +262,14 @@ class UserArg(BaseArg):
                 mention = e.get_text(parse.original_text)
                 users.append(await User.create(mention))
 
-        items.users = users
-        return items
+        if parse.reply_user:
+            users.append(await User.create(parse.reply_user))
 
-    async def check(self, parse: t.Message):
+        return users
+
+    async def check(self, parse: _ParseObj):
+        if parse.reply_user:
+            return True
         for e in parse.entities:
             if e.type in ["text_mention", "mention"]:
                 return True
@@ -276,7 +282,6 @@ class DateArg(BaseArg):
         self.regexp = re.compile(r.parse.date)
 
     async def parse(self, parse: _ParseObj):
-        items = _ParsedArgs()
         matches, parse.text = await self.match(parse.text)
 
         delta = timedelta()
@@ -297,10 +302,7 @@ class DateArg(BaseArg):
             elif type == "y":
                 delta += timedelta(days=dates.get_years(num))
 
-        date = dates.now() + delta
-
-        items.date = date if delta > timedelta() else None
-        return items
+        return delta
 
     async def check(self, parse: _ParseObj):
         matches, parse.text = await self.match(parse.text)
@@ -328,30 +330,3 @@ class Flag:
 class ValueFlag(Flag):
     def __init__(self):
         super().__init__()
-
-
-def get_days_years(year: int, now: datetime):
-    """
-    Превращает года в дни
-    """
-    days = 0
-    for y in range(now.year, now.year + year):
-        year_days = 365
-        if isleap(y):
-            year_days += 1
-        days += year_days
-    return days
-
-
-def get_days_month(month: int, now: datetime):
-    """
-    Превращает месяца в дни
-    """
-    days = 0
-    years = month // 12
-    month = month % 12
-
-    for m in range(now.month, now.month + month):
-        days += monthrange(now.year, m)[1]
-    days += get_days_years(years, now)
-    return days

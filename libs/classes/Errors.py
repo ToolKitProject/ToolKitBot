@@ -95,7 +95,7 @@ class ArgumentError(MyError):
     def __init__(self, lang: str, context: str, arg_name: str):
         super().__init__(lang)
         self.arg_name = arg_name
-        self.text = f"{self.src.text.errors.command.ArgumentError}\n" \
+        self.text = f"{self.src.text.errors.argument_error.ArgumentError}\n" \
                     f"┗━{context.format(**self.__dict__)}"
         self.auto_delete = 0
         self.delete = True
@@ -105,7 +105,7 @@ class ArgumentError(MyError):
 class ArgumentError(MyError):
     def __init__(self, lang: str):
         super().__init__(lang)
-        self.text = f"{self.src.text.errors.command.ArgumentError}"
+        self.text = f"{self.src.text.errors.argument_error.ArgumentError}"
         self.auto_delete = 0
         self.delete = True
         self.alert = True
@@ -114,8 +114,8 @@ class ArgumentError(MyError):
         def __init__(self, lang: str, arg_name: str):
             super().__init__(lang)
             self.arg_name = arg_name
-            self.context = self.src.text.errors.command.required
-            self.text = f"{self.src.text.errors.command.ArgumentError}\n" \
+            self.context = self.src.text.errors.argument_error.required
+            self.text = f"{self.src.text.errors.argument_error.ArgumentError}\n" \
                         f"┗━{self.context.format(**self.__dict__)}"
             self.auto_delete = 0
             self.delete = True
@@ -125,8 +125,8 @@ class ArgumentError(MyError):
         def __init__(self, lang: str, arg_name: str):
             super().__init__(lang)
             self.arg_name = arg_name
-            self.context = self.src.text.errors.command.incorrect
-            self.text = f"{self.src.text.errors.command.ArgumentError}\n" \
+            self.context = self.src.text.errors.argument_error.incorrect
+            self.text = f"{self.src.text.errors.argument_error.ArgumentError}\n" \
                         f"┗━{self.context.format(**self.__dict__)}"
             self.auto_delete = 0
             self.delete = True

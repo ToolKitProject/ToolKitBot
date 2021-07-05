@@ -1,3 +1,5 @@
+import logging
+
 import config
 from aiogram.dispatcher.dispatcher import Dispatcher
 from aiogram import executor
@@ -26,7 +28,7 @@ if True:
     from bot import dp, client
     import handlers
     from libs.objects import MessageData
-    from libs.system import commands
+    import lang_conf
 
     # from objects import MessageData
 
@@ -37,8 +39,12 @@ async def shutdown(dp: Dispatcher):
 
 async def startup(dp: Dispatcher):
     await client.start()
-    # await dp.bot.set_my_commands(commands) Deprecated !!!!!!!!!!!!!!
+    for lang, src in lang_conf.lang_map.items():
+        for scope, cmd in src.any.command_list.items():
+            if lang == "other": lang = None
+            await dp.bot.set_my_commands(cmd, scope, lang)
     config.bot = await dp.bot.get_me()
+    logging.info("Bot init")
 
 
 if __name__ == "__main__":

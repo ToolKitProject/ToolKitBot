@@ -8,8 +8,10 @@ cancel = "\n/cancel - to cancel"
 
 
 class errors:
-    class command:
-        CommandNotFound = "⚠ Command not found"
+    class restrict:
+        pass
+
+    class argument_error:
         ArgumentError = "⚠ Invalid argument"
 
         incorrect = f'Argument "{b("{arg_name}")}" incorrect'
@@ -69,9 +71,9 @@ class chat:
                      _perm
 
     class admin:
-        reason = f"Reason ❔ - {c('{reason}')} \n"
+        reason = f"Reason ❓ - {c('{reason}')} \n"
         admin = f"Moderator 👤 - {i('{admin}')} \n"
-        until = f"Until ⌛ - {b('{until}')} \n"
+        until = f"for ⌛ - {b('{until}')} \n"
 
         unmute = "{user} unmuted 🔈 \n" + reason + admin
         multi_unmute = unmute

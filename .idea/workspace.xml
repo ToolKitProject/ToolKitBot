@@ -5,36 +5,22 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="ef69e248-51ef-4d55-b965-cbc8bd553459" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/sqldialects.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/sqldialects.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/dependencies" beforeDir="false" afterPath="$PROJECT_DIR$/dependencies" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/handlers/chat/admin/purge.py" beforeDir="false" afterPath="$PROJECT_DIR$/handlers/chat/admin/purge.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/handlers/chat/admin/restrict.py" beforeDir="false" afterPath="$PROJECT_DIR$/handlers/chat/admin/restrict.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/handlers/private/alias_form.py" beforeDir="false" afterPath="$PROJECT_DIR$/handlers/private/alias_form.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/handlers/private/settings.py" beforeDir="false" afterPath="$PROJECT_DIR$/handlers/private/settings.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/handlers/start.py" beforeDir="false" afterPath="$PROJECT_DIR$/handlers/start.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/libs/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/libs/__init__.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/libs/classes/Buttons.py" beforeDir="false" afterPath="$PROJECT_DIR$/libs/classes/Buttons.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/libs/classes/Chat.py" beforeDir="false" afterPath="$PROJECT_DIR$/libs/classes/Chat.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/libs/classes/CommandParser.py" beforeDir="false" afterPath="$PROJECT_DIR$/libs/classes/CommandParser.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/libs/classes/Database.py" beforeDir="false" afterPath="$PROJECT_DIR$/libs/classes/Database.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/libs/classes/Errors.py" beforeDir="false" afterPath="$PROJECT_DIR$/libs/classes/Errors.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/libs/classes/Localisation.py" beforeDir="false" afterPath="$PROJECT_DIR$/libs/classes/Localisation.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/libs/classes/Message.py" beforeDir="false" afterPath="$PROJECT_DIR$/libs/classes/Message.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/libs/classes/Settings.py" beforeDir="false" afterPath="$PROJECT_DIR$/libs/classes/Settings.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/libs/classes/User.py" beforeDir="false" afterPath="$PROJECT_DIR$/libs/classes/User.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/libs/classes/Utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/libs/classes/Utils.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/libs/classes/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/libs/classes/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/libs/objects.py" beforeDir="false" afterPath="$PROJECT_DIR$/libs/objects.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/libs/src/FUCK.zip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/libs/src/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/libs/src/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/libs/filters.py" beforeDir="false" afterPath="$PROJECT_DIR$/libs/filters.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/libs/src/other/any.py" beforeDir="false" afterPath="$PROJECT_DIR$/libs/src/other/any.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/libs/src/other/buttons.py" beforeDir="false" afterPath="$PROJECT_DIR$/libs/src/other/buttons.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/libs/src/other/text.py" beforeDir="false" afterPath="$PROJECT_DIR$/libs/src/other/text.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/libs/src/ru/any.py" beforeDir="false" afterPath="$PROJECT_DIR$/libs/src/ru/any.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/libs/src/ru/buttons.py" beforeDir="false" afterPath="$PROJECT_DIR$/libs/src/ru/buttons.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/libs/src/ru/text.py" beforeDir="false" afterPath="$PROJECT_DIR$/libs/src/ru/text.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/libs/src/system.py" beforeDir="false" afterPath="$PROJECT_DIR$/libs/system.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/libs/system.py" beforeDir="false" afterPath="$PROJECT_DIR$/libs/system.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -65,18 +51,26 @@
     <setting file="file://$PROJECT_DIR$/libs/src/ru/buttons.py" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/libs/src/other/buttons.py" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/libs/classes/Buttons.py" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/libs/classes/User.py" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/handlers/private/settings.py" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/handlers/chat/admin/purge.py" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/handlers/chat/admin/poll.py" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/handlers/end.py" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/libs/classes/Chat.py" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$USER_HOME$/.local/lib/python3.9/site-packages/aiogram/utils/exceptions.py" root0="SKIP_INSPECTION" />
     <setting file="file://$PROJECT_DIR$/handlers/chat/admin/restrict.py" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/libs/classes/Errors.py" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/handlers/start.py" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/libs/classes/Settings.py" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/libs/classes/Message.py" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$USER_HOME$/.local/lib/python3.9/site-packages/aiogram/types/bot_command.py" root0="SKIP_INSPECTION" />
     <setting file="file://$PROJECT_DIR$/libs/classes/Localisation.py" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/libs/system.py" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/libs/classes/CommandParser.py" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$USER_HOME$/.local/lib/python3.9/site-packages/async_lru.py" root0="SKIP_INSPECTION" />
+  </component>
+  <component name="ProblemsViewState">
+    <option name="sortByName" value="true" />
   </component>
   <component name="ProjectId" id="1sneMJBW1GpdkKExAkhd3SHgfGB" />
   <component name="ProjectLevelVcsManager" settingsEditedManually="true">
@@ -279,6 +273,10 @@
       <workItem from="1625269613022" duration="6047000" />
       <workItem from="1625319771825" duration="10776000" />
       <workItem from="1625354375545" duration="13785000" />
+      <workItem from="1625445388073" duration="6352000" />
+      <workItem from="1625476542019" duration="233000" />
+      <workItem from="1625476795102" duration="9157000" />
+      <workItem from="1625491928225" duration="9263000" />
     </task>
     <servers />
   </component>
@@ -312,9 +310,9 @@
     </breakpoint-manager>
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
-    <SUITE FILE_PATH="coverage/ToolKit$Test_Token.coverage" NAME="Test Token Coverage Results" MODIFIED="1625407713935" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/ToolKit$Test_Token.coverage" NAME="Test Token Coverage Results" MODIFIED="1625501175177" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/ToolKit$Main.coverage" NAME="Main Coverage Results" MODIFIED="1622732119488" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/ToolKit$test.coverage" NAME="test Coverage Results" MODIFIED="1625406746872" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/ToolKit$test.coverage" NAME="test Coverage Results" MODIFIED="1625494099721" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/ToolKit$Test.coverage" NAME="Test Token Coverage Results" MODIFIED="1622865751809" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/ToolKit$Settings.coverage" NAME="Settings Coverage Results" MODIFIED="1622209229840" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/libs/classes" />
     <SUITE FILE_PATH="coverage/ToolKit$Database.coverage" NAME="Database Coverage Results" MODIFIED="1625328397951" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/libs/classes" />
