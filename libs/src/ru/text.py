@@ -1,21 +1,33 @@
+from aiogram.utils.markdown import hbold as b
+from aiogram.utils.markdown import hcode as c
+from aiogram.utils.markdown import hitalic as i
 from aiogram.utils.markdown import hlink as l
+from aiogram.utils.markdown import text as t
 
 cancel = "\n/cancel - отмена"
 
 
 class errors:
+    class restrict:
+        pass
+
+    class argument_error:
+        ArgumentError = "⚠ Неверный аргумент"
+
+        incorrect = f'Аргумент "{b("{arg_name}")}" неверен'
+        required = f'Аргумент "{b("{arg_name}")}" обязателен'
+
     until = "Если пользователь заблокирован на срок более 366 дней или менее 30 секунд с текущего времени, он считается заблокированным навсегда."
     UntilWaring = f"❗ {until}"
 
     CommandNotFound = "⚠ Команда не найдена"
     UserNotFound = "⚠ Пользователь не найден"
-    ArgumentError = "⚠ Неверный аргумент"
     HasNotPermission = "⚠ У вас недостаточно прав"
     EmptyOwns = "⚠ Ты не владеешь чатами"
     TypeError = "⚠ Не тот тип"
     AlreadyExists = "⚠ Уже существует"
     NotReply = "⚠ Нет ответа"
-    BotHasNotPermission = "⚠ У бота нет1 прав или их не достаточно"
+    BotHasNotPermission = "⚠ У бота нет прав или их не достаточно"
     BackError = "⚠ Ошибка возврата"
 
 
@@ -32,13 +44,14 @@ class private:
         chat_loading = "🕒 Подождите, чаты загружаются"
         sticker = "1⃣ Пришли мне стикер" + cancel
         text = "1⃣ Пришли мне текст" + cancel
+
         command = "2⃣ Пришли мне команду"
 
 
 class chat:
     _perm = "┣ /ban /unban ⛔ \n" +\
             "┣ /mute /unmute 🔇 \n" +\
-            "┣ /purge 🔥\n" +\
+            "┣ /purge 🗑\n" +\
             "┗ /kick ⚠"
 
     start_text = "Привет, я ToolKit бот \n" +\
@@ -58,29 +71,29 @@ class chat:
                      _perm
 
     class admin:
-        reason = "Причина ❔ - {reason} \n"
-        admin = "Администратор 👤 - {admin} \n"
-        until = "До ⌛ - {until} \n"
+        reason = f"Причина ❓ - {c('{reason}')} \n"
+        admin = f"Администратор 👤 - {i('{admin}')} \n"
+        until = f"До ⌛ - {b('{until}')} \n"
 
-        unmute = "{users} размучен 🔈 \n" + reason + admin
-        multi_unmute = "{users} размучены 🔈 \n" + reason + admin
+        unmute = "{user} размучен 🔈 \n" + reason + admin
+        multi_unmute = "{user} размучены 🔈 \n" + reason + admin
 
-        mute = "{users} замучен 🔇 \n" + reason + admin + until
-        multi_mute = "{users} замучены 🔇 \n" + reason + admin + until
+        mute = "{user} замучен 🔇 \n" + reason + admin + until
+        multi_mute = "{user} замучены 🔇 \n" + reason + admin + until
 
-        kick = "{users} исключён ⚠ \n" + reason + admin
-        multi_kick = "{users} исключёны ⚠ \n" + reason + admin
+        kick = "{user} исключён ⚠ \n" + reason + admin
+        multi_kick = "{user} исключёны ⚠ \n" + reason + admin
 
-        unban = "{users} разаблокирован ✅ \n" + reason + admin
-        multi_unban = "{users} разаблокированы ✅ \n" + reason + admin
+        unban = "{user} разаблокирован ✅ \n" + reason + admin
+        multi_unban = "{user} разаблокированы ✅ \n" + reason + admin
 
-        ban = "{users} заблокирован ⛔ \n" + reason + admin + until
-        multi_ban = "{users} заблокированы ⛔ \n" + reason + admin + until
+        ban = "{user} заблокирован ⛔ \n" + reason + admin + until
+        multi_ban = "{user} заблокированы ⛔ \n" + reason + admin + until
 
         forever = "31 Февраля 1970 года"
         reason_empty = "Без причины"
 
-        purge = "🔥 Чат очищен от {count} сообщений"
+        purge = "🗑 В чате удалено {count} сообщений"
 
 
 class help:
@@ -88,7 +101,7 @@ class help:
     until = "\n⏳ Дата[s|m|h|d|M|y] (1m 30s,1M)"
     reason = "\n❔ \"Причина\" (Да прям в кавычках)"
     # revoke_admin = "\n🚫 -r снять администратора"
-    # delete_all_message = "\n🔥 -d удалить все сообщения "
+    # delete_all_message = "\n🗑 -d удалить все сообщения "
     revoke_admin = ""
     delete_all_message = ""
 
@@ -98,7 +111,7 @@ class help:
     mute = "🔇 /mute" + users + until + reason + revoke_admin
     unmute = "🔈 /unmute" + users + reason
 
-    count = "\n🔢 Количество (0 - 1000)"
+    count = "\n🔢 Количество (2 - 1000)"
     reply = "\n⤴ Ответьте для удаления выше"
 
-    purge = "🔥 /purge" + count + reply
+    purge = "🗑 /purge" + count + reply

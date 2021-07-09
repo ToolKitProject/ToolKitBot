@@ -22,20 +22,19 @@ class Data:
         pass
 
     def __setattr__(self, name: str, value: Any):
-        self.__dict__[name] = value
+        self.set(name, value)
 
     def __getattr__(self, name: str) -> Any:
-        return self.__dict__[name]
+        return self.get(name)
 
     def __setitem__(self, name: str, value: Any):
-        self.__dict__[name] = value
+        self.set(name, value)
 
     def __getitem__(self, name: str) -> Any:
-        return self.__dict__[name]
+        return self.get(name)
 
     def __iter__(self):
-        for key in self.__dict__:
-            yield key
+        return self.__dict__
 
     @property
     def storage(self):
@@ -53,14 +52,14 @@ class Data:
         """
         Возвращает данные
         """
-        return self.__dict__[key]
+        return self.__dict__[key] if key in self.__dict__ else None
 
     def set(self, key: str, value: str) -> object:
         """
         Добавляет или изменяет данные
         """
         self.__dict__[key] = value
-        return self.__dict__[key]
+        return value
 
     async def close(self, markup: bool = True):
         try:
@@ -84,7 +83,7 @@ class MessageData:
         self.storage: Dict[int, Dict[int, Data]] = {}
 
     async def data(self, msg: t.Message) -> Data:
-        """ 
+        """
         Создает или возвращает данные
         """
         if msg.chat.id in self.storage and msg.message_id in self.storage[msg.chat.id]:
@@ -94,7 +93,7 @@ class MessageData:
 
     async def delete(self, msg: t.Message, markup: bool = True):
         """
-        Удаляет данные и сообщение 
+        Удаляет данные и сообщение
         """
         await self.remove(msg)
         if markup:
@@ -112,7 +111,7 @@ class MessageData:
 
     async def close(self, markup: bool = True):
         """
-        Удаляет ВСЕ данные и ВСЕ сообщение 
+        Удаляет ВСЕ данные и ВСЕ сообщение
         """
         for storage in self.storage.values():
             for data in storage.values():
@@ -120,7 +119,7 @@ class MessageData:
 
     async def new(self, msg: t.Message) -> Data:
         """
-        Добавляет данные к сообщению 
+        Добавляет данные к сообщению
         """
         if msg.chat.id not in self.storage:
             self.storage[msg.chat.id] = {}
@@ -136,12 +135,12 @@ class MessageData:
 
     async def get(self, msg: t.Message) -> Data:
         """
-        Возвращает данные 
+        Возвращает данные
         """
         return self.storage[msg.chat.id][msg.message_id]
 
     async def get_by_id(self, chat_id: int, message_id: int):
         """
-        Возвращает данные 
+        Возвращает данные
         """
         return self.storage[chat_id][message_id]

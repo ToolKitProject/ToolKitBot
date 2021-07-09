@@ -38,7 +38,7 @@ class Menu:
     async def save_storage(self, msg: t.Message):
         from libs.objects import MessageData
         with await MessageData.data(msg) as data:
-            if "history" not in data:
+            if not data.history:
                 data.history = [self]
             else:
                 data.history.append(self)
@@ -52,7 +52,7 @@ class Menu:
 
     @property
     def menu(self):
-        from libs.src import system
+        from libs import system
 
         im = IM(self.row)
         buttons = [btn.button for btn in self.buttons]
@@ -70,19 +70,22 @@ class Button:
         self.text: str = text
         self.data = data
 
-    def set_action(self, *filters, state=None):
-        filters = list(filters)
-        filters.append(self._filter)
-
+    def __call__(self, *filters, state=None):
         def handler(func):
-            dp.register_callback_query_handler(
-                func,
-                *filters,
-                state=state
-            )
-            return func
+            return self.set_action(*filters, func=func, state=state)
 
         return handler
+
+    def set_action(self, *filters, func, state=None):
+        filters = list(filters)
+        filters.insert(0, self._filter)
+
+        dp.register_callback_query_handler(
+            func,
+            *filters,
+            state=state
+        )
+        return func
 
     def set_menu(self, menu: Menu):
         global registered
@@ -100,7 +103,7 @@ class Button:
         return ib
 
     @property
-    def inline(self):
+    def inline(self) -> t.InlineKeyboardMarkup:
         im = IM().add(self.button)
         return im
 
@@ -113,8 +116,6 @@ class Button:
             await menu.edit(clb.message)
 
         return handler
-
-    __call__ = set_action
 
 
 class MenuButton(Menu, Button):

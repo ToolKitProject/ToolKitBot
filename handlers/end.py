@@ -1,4 +1,3 @@
-from dataclasses import is_dataclass
 from aiogram import types as t
 from bot import bot, dp
 from libs.classes import Errors as e

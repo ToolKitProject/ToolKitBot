@@ -1,34 +1,28 @@
-from bot import client, dp
-from libs.classes import Errors as e
-from libs.classes import UserText
 from aiogram import types as t
-from libs.src import system
-from libs.classes.Utils import is_chat, is_reply, bot_has_permission, has_permission, get_help, mark_write
+
+from bot import client
+from libs import system
+from libs.classes.Localisation import UserText
+from libs.classes.Utils import is_chat, bot_has_permission as bhp, has_permission as hp, get_help
+from libs.src import any
+from asyncio import sleep
 
 
-@dp.message_handler(is_chat, get_help, bot_has_permission("can_delete_messages"), has_permission("can_delete_messages"),  commands=["purge"])
+@any.command.PurgeParser(is_chat, bhp("can_delete_messages"), hp("can_delete_messages"), get_help)
 async def purge(msg: t.Message):
-    await msg.delete()
-    await mark_write(msg)
-
     src = UserText(msg.from_user.language_code)
-    args = msg.get_args().split()
-    count = int(args[0])
+    parsed = await src.any.command.PurgeParser.parse(msg)
 
-    if await is_reply.check(msg):
-        from_id = msg.reply_to_message.message_id
-    else:
-        from_id = msg.message_id - 1
+    from_id = msg.reply_to_message.message_id if msg.reply_to_message else msg.message_id - 1
+    to_id = from_id - parsed.number
 
-    try:
-        assert count <= 1000
-        to_id = from_id - count
-    except:
-        raise e.ArgumentError(src.lang)
-
-    delete = list(range(from_id, to_id, -1))
-    for l in range(0, count, 100):
-        d = delete[l:l+100]
-        await client.delete_messages(msg.chat.id, d)
-
-    msg = await msg.answer(src.text.chat.admin.purge.format(count=len(delete)), reply_markup=system.delete_this.inline)
+    msgs = list(range(from_id, to_id, -1))
+    await client.delete_messages(msg.chat.id, msgs)
+    await msg.answer(
+        src.text.chat.admin.purge.format(
+            count=parsed.number
+        ),
+        reply_markup=system.delete_this.inline
+    )
+    await sleep(1)
+    await msg.delete()
