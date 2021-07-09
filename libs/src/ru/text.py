@@ -73,7 +73,7 @@ class chat:
     class admin:
         reason = f"Причина ❓ - {c('{reason}')} \n"
         admin = f"Администратор 👤 - {i('{admin}')} \n"
-        until = f"На ⌛ - {b('{until}')} \n"
+        until = f"До ⌛ - {b('{until}')} \n"
 
         unmute = "{user} размучен 🔈 \n" + reason + admin
         multi_unmute = "{user} размучены 🔈 \n" + reason + admin
@@ -93,7 +93,7 @@ class chat:
         forever = "31 Февраля 1970 года"
         reason_empty = "Без причины"
 
-        purge = "🗑 Чат очищен от {count} сообщений"
+        purge = "🗑 В чате удалено {count} сообщений"
 
 
 class help:
@@ -111,7 +111,7 @@ class help:
     mute = "🔇 /mute" + users + until + reason + revoke_admin
     unmute = "🔈 /unmute" + users + reason
 
-    count = "\n🔢 Количество (0 - 1000)"
+    count = "\n🔢 Количество (2 - 1000)"
     reply = "\n⤴ Ответьте для удаления выше"
 
     purge = "🗑 /purge" + count + reply

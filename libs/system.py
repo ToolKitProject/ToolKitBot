@@ -5,6 +5,11 @@ from libs.classes.Buttons import Button
 back = Button("↩", "back")
 delete_this = Button("🗑", "delete_this")
 
+
+def info(text: str):
+    return Button("❓", f"info@{text}")
+
+
 restrict_commands = ["ban", "unban", "kick", "mute", "unmute"]
 
 
@@ -13,6 +18,9 @@ class regex:
         command = r"(?P<full>^/(?P<text>[0-9a-zA-Z_]+)(?P<bot>@[0-9a-zA-Z_]+)?)"
         date = r"(?P<date>(?P<num>[1-9][0-9]*)(?P<type>[s|m|h|d|w|M|y]))"
         reason = r"(?P<full>[(|\"|\'](?P<raw>.+)[)|\"|\'])"
+
+        text = r"(?P<text>\w[\w ]*$)"
+        number = r"(?P<number>-?[\d]+)"
 
     class settings:
         chat_settings = r"^(?P<prefix>settings)@(?P<id>-100[0-9]+)$"

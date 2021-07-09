@@ -17,7 +17,8 @@ class errors:
         incorrect = f'Argument "{b("{arg_name}")}" incorrect'
         required = f'Argument "{b("{arg_name}")}" required'
 
-    until = "If user is banned for more than 366 days or less than 30 seconds from the current time they are considered to be banned forever."
+    until = "If user is banned for more than 366 days or less than 30 seconds from the current time they are " \
+            "considered to be banned forever. "
     UntilWaring = f"❗ {until}"
 
     CommandNotFound = "⚠ Command not found"
@@ -73,7 +74,7 @@ class chat:
     class admin:
         reason = f"Reason ❓ - {c('{reason}')} \n"
         admin = f"Moderator 👤 - {i('{admin}')} \n"
-        until = f"for ⌛ - {b('{until}')} \n"
+        until = f"Until ⌛ - {b('{until}')} \n"
 
         unmute = "{user} unmuted 🔈 \n" + reason + admin
         multi_unmute = unmute
@@ -111,7 +112,7 @@ class help:
     mute = "🔇 /mute" + users + until + reason + delete_all_message
     unmute = "🔈 /unmute" + users + reason
 
-    count = "\n🔢 Count (0 - 1000)"
+    count = "\n🔢 Count (2 - 1000)"
     reply = "\n⤴ Reply to delete above"
 
     purge = "🗑 /purge" + count + reply

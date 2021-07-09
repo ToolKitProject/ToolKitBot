@@ -1,8 +1,11 @@
-from aiogram import types as t, filters as f
-from bot import dp
 import typing as p
 
+from aiogram import types as t, filters as f
+
 import config
+from bot import dp
+from libs.classes import Utils as u
+from libs.classes.Chat import Chat
 
 objType = p.Union[t.Message, t.CallbackQuery, t.ChatMemberUpdated]
 
@@ -10,7 +13,6 @@ objType = p.Union[t.Message, t.CallbackQuery, t.ChatMemberUpdated]
 class _helper:
     @staticmethod
     def get_user_and_chat(obj: objType):
-        user, chat = None, None
         if isinstance(obj, t.Message):
             chat = obj.chat
             user = obj.from_user
@@ -20,6 +22,9 @@ class _helper:
         elif isinstance(obj, t.ChatMemberUpdated):
             chat = obj.chat
             user = obj.from_user
+        else:
+            raise TypeError()
+
         return user, chat
 
     @staticmethod
@@ -41,8 +46,6 @@ class AdminFilter(f.BoundFilter):
 
     async def check(self, obj: objType):
         user, chat = _helper.get_user_and_chat(obj)
-        if not (user and chat):
-            return False
 
         admin = await chat.get_member(self._user_id or user.id)
         if t.ChatMemberStatus.is_chat_admin(admin.status):
@@ -51,10 +54,33 @@ class AdminFilter(f.BoundFilter):
             return False
 
 
+class AliasFilter(f.BoundFilter):
+
+    def __init__(self):
+        pass
+
+    async def check(self, msg: objType) -> bool:
+        if not isinstance(msg, t.Message):
+            raise TypeError()
+        if await message.is_private.check(msg):
+            return False
+        chat = await Chat.create(msg.chat)
+
+        if msg.sticker:
+            alias = list(chat.settings.sticker_alias.keys())
+            text = msg.sticker.file_unique_id
+        elif msg.text:
+            alias = list(chat.settings.text_alias.keys())
+            text = msg.text
+
+        return text in alias
+
+
 class message:
     is_chat = f.ChatTypeFilter((t.ChatType.GROUP, t.ChatType.SUPERGROUP))
     is_private = f.ChatTypeFilter(t.ChatType.PRIVATE)
     is_reply = f.IsReplyFilter(True)
+    is_alias = AliasFilter()
 
 
 class bot:
@@ -62,12 +88,12 @@ class bot:
 
     @staticmethod
     def has_permission(permissions: p.List[str]):
-        permissions = set(permissions)
+        permissions = list(set(permissions))
 
         async def filter(obj: objType):
             user, chat = _helper.get_user_and_chat(obj)
             admin = await chat.get_member(config.bot.id)
-            _helper.has_permission(admin, permissions)
+            return _helper.has_permission(admin, permissions)
 
         return filter
 
@@ -82,6 +108,6 @@ class user:
         async def filter(obj: objType):
             user, chat = _helper.get_user_and_chat(obj)
             admin = await chat.get_member(user.id)
-            _helper.has_permission(admin, permissions)
+            return _helper.has_permission(admin, permissions)
 
         return filter

@@ -76,6 +76,18 @@ class settingsOBJ(_link_obj):
         Database.run(f"UPDATE {self._table} SET settings='{dumps(clear_dict(self.row))}' WHERE id={self._id};")
 
     @property
+    def sticker_alias(self) -> dict:
+        if self["sticker_alias"] is None:
+            return {}
+        return self["sticker_alias"]
+
+    @property
+    def text_alias(self) -> dict:
+        if self["text_alias"] is None:
+            return {}
+        return self["text_alias"]
+
+    @property
     def row(self):
         return self._data
 

@@ -24,13 +24,10 @@ elif values.main:
 else:
     raise ValueError("АРГУМЕНТЫ СУКА")
 
-if True:
-    from bot import dp, client
-    import handlers
-    from libs.objects import MessageData
-    import lang_conf
-
-    # from objects import MessageData
+from bot import dp, client
+import handlers
+from libs.objects import MessageData
+import lang_conf
 
 
 async def shutdown(dp: Dispatcher):

@@ -1,7 +1,11 @@
-from libs.classes.CommandParser import Arg, BaseArg, Command, DateArg, UserArg
-from libs.system import regex as r, restrict_commands
-from aiogram.types import BotCommand as cmd, BotCommandScopeAllPrivateChats, BotCommandScopeAllGroupChats, BotCommandScopeAllChatAdministrators
-
+from aiogram.types import BotCommand as cmd
+from aiogram.types import (BotCommandScopeAllChatAdministrators,
+                           BotCommandScopeAllGroupChats,
+                           BotCommandScopeAllPrivateChats)
+from libs.classes.CommandParser import (Arg, BaseArg, Command, DateArg,
+                                        NumberArg, TextArg, UserArg)
+from libs.system import regex as r
+from libs.system import restrict_commands
 
 command_list = {
     BotCommandScopeAllPrivateChats(): [
@@ -23,4 +27,7 @@ class command:
         Arg(r.parse.reason, "reason", "Причина", False),
         DateArg("Срок"),
         UserArg("Пользователь")
+    )
+    PurgeParser = Command("purge", "Команда очищения").add(
+        NumberArg(2, 100, "Количество", required=True)
     )
