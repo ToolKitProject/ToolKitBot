@@ -14,13 +14,7 @@ from libs.src import any
 from libs.src import buttons
 
 
-@dp.message_handler(is_chat, is_reply, alias, bhp("can_restrict_members"), hp("can_restrict_members"),
-                    content_types=[t.ContentType.TEXT, t.ContentType.STICKER])
-async def alias_command(msg: t.Message):
-    pass
-
-
-@any.command.AdminCommandParser(is_chat, get_help, bhp("can_restrict_members"), hp("can_restrict_members"))
+@any.command.AdminCommandParser(is_chat, bhp("can_restrict_members"), hp("can_restrict_members"), get_help)
 async def command(msg: t.Message):
     executor = await User.create(msg.from_user)
     src = executor.src

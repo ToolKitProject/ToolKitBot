@@ -18,7 +18,8 @@ async def test_clb(clb: t.CallbackQuery):
     await clb.answer(dp.callback_query_handlers.handlers.__len__())
 
 
-@dp.message_handler(f.message.is_chat, f.message.is_alias, f.message.is_reply)
+@dp.message_handler(f.message.is_chat, f.message.is_alias, f.message.is_reply,
+                    content_types=[t.ContentType.TEXT, t.ContentType.STICKER])
 async def alias_executor(msg: t.Message):
     upd = t.Update.get_current()
     chat = await Chat.create(msg.chat)

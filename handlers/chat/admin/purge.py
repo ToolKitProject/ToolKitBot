@@ -8,7 +8,7 @@ from libs.src import any
 from asyncio import sleep
 
 
-@any.command.PurgeParser(is_chat, get_help, bhp("can_delete_messages"), hp("can_delete_messages"))
+@any.command.PurgeParser(is_chat, bhp("can_delete_messages"), hp("can_delete_messages"), get_help)
 async def purge(msg: t.Message):
     src = UserText(msg.from_user.language_code)
     parsed = await src.any.command.PurgeParser.parse(msg)

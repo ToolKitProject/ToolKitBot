@@ -56,18 +56,6 @@ async def mark_write(msg: t.Message):
     return True
 
 
-def bot_has_permission(*permissions: str):
-    async def filter(msg: t.Message):
-        member = await bot.get_chat_member(msg.chat.id, c.bot.id)
-        for permission in permissions:
-            can = getattr(member, permission)
-            if not can:
-                return False
-        return True
-
-    return filter
-
-
 def add_member(upd: t.ChatMemberUpdated):
     old = upd.old_chat_member
     new = upd.new_chat_member
@@ -90,6 +78,19 @@ def restrict_admin(upd: t.ChatMemberUpdated):
     old = upd.old_chat_member
     new = upd.new_chat_member
     return t.ChatMemberStatus.is_chat_admin(old.status) and not t.ChatMemberStatus.is_chat_admin(new.status)
+
+
+def bot_has_permission(*permissions: str):
+    async def filter(msg: t.Message):
+        member = await bot.get_chat_member(msg.chat.id, c.bot.id)
+        if member.status != t.ChatMemberStatus.ADMINISTRATOR:
+            raise e.BotHasNotPermission(msg.from_user.language_code)
+        for permission in permissions:
+            if not getattr(member, permission):
+                raise e.BotHasNotPermission(msg.from_user.language_code)
+        return True
+
+    return filter
 
 
 def has_permission(*permissions: str):

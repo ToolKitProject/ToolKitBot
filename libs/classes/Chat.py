@@ -33,7 +33,7 @@ class Chat:
 
         cls.chat = Database.get_chat(cls._chat.id)
         if not cls.chat:
-            cls.chat = Database.add_chat(cls.chat.id, await cls._owner())
+            cls.chat = Database.add_chat(cls._chat.id, (await cls._owner()).id)
 
         if cls._chat.type not in [t.ChatType.GROUP, t.ChatType.SUPERGROUP]:
             ValueError("Чет не так")
@@ -42,7 +42,8 @@ class Chat:
         cls.type = cls._chat.type
         cls.title = cls._chat.title
         cls.username = cls._chat.username
-        cls.invite_link = await cls._chat.get_url()
+        cls.invite_link = None
+        # cls.invite_link = await cls._chat.get_url()
 
         cls.settings = cls.chat.settings
         cls.owner = await cls._owner()
