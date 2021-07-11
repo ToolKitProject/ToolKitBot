@@ -12,6 +12,8 @@ def info(text: str):
 
 restrict_commands = ["ban", "unban", "kick", "mute", "unmute"]
 
+alias_support = [*restrict_commands, "purge"]
+
 
 class regex:
     class parse:
@@ -33,7 +35,3 @@ class states:
         sticker = State()
         text = State()
         command = State()
-
-
-if __name__ == "__main__":
-    print(regex.parse.all.pattern)

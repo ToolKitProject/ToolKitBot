@@ -31,7 +31,7 @@ class _helper:
     def has_permission(admin: t.ChatMember, permissions: p.Set[str]):
         if t.ChatMemberStatus.is_chat_creator(admin.status):
             return True
-        elif t.ChatMemberStatus.is_chat_creator(admin.status):
+        elif t.ChatMemberStatus.is_chat_admin(admin.status):
             for perm in permissions:
                 if not getattr(admin, perm):
                     return False
@@ -111,3 +111,27 @@ class user:
             return _helper.has_permission(admin, permissions)
 
         return filter
+
+    @staticmethod
+    def add_member(upd: t.ChatMemberUpdated):
+        old = upd.old_chat_member
+        new = upd.new_chat_member
+        return not t.ChatMemberStatus.is_chat_member(old.status) and t.ChatMemberStatus.is_chat_member(new.status)
+
+    @staticmethod
+    def removed_member(upd: t.ChatMemberUpdated):
+        old = upd.old_chat_member
+        new = upd.new_chat_member
+        return t.ChatMemberStatus.is_chat_member(old.status) and not t.ChatMemberStatus.is_chat_member(new.status)
+
+    @staticmethod
+    def promote_admin(upd: t.ChatMemberUpdated):
+        old = upd.old_chat_member
+        new = upd.new_chat_member
+        return not t.ChatMemberStatus.is_chat_admin(old.status) and t.ChatMemberStatus.is_chat_admin(new.status)
+
+    @staticmethod
+    def restrict_admin(upd: t.ChatMemberUpdated):
+        old = upd.old_chat_member
+        new = upd.new_chat_member
+        return t.ChatMemberStatus.is_chat_admin(old.status) and not t.ChatMemberStatus.is_chat_admin(new.status)

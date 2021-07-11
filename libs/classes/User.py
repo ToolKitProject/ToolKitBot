@@ -110,7 +110,13 @@ class User:  # TODO:Добавить коментарии
                                reply_markup=reply_markup, )
 
     async def get_owns(self) -> p.List[Chat]:
-        return [await Chat.create(c.id) for c in self.owns]
+        owns = []
+        for chat in self.owns:
+            try:
+                owns.append(await Chat.create(chat.id))
+            except Exception:
+                Database.delete_chat(chat.id)
+        return owns
 
     async def ban(self, chat_id: int, until: timedelta):
         await bot.ban_chat_member(chat_id, self.id, until_date=until)

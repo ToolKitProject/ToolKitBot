@@ -54,7 +54,7 @@ CommandType = p.Union[p.List[str], str]
 ArgType = p.Dict[str, p.Any]
 
 
-class _ParsedArgs:
+class ParsedArgs:
     def __init__(self, **kwargs: str):
         self.expand(kwargs)
 
@@ -85,14 +85,14 @@ class _ParsedArgs:
     def get(self, name):
         """
 
-        @rtype: p.Optional[_ParsedArgs]
+        @rtype: p.Optional[ParsedArgs]
         """
         return self.__dict__[name] if name in self.__dict__ else None
 
     def items(self):
         """
 
-        @rtype: p.ItemsView[str, _ParsedArgs]
+        @rtype: p.ItemsView[str, ParsedArgs]
         """
         return self.__dict__.items()
 
@@ -106,7 +106,7 @@ class _ParsedArgs:
     def values(self):
         """
 
-        @rtype: p.ValuesView[_ParsedArgs]
+        @rtype: p.ValuesView[ParsedArgs]
         """
         return self.__dict__.values()
 
@@ -169,7 +169,7 @@ class Command:
         return self
 
     async def parse(self, msg: t.Message):
-        items = _ParsedArgs()
+        items = ParsedArgs()
         obj = _ParseObj(msg)
 
         await self.check(msg)
@@ -229,7 +229,7 @@ class Arg(BaseArg):
         super().__init__(type, name, required=required)
 
     async def parse(self, parse: _ParseObj):
-        items = _ParsedArgs()
+        items = ParsedArgs()
         matches = await find(self.regexp, parse)
         for match in matches:
             groups = match.groupdict()

@@ -182,7 +182,7 @@ class BotHasNotPermission(MyError):
     def __init__(self, lang: str):
         super().__init__(lang)
         self.text = self.src.text.errors.BotHasNotPermission
-        self.auto_delete = 5
+        self.auto_delete = 0
         self.delete = True
         self.alert = True
 
