@@ -1,11 +1,13 @@
+import re
 import typing as p
 
 from aiogram import types as t, filters as f
 
 import config
 from bot import dp
-from libs.classes import Utils as u
+from libs.classes import Errors as e
 from libs.classes.Chat import Chat
+from libs.objects import Database
 
 objType = p.Union[t.Message, t.CallbackQuery, t.ChatMemberUpdated]
 
@@ -28,14 +30,11 @@ class _helper:
         return user, chat
 
     @staticmethod
-    def has_permission(admin: t.ChatMember, permissions: p.Set[str]):
+    def has_permission(admin: t.ChatMember, permission: str):
         if t.ChatMemberStatus.is_chat_creator(admin.status):
             return True
         elif t.ChatMemberStatus.is_chat_admin(admin.status):
-            for perm in permissions:
-                if not getattr(admin, perm):
-                    return False
-            return True
+            return getattr(admin, permission)
         else:
             return False
 
@@ -55,7 +54,6 @@ class AdminFilter(f.BoundFilter):
 
 
 class AliasFilter(f.BoundFilter):
-
     def __init__(self):
         pass
 
@@ -64,16 +62,21 @@ class AliasFilter(f.BoundFilter):
             raise TypeError()
         if await message.is_private.check(msg):
             return False
-        chat = await Chat.create(msg.chat)
+        chat = Database.get_chat(msg.chat.id)
 
         if msg.sticker:
-            alias = list(chat.settings.sticker_alias.keys())
+            aliases = list(chat.settings.sticker_alias.keys())
             text = msg.sticker.file_unique_id
         elif msg.text:
-            alias = list(chat.settings.text_alias.keys())
+            aliases = list(chat.settings.text_alias.keys())
             text = msg.text
 
-        return text in alias
+        for alias in aliases:
+            pattern = re.compile(f"^{alias}", re.IGNORECASE)
+            if pattern.match(text):
+                return True
+
+        return False
 
 
 class message:
@@ -88,12 +91,14 @@ class bot:
 
     @staticmethod
     def has_permission(permissions: p.List[str]):
-        permissions = list(set(permissions))
+        permissions = permissions
 
         async def filter(obj: objType):
             user, chat = _helper.get_user_and_chat(obj)
             admin = await chat.get_member(config.bot.id)
-            return _helper.has_permission(admin, permissions)
+            if not _helper.has_permission(admin, permissions):
+                raise e.BotHasNotPermission(user.language_code)
+            return True
 
         return filter
 
@@ -103,12 +108,14 @@ class user:
 
     @staticmethod
     def has_permission(permissions: p.List[str]):
-        permissions = set(permissions)
+        permissions = permissions
 
         async def filter(obj: objType):
             user, chat = _helper.get_user_and_chat(obj)
             admin = await chat.get_member(user.id)
-            return _helper.has_permission(admin, permissions)
+            if not _helper.has_permission(admin, permissions):
+                raise e.HasNotPermission(user.language_code)
+            return True
 
         return filter
 

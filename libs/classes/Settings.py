@@ -156,7 +156,6 @@ class DictSettings(_Settings):
 
 
 class Settings(_Settings):
-
     def __init__(self, title: str, text: str, key: str, *elements, undo: bool = True, row: int = 1):
         super().__init__(title, text, key, *elements, undo=undo, row=row)
 

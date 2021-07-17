@@ -2,13 +2,13 @@ from aiogram import types as t
 from aiogram.dispatcher import FSMContext
 
 from bot import dp
+from libs import filters as f
 from libs.classes import Errors as e
 from libs.classes.Chat import Chat
 from libs.classes.Localisation import UserText
 from libs.classes.Settings import Settings, DictSettings
-from libs import filters as f
 from libs.objects import MessageData
-from libs.system import restrict_commands
+from libs.system import alias_commands
 from libs.system import states
 
 
@@ -55,7 +55,7 @@ async def text_form(msg: t.Message, state: FSMContext):
     await states.add_alias.command.set()
 
 
-@dp.message_handler(f.message.is_private, commands=restrict_commands, state=states.add_alias.command)
+@dp.message_handler(f.message.is_private, commands=alias_commands, state=states.add_alias.command)
 async def command_form(msg: t.Message, state: FSMContext):
     src = UserText(msg.from_user.language_code)
 
@@ -67,11 +67,6 @@ async def command_form(msg: t.Message, state: FSMContext):
         settings: Settings = data.settings
         element: DictSettings = data.current_element
         chat: Chat = data.chat
-
-    check = await src.any.command.AdminCommandParser.check_types(msg, "user")
-    if check:
-        await msg.delete()
-        raise e.ArgumentError(src.lang)
 
     element.settings[key] = value
     settings.save(chat)

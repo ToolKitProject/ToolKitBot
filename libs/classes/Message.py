@@ -105,9 +105,12 @@ class MessageData:
         """
         Удаляет данные
         """
-        self.storage[msg.chat.id].pop(msg.message_id)
-        if not self.storage[msg.chat.id]:
-            self.storage.pop(msg.chat.id)
+        try:
+            self.storage[msg.chat.id].pop(msg.message_id)
+            if not self.storage[msg.chat.id]:
+                self.storage.pop(msg.chat.id)
+        except:
+            pass
 
     async def close(self, markup: bool = True):
         """

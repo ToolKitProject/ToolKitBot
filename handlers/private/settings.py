@@ -30,12 +30,18 @@ async def settings_cmd(msg: t.Message):
 async def chat_list_menu(clb: t.CallbackQuery):
     src = UserText(clb.from_user.language_code)
 
-    if not Database.get_owns(clb.from_user.id):
-        raise EmptyOwns(src.lang)
     await clb.message.edit_text(src.text.private.settings.chat_loading)
 
     user = await User.create(clb.from_user)
     chats = await user.get_owns()
+
+    if not chats:
+        await src.buttons.private.settings.settings.edit(clb.message)
+        raise EmptyOwns(src.lang)
+
+    if not chats:
+        await clb.message.delete()
+        raise EmptyOwns(src.lang)
 
     menu = src.buttons.private.settings.chats.copy
     for chat in chats:

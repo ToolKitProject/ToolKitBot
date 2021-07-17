@@ -1,10 +1,14 @@
 import typing as p
+import re
+from asyncio import sleep
+from random import randint
 
 from aiogram import types as t
 
 from bot import bot, dp
 from libs import filters as f
 from libs import system
+from libs.src.other.any import command as c
 from libs.classes.Buttons import Menu
 from libs.classes.Chat import Chat
 from libs.classes.Errors import BackError, MyError, ERRORS, IGNORE, ForceError
@@ -23,16 +27,32 @@ async def check(msg: t.Message):
     if await f.message.is_chat.check(msg) and not Database.get_chat(msg.chat.id):
         await Chat.create(msg.chat)
     if not Database.get_user(msg.from_user.id):
-        await Database.add_user(msg.from_user.id)
+        Database.add_user(msg.from_user.id)
 
     return False
 
 
 # @dp.callback_query_handler(test_clb)
 # @any.command.AdminCommandParser()
-@dp.message_handler(commands=["test"])
+# @dp.edited_message_handler(commands=["test"])
+# @dp.message_handler(commands=["test"])
+@c.TestParser()
 async def test_xd(msg: t.Message):  # Test func
-    await msg.answer(msg.reply_to_message.message_id)
+    src = UserText(msg.from_user.language_code)
+    parsed = await src.any.command.TestParser.parse(msg)
+
+    count = parsed.number if parsed.number else 10
+
+    correct = randint(0, count - 1)
+    options = [str(i + 1) for i in range(count)]
+    await msg.answer_poll(
+        "Угадай правильный",
+        options,
+        is_anonymous=False,
+        type=t.PollType.QUIZ,
+        correct_option_id=correct,
+        explanation=f"Правильный ответ {correct + 1}"
+    )
 
 
 @dp.message_handler(f.message.is_private, commands=["start"])
@@ -44,12 +64,12 @@ async def start(msg: t.Message):
     await msg.answer(src.text.private.start_text)
 
 
-@system.delete_this(f.message.is_chat, state="*")
+@system.delete_this(state="*")
 async def delete_this(clb: t.CallbackQuery):
     """
     delete_this button handler
     """
-    await clb.message.delete()
+    await MessageData.delete(clb.message, False)
 
 
 @system.back()
@@ -106,7 +126,7 @@ async def bot_chat_restrict(upd: t.ChatMemberUpdated):
     await bot.send_message(chat.id, src.text.chat.restrict_admin)
 
 
-@dp.message_handler(f.message.is_chat, f.message.is_alias, f.message.is_reply,
+@dp.message_handler(f.message.is_chat, f.message.is_alias,
                     content_types=[t.ContentType.TEXT, t.ContentType.STICKER])
 async def alias_executor(msg: t.Message):
     """
@@ -114,15 +134,20 @@ async def alias_executor(msg: t.Message):
     """
     upd = t.Update.get_current()  # Get update obj
     chat = await Chat.create(msg.chat)  # Get chat obj
+    text = None
 
-    # Edit update text
+    # Edit text
     if msg.sticker:
-        msg.text = chat.settings.sticker_alias[msg.sticker.file_unique_id]
+        aliases = chat.settings.sticker_alias
         msg.sticker = None
     elif msg.text:
-        msg.text = chat.settings.text_alias[msg.text]
-    else:
-        return
+        aliases = chat.settings.text_alias
+
+    for als, txt in aliases.items():
+        pattern = re.compile(f"^{als}", re.IGNORECASE)
+        if pattern.match(msg.text):
+            text = pattern.sub(txt, msg.text)
+    msg.text = text
 
     # Process update
     upd.message = msg
@@ -138,20 +163,18 @@ async def check():
 
 
 @dp.errors_handler()
-@dp.async_task
 async def errors(upd: t.Update, error: p.Union[MyError, Exception]):
     """
     Errors handler
     """
-    if error.__class__ in ERRORS:
-        await error.answer(upd)
-    elif error.__class__ in IGNORE:
-        pass
-    else:
+    if error.__class__ in ERRORS:  # If my errors
+        await error.answer()
+    elif error.__class__ in IGNORE:  # If errors must be ignored
+        return True
+    else:  # Other errors
         my_err = ForceError(f"⚠ {error.__class__.__name__}:{error.args[0]}", 0, True, False)
-        await my_err.log(upd)
-        if upd.message and t.ChatType.is_group_or_super_group(upd.message.chat):
-            return
-        await my_err.answer(upd)
+        await my_err.log()
+        if upd.message and await f.message.is_private.check(upd.message):  # if private chat
+            await my_err.answer()
 
     return True
