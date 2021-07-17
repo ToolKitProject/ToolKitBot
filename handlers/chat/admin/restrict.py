@@ -4,40 +4,67 @@ from datetime import timedelta
 
 from aiogram import types as t
 
-from bot import dp, bot
-from libs.classes.CommandParser import _ParsedArgs, dates
+from bot import bot
+from libs import filters as f
+from libs.classes.CommandParser import ParsedArgs, dates
+from libs.classes.Localisation import UserText
 from libs.classes.User import User
-from libs.classes.Utils import (alias, bot_has_permission as bhp, get_help,
-                                has_permission as hp, is_chat, is_reply)
+from libs.classes import Utils as u
 from libs.objects import MessageData
 from libs.src import any
 from libs.src import buttons
 
 
-@any.command.AdminCommandParser(is_chat, bhp("can_restrict_members"), hp("can_restrict_members"), get_help)
+@any.command.AdminCommandParser(
+    f.message.is_chat,
+    f.bot.has_permission("can_restrict_members"),
+    f.user.has_permission("can_restrict_members"),
+    u.write_action,
+    u.get_help
+)
 async def command(msg: t.Message):
-    executor = await User.create(msg.from_user)
+    """
+    Restrict command handler
+    """
+
+    executor = await User.create(msg.from_user)  # Get executor of command
     src = executor.src
-    parsed = await src.any.command.AdminCommandParser.parse(msg)
-    if await execute_action(parsed, msg.chat.id):
-        text, rm = await get_text(parsed, executor)
-        msg = await msg.answer(text, reply_markup=rm)
-        with await MessageData.data(msg) as data:
-            data.parsed = parsed
+    parsed = await src.any.command.AdminCommandParser.parse(msg)  # Parse command
+
+    # If poll
+    if parsed.flags.poll:
+        text, rm = await get_poll_text(parsed, executor)
+        msg = await bot.send_poll(
+            msg.chat.id,
+
+            text,
+            src.text.chat.admin.options_poll,
+
+            is_anonymous=False,
+            reply_markup=rm,
+        )
+    else:
+        # Execute restrict command
+        if await execute_action(parsed, msg.chat.id):
+            text, rm = await get_text(parsed, executor)  # Get text
+            msg = await msg.answer(text, reply_markup=rm)  # Send text
+
+    with await MessageData.data(msg) as data:
+        data.parsed = parsed  # Save message data
 
 
-@buttons.chat.admin.undo(is_chat, hp("can_restrict_members"))
+@buttons.chat.admin.undo(f.message.is_chat, f.user.has_permission("can_restrict_members"))
 async def undo(clb: t.CallbackQuery):
-    executor = await User.create(clb.from_user)
+    executor = await User.create(clb.from_user)  # Get executor of command
     with await MessageData.data(clb.message) as data:
-        parsed: _ParsedArgs = data.parsed
-        await execute_action(parsed, clb.message.chat.id, True)
-        text, rm = await get_text(parsed, executor)
-        await clb.message.edit_text(text, reply_markup=rm)
-        data.parsed = parsed
+        parsed: ParsedArgs = data.parsed  # Get parsed obj
+        await execute_action(parsed, clb.message.chat.id, True)  # Execute *undo* command
+        text, rm = await get_text(parsed, executor)  # Get text
+        await clb.message.edit_text(text, reply_markup=rm)  # Edit message text
+        data.parsed = parsed  # Save parsed obj
 
 
-async def execute_action(parsed: _ParsedArgs, chat_id: str, undo: bool = False):
+async def execute_action(parsed: ParsedArgs, chat_id: str, undo: bool = False):
     type: str = parsed.command.text
     users: p.List[User] = parsed.user
     until: timedelta = parsed.date if parsed.date else None
@@ -72,7 +99,32 @@ async def execute_action(parsed: _ParsedArgs, chat_id: str, undo: bool = False):
     return result
 
 
-async def get_text(parsed: _ParsedArgs, executor: User) -> p.Tuple[str, t.InlineKeyboardMarkup]:
+async def get_poll_text(parsed: ParsedArgs, executor: User):
+    src = executor.src
+    type: str = parsed.command.text
+    adm = src.text.chat.admin
+
+    text = None
+    rm = src.buttons.chat.admin.poll
+
+    if type == "ban":
+        text = adm.ban_poll
+    elif type == "unban":
+        text = adm.unban_poll
+    elif type == "kick":
+        text = adm.kick_poll
+    elif type == "mute":
+        text = adm.mute_poll
+    elif type == "unmute":
+        text = adm.unmute_poll
+
+    users = " ".join([u.full_name for u in parsed.user])
+    text = text.format(user=users)
+
+    return text, rm
+
+
+async def get_text(parsed: ParsedArgs, executor: User) -> p.Tuple[str, t.InlineKeyboardMarkup]:
     src = executor.src
     adm = src.text.chat.admin
 

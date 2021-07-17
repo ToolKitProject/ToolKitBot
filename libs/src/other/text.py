@@ -17,20 +17,19 @@ class errors:
         incorrect = f'Argument "{b("{arg_name}")}" incorrect'
         required = f'Argument "{b("{arg_name}")}" required'
 
-    until = "If user is banned for more than 366 days or less than 30 seconds from the current time they are " \
-            "considered to be banned forever. "
+    until = "If user is banned for more than 366 days or less than 30 seconds from the current time they are considered to be banned forever. "
     UntilWaring = f"❗ {until}"
 
     CommandNotFound = "⚠ Command not found"
     UserNotFound = "⚠ User not found"
-    HasNotPermission = "⚠ You have not not permission"
+    HasNotPermission = "⚠ You don't have the permission"
     EmptyOwns = "⚠ You do not own chats"
     TypeError = "⚠ Wrong type"
     AlreadyExists = "⚠ Already exists"
     NotReply = "⚠ Not replied"
     BotHasNotPermission = "⚠ The bot has no or not enough rights"
     BackError = "⚠ Back error"
-
+    PollCheck = "⚠ Not enough votes"
 
 class private:
     start_text = "Hi, I am a ToolKit bot and I am dedicated to everything you can imagine 😜 \n" + \
@@ -78,39 +77,43 @@ class chat:
 
         unmute = "{user} unmuted 🔈 \n" + reason + admin
         multi_unmute = unmute
+        unmute_poll = "🔈 Unmute - {user} ?"
 
         mute = "{user} muted 🔇 \n" + reason + admin + until
         multi_mute = mute
+        mute_poll = "🔇 Mute - {user} ?"
 
         kick = "{user} kicked out ⚠ \n" + reason + admin
         multi_kick = kick
+        kick_poll = "⚠ Kick out - {user} ?"
 
         unban = "{user} unbanned ✅ \n" + reason + admin
         multi_unban = unban
+        unban_poll = "✅ Unban - {user} ?"
 
         ban = "{user} banned ⛔ \n" + reason + admin + until
         multi_ban = ban
+        ban_poll = "⛔ Ban - {user} ?"
+
+        options_poll = ["✅ Yes", "⛔ No "]
 
         forever = "February 31, 1970"
-        reason_empty = "Without reasons"
+        reason_empty = "Without any reasons"
 
         purge = "🗑 Chat purged of {count} messages"
 
 
 class help:
-    users = f"\n👥 Mentions (@username,{l('Jack Jackson', 't.me/username')} or reply)"
-    until = "\n⏳ Date[s|m|h|d|M|y] (1m 30s, 1M)"
-    reason = "\n❔ \"Reason\" (Yes in the quote)"
-    # revoke_admin = "\n🚫 -r revoke admin"
-    # delete_all_message = "\n🗑 -d delete all messages"
-    revoke_admin = ""
-    delete_all_message = ""
+    users = f'👥 Mentions (@username,{l(f"Jack Jackson", "t.me/username")} or reply) \n'
+    until = '⏳ Date[s|m|h|d|M|y] (1m 30s or 1M) \n'
+    reason = '❔ "Reason" (Yes in the quote) \n'
+    poll = '📈 Make a poll (-p --poll)'
 
-    ban = "⛔ /ban" + users + until + reason + revoke_admin + delete_all_message
-    unban = "✅ /unban" + users + reason
-    kick = "⚠ /kick" + users + reason + revoke_admin + delete_all_message
-    mute = "🔇 /mute" + users + until + reason + delete_all_message
-    unmute = "🔈 /unmute" + users + reason
+    ban = "⛔ /ban \n" + users + until + reason + poll
+    unban = "✅ /unban \n" + users + reason + poll
+    kick = "⚠ /kick \n" + users + reason + poll
+    mute = "🔇 /mute \n" + users + until + reason + poll
+    unmute = "🔈 /unmute \n" + users + reason + poll
 
     count = "\n🔢 Count (2 - 1000)"
     reply = "\n⤴ Reply to delete above"

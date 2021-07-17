@@ -2,6 +2,7 @@ import typing as p
 from datetime import timedelta
 
 from aiogram import types as t
+from aiogram.utils.exceptions import MigrateToChat, ChatNotFound
 
 from bot import bot, client
 from libs.classes import Database as d
@@ -9,6 +10,7 @@ from libs.objects import Database
 from .Chat import Chat
 from .Database import permissionOBJ, settingsOBJ
 from .Localisation import UserText
+from . import Errors as e
 
 
 class User:  # TODO:Добавить коментарии
@@ -71,7 +73,7 @@ class User:  # TODO:Добавить коментарии
     @property
     def mention(self):
         if self.username:
-            return self.username
+            return f"@{self.username}"
         else:
             return self.full_name
 
@@ -110,7 +112,16 @@ class User:  # TODO:Добавить коментарии
                                reply_markup=reply_markup, )
 
     async def get_owns(self) -> p.List[Chat]:
-        return [await Chat.create(c.id) for c in self.owns]
+        owns = []
+        for chat in self.owns:
+            try:
+                owns.append(await Chat.create(chat.id))
+            except (MigrateToChat, ChatNotFound):
+                Database.delete_chat(chat.id)
+            except Exception as ex:
+                await e.ForceError(f"⚠ {ex.args[0]}").answer()
+
+        return owns
 
     async def ban(self, chat_id: int, until: timedelta):
         await bot.ban_chat_member(chat_id, self.id, until_date=until)

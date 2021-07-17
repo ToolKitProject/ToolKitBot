@@ -7,6 +7,14 @@ from libs.classes.Settings import DictSettings, Elements, Settings
 class chat:
     class admin:
         undo = Button("↩ Отмена", "undo")
+        
+        check_poll = Button("✅ Проверить опрос", "check_poll")
+        cancel_poll = Button("⛔ Отменить опрос", "cancel_poll")
+        
+        poll = IM(row_width=1).add(
+            check_poll.button,
+            cancel_poll.button
+        )
 
 
 class private:

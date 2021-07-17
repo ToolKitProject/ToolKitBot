@@ -29,6 +29,7 @@ class errors:
     NotReply = "⚠ Нет ответа"
     BotHasNotPermission = "⚠ У бота нет прав или их не достаточно"
     BackError = "⚠ Ошибка возврата"
+    PollCheck = "⚠ Недостаточно голосов"
 
 
 class private:
@@ -77,18 +78,25 @@ class chat:
 
         unmute = "{user} размучен 🔈 \n" + reason + admin
         multi_unmute = "{user} размучены 🔈 \n" + reason + admin
+        unmute_poll = "🔈 Размутить - {user} ?"
 
         mute = "{user} замучен 🔇 \n" + reason + admin + until
         multi_mute = "{user} замучены 🔇 \n" + reason + admin + until
+        mute_poll = "🔇 Замутить - {user} ?"
 
         kick = "{user} исключён ⚠ \n" + reason + admin
         multi_kick = "{user} исключёны ⚠ \n" + reason + admin
+        kick_poll = "⚠ Исключить - {user} ?"
 
         unban = "{user} разаблокирован ✅ \n" + reason + admin
         multi_unban = "{user} разаблокированы ✅ \n" + reason + admin
+        unban_poll = "✅ Разблокировать - {user} ?"
 
         ban = "{user} заблокирован ⛔ \n" + reason + admin + until
         multi_ban = "{user} заблокированы ⛔ \n" + reason + admin + until
+        ban_poll = "⛔ Заблокировать - {user} ?"
+
+        options_poll = ["✅ Да", "⛔ Нет"]
 
         forever = "31 Февраля 1970 года"
         reason_empty = "Без причины"
@@ -97,19 +105,16 @@ class chat:
 
 
 class help:
-    users = f"\n👥 Упоминания (@username,{l('Вася Пупкин','t.me/username')} или ответ)"
-    until = "\n⏳ Дата[s|m|h|d|M|y] (1m 30s,1M)"
-    reason = "\n❔ \"Причина\" (Да прям в кавычках)"
-    # revoke_admin = "\n🚫 -r снять администратора"
-    # delete_all_message = "\n🗑 -d удалить все сообщения "
-    revoke_admin = ""
-    delete_all_message = ""
+    users = f'👥 Упоминания (@username,{l("Вася Пупкин","t.me/username")} или ответ) \n'
+    until = '⏳ Дата[s|m|h|d|M|y] (1m 30s или 1M) \n'
+    reason = '❔ "Причина" (Да прям в кавычках) \n'
+    poll = '📈 Сделать опрос (-p --poll)'
 
-    ban = "⛔ /ban" + users + until + reason + revoke_admin + delete_all_message
-    unban = "✅ /unban" + users + reason
-    kick = "⚠ /kick" + users + reason + revoke_admin + delete_all_message
-    mute = "🔇 /mute" + users + until + reason + revoke_admin
-    unmute = "🔈 /unmute" + users + reason
+    ban = "⛔ /ban \n" + users + until + reason + poll
+    unban = "✅ /unban \n" + users + reason + poll
+    kick = "⚠ /kick \n" + users + reason + poll
+    mute = "🔇 /mute \n" + users + until + reason + poll
+    unmute = "🔈 /unmute \n" + users + reason + poll
 
     count = "\n🔢 Количество (2 - 1000)"
     reply = "\n⤴ Ответьте для удаления выше"

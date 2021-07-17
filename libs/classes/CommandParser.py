@@ -54,7 +54,7 @@ CommandType = p.Union[p.List[str], str]
 ArgType = p.Dict[str, p.Any]
 
 
-class _ParsedArgs:
+class ParsedArgs:
     def __init__(self, **kwargs: str):
         self.expand(kwargs)
 
@@ -85,14 +85,14 @@ class _ParsedArgs:
     def get(self, name):
         """
 
-        @rtype: p.Optional[_ParsedArgs]
+        @rtype: p.Optional[ParsedArgs]
         """
         return self.__dict__[name] if name in self.__dict__ else None
 
     def items(self):
         """
 
-        @rtype: p.ItemsView[str, _ParsedArgs]
+        @rtype: p.ItemsView[str, ParsedArgs]
         """
         return self.__dict__.items()
 
@@ -106,7 +106,7 @@ class _ParsedArgs:
     def values(self):
         """
 
-        @rtype: p.ValuesView[_ParsedArgs]
+        @rtype: p.ValuesView[ParsedArgs]
         """
         return self.__dict__.values()
 
@@ -122,28 +122,27 @@ class _ParsedArgs:
             self.__dict__[key] = value
 
 
-class _ParseObj:
+class ParseObj:
     def __init__(self, msg: t.Message):
         self.lang = msg.from_user.language_code
         self.text = msg.text
         self.entities = msg.entities
 
         self.reply_user = msg.reply_to_message.from_user if msg.reply_to_message else None
-        self.original_text = self.text
 
 
 class BaseArg(ABC):
-    def __init__(self, type: str, name: str, required: bool):
-        self.type = type
+    def __init__(self, dest: str, name: str, required: bool):
+        self.dest = dest
         self.name = name
         self.required = required
 
     @abstractmethod
-    async def parse(self, parse: _ParseObj):
+    async def parse(self, parse: ParseObj):
         pass
 
     @abstractmethod
-    async def check(self, parse: _ParseObj):
+    async def check(self, parse: ParseObj):
         pass
 
 
@@ -169,8 +168,8 @@ class Command:
         return self
 
     async def parse(self, msg: t.Message):
-        items = _ParsedArgs()
-        obj = _ParseObj(msg)
+        items = ParsedArgs()
+        obj = ParseObj(msg)
 
         await self.check(msg)
 
@@ -179,11 +178,11 @@ class Command:
                 item = await arg.parse(obj)
             except:
                 raise e.ArgumentError.ArgumentIncorrect(msg.from_user.language_code, arg.name)
-            items.add(arg.type, item)
+            items.add(arg.dest, item)
         return items
 
     async def check(self, msg: t.Message):
-        obj = _ParseObj(msg)
+        obj = ParseObj(msg)
 
         for arg in self.args:
             if arg.required:
@@ -192,16 +191,16 @@ class Command:
         return True
 
     async def check_all(self, msg: t.Message):
-        obj = _ParseObj(msg)
+        obj = ParseObj(msg)
         for arg in self.args:
             if not await arg.check(obj):
                 return False
         return True
 
     async def check_types(self, msg: t.Message, *types: str):
-        obj = _ParseObj(msg)
+        obj = ParseObj(msg)
         for arg in self.args:
-            if arg.type in types:
+            if arg.dest in types:
                 if not await arg.check(obj):
                     return False
         return True
@@ -223,20 +222,19 @@ class Command:
 
 
 class Arg(BaseArg):
-
-    def __init__(self, regexp: p.Union[re.Pattern, str], type: str, name: str, required: bool = True):
+    def __init__(self, regexp: p.Union[re.Pattern, str], dest: str, name: str, required: bool = True):
         self.regexp = regexp if isinstance(regexp, re.Pattern) else re.compile(regexp)
-        super().__init__(type, name, required=required)
+        super().__init__(dest, name, required=required)
 
-    async def parse(self, parse: _ParseObj):
-        items = _ParsedArgs()
+    async def parse(self, parse: ParseObj):
+        items = ParsedArgs()
         matches = await find(self.regexp, parse)
         for match in matches:
             groups = match.groupdict()
             items.expand(groups)
         return items
 
-    async def check(self, parse: _ParseObj):
+    async def check(self, parse: ParseObj):
         matches = await find(self.regexp, parse)
         for _ in matches:
             return True
@@ -245,29 +243,35 @@ class Arg(BaseArg):
 
 class UserArg(BaseArg):
     def __init__(self, name: str, required: bool = True):
+        self.regexp = re.compile(r.parse.user)
         super().__init__("user", name, required)
 
-    async def parse(self, parse: _ParseObj):
+    async def parse(self, parse: ParseObj):
         users = []
+        matches = await find(self.regexp, parse)
+
+        if parse.reply_user:
+            users.append(await User.create(parse.reply_user))
         for e in parse.entities:
             type = e.type
             if type == "text_mention":
                 users.append(await User.create(e.user))
-            elif type == "mention":
-                mention = e.get_text(parse.original_text)
-                users.append(await User.create(mention))
-
-        if parse.reply_user:
-            users.append(await User.create(parse.reply_user))
+        for m in matches:
+            users.append(await User.create(m.group("user")))
 
         return users
 
-    async def check(self, parse: _ParseObj):
+    async def check(self, parse: ParseObj):
+        matches = await find(self.regexp, parse)
+
         if parse.reply_user:
             return True
         for e in parse.entities:
-            if e.type in ["text_mention", "mention"]:
+            if e.type in ["text_mention"]:
                 return True
+        for _ in matches:
+            return True
+
         return False
 
 
@@ -276,7 +280,7 @@ class DateArg(BaseArg):
         super().__init__("date", name, required)
         self.regexp = re.compile(r.parse.date)
 
-    async def parse(self, parse: _ParseObj):
+    async def parse(self, parse: ParseObj):
         matches = await find(self.regexp, parse)
 
         delta = timedelta()
@@ -299,7 +303,7 @@ class DateArg(BaseArg):
 
         return delta
 
-    async def check(self, parse: _ParseObj):
+    async def check(self, parse: ParseObj):
         matches = await find(self.regexp, parse)
         for _ in matches:
             return True
@@ -307,19 +311,19 @@ class DateArg(BaseArg):
 
 
 class TextArg(BaseArg):
-    def __init__(self, name: str, sep: str = " ", required: bool = False):
+    def __init__(self, name: str, dest: str = "text", sep: str = " ", required: bool = False):
         self.regexp = re.compile(r.parse.text)
         self.sep = sep
-        super().__init__("text", name, required)
+        super().__init__(dest, name, required)
 
-    async def parse(self, parse: _ParseObj):
+    async def parse(self, parse: ParseObj):
         matches = await find(self.regexp, parse)
         texts = []
         for match in matches:
             texts.append(match.group())
         return self.sep.join(texts)
 
-    async def check(self, parse: _ParseObj):
+    async def check(self, parse: ParseObj):
         matches = await find(self.regexp, parse)
         for _ in matches:
             return True
@@ -327,49 +331,92 @@ class TextArg(BaseArg):
 
 
 class NumberArg(BaseArg):
-    def __init__(self, minimal: int, maximal: int, name: str,
+    def __init__(self, minimal: int, maximal: int, name: str, dest: str = "number",
                  func: p.Callable[[p.List[int]], int] = sum, required: bool = False):
         self.min = minimal
         self.max = maximal
         self.func = func
         self.regexp = re.compile(r.parse.number)
-        super().__init__("number", name, required)
+        super().__init__(dest, name, required)
 
-    async def parse(self, parse: _ParseObj):
+    async def parse(self, parse: ParseObj):
         matches = await find(self.regexp, parse)
         numbers = []
         for match in matches:
             numbers.append(int(match.group()))
 
         num = self.func(numbers)
-        if not (self.min <= num <= self.max):
+        if numbers and not (self.min <= num <= self.max):
             raise ValueError()
         return num
 
-    async def check(self, parse: _ParseObj):
+    async def check(self, parse: ParseObj):
         matches = await find(self.regexp, parse)
         for _ in matches:
             return True
         return False
 
 
+class FlagArg(BaseArg):
+    def __init__(self):
+        self.flags: p.List[Flag] = []
+        super().__init__("flags", None, True)
+
+    def add(self, *flags: BaseArg):
+        self.flags += list(flags)
+        return self
+
+    async def parse(self, parse: ParseObj):
+        items = ParsedArgs()
+        for flag in self.flags:
+            item = await flag.parse(parse)
+            items.add(flag.dest, item)
+        return items
+
+    async def check(self, parse: ParseObj):
+        for flag in self.flags:
+            if flag.required:
+                if not await flag.check(parse):
+                    self.name = flag.name
+                    return False
+        return True
+
+
+class Flag(BaseArg):
+    def __init__(self, small: str, full: str, dest: str, name: str, required: bool = False):
+        assert len(small) == 1
+        assert len(full) > 1
+
+        self.small = small
+        self.full = full
+
+        self.regexp = re.compile(r.parse.flag)
+
+        super().__init__(dest, name, required)
+
+    async def parse(self, parse: ParseObj):
+        matches = await find(self.regexp, parse)
+        for match in matches:
+            prefix = match.group("prefix")
+            text = match.group("text")
+
+            if prefix in ["--", "—"]:
+                return self.full == text
+            elif prefix == "-":
+                return self.small in text
+        return False
+
+    async def check(self, parse: ParseObj):
+        return await self.parse(parse)
+
+
 # I will make later
-class FlagsParser(BaseArg):
-    def __init__(self, required: bool = False):
-        super().__init__("flags", required)
-
-
-class Flag:
+class ValueFlags(Flag):
     def __init__(self):
         pass
 
 
-class ValueFlag(Flag):
-    def __init__(self):
-        super().__init__()
-
-
-async def find(regexp: re.Pattern, parse: _ParseObj):
+async def find(regexp: re.Pattern, parse: ParseObj):
     matches = regexp.finditer(parse.text)
     parse.text = regexp.sub("", parse.text)
     return matches

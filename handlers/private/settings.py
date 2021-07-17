@@ -6,12 +6,13 @@ from aiogram.utils.callback_data import CallbackData
 
 from bot import dp
 from handlers.private import alias_form
-from libs.classes.Localisation import UserText
-from libs.classes.User import User
-from libs.classes.Settings import DictSettings, Settings
+from libs import filters as f
 from libs.classes.Chat import Chat
 from libs.classes.Errors import EmptyOwns
-from libs.classes.Utils import is_private
+from libs.classes.Localisation import UserText
+from libs.classes.Settings import DictSettings, Settings
+from libs.classes.User import User
+from libs.classes import Utils as u
 from libs.objects import MessageData, Database
 from libs.src import buttons
 
@@ -19,22 +20,28 @@ s = buttons.private.settings
 alias_data = CallbackData("alias", "key")
 
 
-@dp.message_handler(is_private, commands=["settings"])
+@dp.message_handler(u.write_action, f.message.is_private, commands=["settings"])
 async def settings_cmd(msg: t.Message):
     src = UserText(msg.from_user.language_code)
     await src.buttons.private.settings.settings.send(msg)
 
 
-@s.chat_list(is_private)
+@s.chat_list(f.message.is_private)
 async def chat_list_menu(clb: t.CallbackQuery):
     src = UserText(clb.from_user.language_code)
 
-    if not Database.get_owns(clb.from_user.id):
-        raise EmptyOwns(src.lang)
     await clb.message.edit_text(src.text.private.settings.chat_loading)
 
     user = await User.create(clb.from_user)
     chats = await user.get_owns()
+
+    if not chats:
+        await src.buttons.private.settings.settings.edit(clb.message)
+        raise EmptyOwns(src.lang)
+
+    if not chats:
+        await clb.message.delete()
+        raise EmptyOwns(src.lang)
 
     menu = src.buttons.private.settings.chats.copy
     for chat in chats:
@@ -48,7 +55,7 @@ async def chat_list_menu(clb: t.CallbackQuery):
     await menu.edit(clb.message)
 
 
-@s.add_alias(is_private)
+@s.add_alias(f.message.is_private)
 async def add_alias_button(clb: t.CallbackQuery, state: FSMContext):
     async with state.proxy() as data:
         data["settings_message"] = clb.message
@@ -61,8 +68,8 @@ async def add_alias_button(clb: t.CallbackQuery, state: FSMContext):
         await alias_form.start_text(clb)
 
 
-@dp.callback_query_handler(is_private, alias_data.filter())
-async def add_alias_button(clb: t.CallbackQuery, callback_data: p.Dict[str, str]):
+@dp.callback_query_handler(f.message.is_private, alias_data.filter())
+async def delete_alias_button(clb: t.CallbackQuery, callback_data: p.Dict[str, str]):
     src = UserText(clb.from_user.language_code)
     with await MessageData.data(clb.message) as data:
         data.key = callback_data["key"]
@@ -70,7 +77,7 @@ async def add_alias_button(clb: t.CallbackQuery, callback_data: p.Dict[str, str]
     await src.buttons.private.settings.delete.edit(clb.message, False)
 
 
-@s.delete_yes(is_private)
+@s.delete_yes(f.message.is_private)
 async def add_alias_button(clb: t.CallbackQuery):
     with await MessageData.data(clb.message) as data:
         settings: Settings = data.settings

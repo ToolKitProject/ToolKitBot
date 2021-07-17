@@ -37,10 +37,13 @@ class MyError(Exception):
             member = upd.chat_member or upd.my_chat_member
             return member.from_user
 
-    async def answer(self, upd: t.Update):
+    async def answer(self):
+        upd = t.Update.get_current()
         rm = None
         if self.delete:
             rm = delete_this.inline
+        if upd.edited_message:
+            upd.message = upd.edited_message
 
         if upd.message:
             msg = await upd.message.answer(self.text, reply_markup=rm)
@@ -55,7 +58,8 @@ class MyError(Exception):
         else:
             pass
 
-    async def log(self, upd: t.Update):
+    async def log(self):
+        upd = t.Update.get_current()
         error = f"{format_exc()}" + \
                 f"User: {self.get_user(upd).mention}\n" + \
                 f"Message: {self.get_text(upd)} \n"
@@ -182,7 +186,7 @@ class BotHasNotPermission(MyError):
     def __init__(self, lang: str):
         super().__init__(lang)
         self.text = self.src.text.errors.BotHasNotPermission
-        self.auto_delete = 5
+        self.auto_delete = 0
         self.delete = True
         self.alert = True
 
@@ -191,6 +195,15 @@ class BackError(MyError):
     def __init__(self, lang: str):
         super().__init__(lang)
         self.text = self.src.text.errors.BackError
+        self.auto_delete = 5
+        self.delete = True
+        self.alert = True
+
+
+class PollCheck(MyError):
+    def __init__(self, lang: str):
+        super().__init__(lang)
+        self.text = self.src.text.errors.PollCheck
         self.auto_delete = 5
         self.delete = True
         self.alert = True
@@ -210,6 +223,7 @@ ERRORS = [
     NotReply,
     BotHasNotPermission,
     BackError,
+    PollCheck
 ]
 
 IGNORE = [
