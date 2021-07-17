@@ -27,7 +27,3 @@
 [Unit file - systemd file](https://github.com/igorechek06/ToolKit/blob/main/ToolKit.semple.service)
 
 [Lang conf - supported translations](https://github.com/igorechek06/ToolKit/blob/main/lang_conf.py)
-
-<br>
-
-> There will be no updates from June 17 to July 1. I'm going to rest
