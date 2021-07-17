@@ -138,15 +138,15 @@ async def alias_executor(msg: t.Message):
 
     # Edit text
     if msg.sticker:
-        aliases = chat.settings.sticker_alias
+        text = chat.settings.sticker_alias[msg.sticker.file_unique_id]
         msg.sticker = None
     elif msg.text:
         aliases = chat.settings.text_alias
+        for als, txt in aliases.items():
+            pattern = re.compile(f"^{als}", re.IGNORECASE)
+            if pattern.match(msg.text):
+                text = pattern.sub(txt, msg.text)
 
-    for als, txt in aliases.items():
-        pattern = re.compile(f"^{als}", re.IGNORECASE)
-        if pattern.match(msg.text):
-            text = pattern.sub(txt, msg.text)
     msg.text = text
 
     # Process update
