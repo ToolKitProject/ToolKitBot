@@ -2,6 +2,7 @@ import typing as p
 from copy import deepcopy
 
 from aiogram.utils.callback_data import CallbackData
+from aiogram import types as t
 
 from .Buttons import Button, MenuButton
 from .Chat import Chat

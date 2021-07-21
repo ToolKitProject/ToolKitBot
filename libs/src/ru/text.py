@@ -71,6 +71,8 @@ class chat:
                      "Теперь вы <b>НЕ можете</b> использовать такие команды, как \n" +\
                      _perm
 
+    fix_commands = "✅ Команды исправлены"
+
     class admin:
         reason = f"Причина ❓ - {c('{reason}')} \n"
         admin = f"Администратор 👤 - {i('{admin}')} \n"
@@ -102,21 +104,3 @@ class chat:
         reason_empty = "Без причины"
 
         purge = "🗑 В чате удалено {count} сообщений"
-
-
-class help:
-    users = f'👥 Упоминания (@username,{l("Вася Пупкин","t.me/username")} или ответ) \n'
-    until = '⏳ Дата[s|m|h|d|M|y] (1m 30s или 1M) \n'
-    reason = '❔ "Причина" (Да прям в кавычках) \n'
-    poll = '📈 Сделать опрос (-p --poll)'
-
-    ban = "⛔ /ban \n" + users + until + reason + poll
-    unban = "✅ /unban \n" + users + reason + poll
-    kick = "⚠ /kick \n" + users + reason + poll
-    mute = "🔇 /mute \n" + users + until + reason + poll
-    unmute = "🔈 /unmute \n" + users + reason + poll
-
-    count = "\n🔢 Количество (2 - 1000)"
-    reply = "\n⤴ Ответьте для удаления выше"
-
-    purge = "🗑 /purge" + count + reply

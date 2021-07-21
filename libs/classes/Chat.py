@@ -28,8 +28,10 @@ class Chat:
 
         if isinstance(auth, t.Chat):
             cls._chat = auth
-        else:
+        elif auth:
             cls._chat = await bot.get_chat(auth)
+        else:
+            cls._chat = t.Chat.get_current(True)
 
         cls.chat = Database.get_chat(cls._chat.id)
         if not cls.chat:

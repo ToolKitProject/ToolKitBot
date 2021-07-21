@@ -17,11 +17,9 @@ from .restrict import get_text, execute_action
 )
 async def check_poll(clb: t.CallbackQuery):
     poll = clb.message.poll
-    executor = await User.create(clb.from_user)
-    src = executor.src
-
+    executor = await User.create()
     if poll.total_voter_count < 2:
-        raise e.PollCheck(src.lang)
+        raise e.PollCheck()
 
     yes = poll.options[0]
     no = poll.options[1]
@@ -31,8 +29,8 @@ async def check_poll(clb: t.CallbackQuery):
             parsed: ParsedArgs = data.parsed
             if await execute_action(parsed, clb.message.chat.id):
                 text, rm = await get_text(parsed, executor)  # Get text
-                to_msg = await clb.message.answer(text, reply_markup=rm)  # Send text
-        await MessageData.move(clb.message, to_msg)
+                to_msg = await clb.message.reply(text, reply_markup=rm)  # Send text
+                await MessageData.move(clb.message, to_msg)
     else:
         await MessageData.delete(clb.message, True)
 

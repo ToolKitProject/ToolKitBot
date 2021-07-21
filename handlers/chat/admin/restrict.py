@@ -15,7 +15,7 @@ from libs.src import any
 from libs.src import buttons
 
 
-@any.command.AdminCommandParser(
+@any.parsers.restrict(
     f.message.is_chat,
     f.bot.has_permission("can_restrict_members"),
     f.user.has_permission("can_restrict_members"),
@@ -27,9 +27,9 @@ async def command(msg: t.Message):
     Restrict command handler
     """
 
-    executor = await User.create(msg.from_user)  # Get executor of command
+    executor = await User.create()  # Get executor of command
     src = executor.src
-    parsed = await src.any.command.AdminCommandParser.parse(msg)  # Parse command
+    parsed = await src.any.parsers.restrict.parse(msg)  # Parse command
 
     # If poll
     if parsed.flags.poll:
@@ -55,7 +55,7 @@ async def command(msg: t.Message):
 
 @buttons.chat.admin.undo(f.message.is_chat, f.user.has_permission("can_restrict_members"))
 async def undo(clb: t.CallbackQuery):
-    executor = await User.create(clb.from_user)  # Get executor of command
+    executor = await User.create()  # Get executor of command
     with await MessageData.data(clb.message) as data:
         parsed: ParsedArgs = data.parsed  # Get parsed obj
         await execute_action(parsed, clb.message.chat.id, True)  # Execute *undo* command

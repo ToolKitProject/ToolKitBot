@@ -13,13 +13,13 @@ from libs.system import states
 
 
 async def start_sticker(clb: t.CallbackQuery):
-    src = UserText(clb.from_user.language_code)
+    src = UserText()
     await clb.message.edit_text(src.text.private.settings.sticker)
     await states.add_alias.sticker.set()
 
 
 async def start_text(clb: t.CallbackQuery):
-    src = UserText(clb.from_user.language_code)
+    src = UserText()
     await clb.message.edit_text(src.text.private.settings.text)
     await states.add_alias.text.set()
 
@@ -34,12 +34,12 @@ async def cancel(msg: t.Message, state: FSMContext):
 
     to_msg = await menu.send(msg)
     await MessageData.move(from_msg, to_msg)
-    await state.finish()
+    await states.add_alias.finish()
 
 
 @dp.message_handler(f.message.is_private, content_types=[t.ContentType.STICKER], state=states.add_alias.sticker)
 async def sticker_form(msg: t.Message, state: FSMContext):
-    src = UserText(msg.from_user.language_code)
+    src = UserText()
     async with state.proxy() as data:
         data["key"] = msg.sticker.file_unique_id
     await msg.answer(src.text.private.settings.command)
@@ -48,7 +48,7 @@ async def sticker_form(msg: t.Message, state: FSMContext):
 
 @dp.message_handler(f.message.is_private, content_types=[t.ContentType.TEXT], state=states.add_alias.text)
 async def text_form(msg: t.Message, state: FSMContext):
-    src = UserText(msg.from_user.language_code)
+    src = UserText()
     async with state.proxy() as data:
         data["key"] = msg.text
     await msg.answer(src.text.private.settings.command)
@@ -57,8 +57,6 @@ async def text_form(msg: t.Message, state: FSMContext):
 
 @dp.message_handler(f.message.is_private, commands=alias_commands, state=states.add_alias.command)
 async def command_form(msg: t.Message, state: FSMContext):
-    src = UserText(msg.from_user.language_code)
-
     async with state.proxy() as data:
         from_msg: t.Message = data["settings_message"]
         key: str = data["key"]
@@ -75,10 +73,10 @@ async def command_form(msg: t.Message, state: FSMContext):
 
     to_msg = await menu.send(msg)
     await MessageData.move(from_msg, to_msg)
-    await states.add_alias.next()
+    await states.add_alias.finish()
 
 
 @dp.message_handler(f.message.is_private, content_types=t.ContentType.ANY, state=states.add_alias)
 async def any_delete(msg: t.Message):
     await msg.delete()
-    raise e.TypeError(msg.from_user.language_code)
+    raise e.TypeError()

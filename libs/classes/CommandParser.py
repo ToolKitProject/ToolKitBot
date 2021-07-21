@@ -7,7 +7,6 @@ from datetime import datetime, timedelta
 from aiogram import types as t, filters as f
 
 from bot import dp
-from libs.system import regex as r
 from . import Errors as e
 from .User import User
 
@@ -148,6 +147,7 @@ class BaseArg(ABC):
 
 class Command:
     def __init__(self, commands: CommandType, name: str):
+        from libs.system import regex as r
         self.commands = commands
         self.name = name
 
@@ -177,7 +177,7 @@ class Command:
             try:
                 item = await arg.parse(obj)
             except:
-                raise e.ArgumentError.ArgumentIncorrect(msg.from_user.language_code, arg.name)
+                raise e.ArgumentError.ArgumentIncorrect(arg.name)
             items.add(arg.dest, item)
         return items
 
@@ -187,7 +187,7 @@ class Command:
         for arg in self.args:
             if arg.required:
                 if not await arg.check(obj):
-                    raise e.ArgumentError.ArgumentRequired(msg.from_user.language_code, arg.name)
+                    raise e.ArgumentError.ArgumentRequired(arg.name)
         return True
 
     async def check_all(self, msg: t.Message):
@@ -243,6 +243,7 @@ class Arg(BaseArg):
 
 class UserArg(BaseArg):
     def __init__(self, name: str, required: bool = True):
+        from libs.system import regex as r
         self.regexp = re.compile(r.parse.user)
         super().__init__("user", name, required)
 
@@ -277,6 +278,7 @@ class UserArg(BaseArg):
 
 class DateArg(BaseArg):
     def __init__(self, name: str, required: bool = False):
+        from libs.system import regex as r
         super().__init__("date", name, required)
         self.regexp = re.compile(r.parse.date)
 
@@ -312,6 +314,7 @@ class DateArg(BaseArg):
 
 class TextArg(BaseArg):
     def __init__(self, name: str, dest: str = "text", sep: str = " ", required: bool = False):
+        from libs.system import regex as r
         self.regexp = re.compile(r.parse.text)
         self.sep = sep
         super().__init__(dest, name, required)
@@ -333,6 +336,7 @@ class TextArg(BaseArg):
 class NumberArg(BaseArg):
     def __init__(self, minimal: int, maximal: int, name: str, dest: str = "number",
                  func: p.Callable[[p.List[int]], int] = sum, required: bool = False):
+        from libs.system import regex as r
         self.min = minimal
         self.max = maximal
         self.func = func
@@ -384,6 +388,7 @@ class FlagArg(BaseArg):
 
 class Flag(BaseArg):
     def __init__(self, small: str, full: str, dest: str, name: str, required: bool = False):
+        from libs.system import regex as r
         assert len(small) == 1
         assert len(full) > 1
 

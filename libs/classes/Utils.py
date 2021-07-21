@@ -5,19 +5,13 @@ from .Localisation import UserText
 
 
 async def get_help(msg: t.Message):
+    src = UserText()
     if await f.message.is_reply.check(msg):
         return True
     if not msg.get_args():
-        await write_action(msg)
-        command = msg.get_command(True)
-        src = UserText(msg.from_user.language_code)
-
-        try:
-            text = getattr(src.text.help, command)
-            await msg.reply(text, disable_web_page_preview=True)
-            return False
-        except:
-            pass
+        await msg.reply(src.any.command_list.get(msg.get_command(True).removeprefix("/")),
+                        disable_web_page_preview=True)
+        return False
     return True
 
 

@@ -1,4 +1,4 @@
-# mv ToolKit.semple.service /etc/systemd/system/ToolKit.service
+# ln ToolKit.semple.service /etc/systemd/system/ToolKit.service -s
 
 [Unit]
 Description=Telegram bot ToolKit
@@ -7,9 +7,9 @@ After=network.target
 
 [Service]
 Type=simple
-User=
-WorkingDirectory=
-ExecStart=
+User= # Your user name
+WorkingDirectory= # Path to git repo
+ExecStart=python3.9 main.py -m
 RestartSec=5
 Restart=always
  

@@ -1,10 +1,12 @@
 import logging
+import optparse
+import signal
 
-import config
-from aiogram.dispatcher.dispatcher import Dispatcher
 from aiogram import executor
 from aiogram import types as t
-import optparse
+from aiogram.dispatcher.dispatcher import Dispatcher
+
+import config
 
 parser = optparse.OptionParser(conflict_handler="resolve")
 parser.add_option('-t', '--test',
@@ -22,7 +24,7 @@ if values.test:
 elif values.main:
     config.token = config.main_token
 else:
-    raise ValueError("АРГУМЕНТЫ СУКА")
+    config.token = config.test_token
 
 from bot import dp, client
 import handlers
@@ -30,21 +32,31 @@ from libs.objects import MessageData
 import lang_conf
 
 
+def close(signal: int, frame):
+    logging.warning(f"Handling signal ({signal})")
+    exit()
+
+
 async def shutdown(dp: Dispatcher):
+    logging.warning("Delete MessageData")
     await MessageData.close()
+    await client.stop()
+    logging.warning(f"Bot stopped")
 
 
 async def startup(dp: Dispatcher):
+    logging.warning("Start client")
     await client.start()
-    for lang, src in lang_conf.lang_map.items():
-        for scope, cmd in src.any.command_list.items():
-            if lang == "other": lang = None
-            await dp.bot.set_my_commands(cmd, scope, lang)
-    config.bot = await dp.bot.get_me()
-    logging.info("Bot init")
+
+    logging.warning("Init commands")
+    for src in lang_conf.lang_map.values():
+        await src.any.command_list.set()
+
+    logging.warning("Bot initialized")
 
 
 if __name__ == "__main__":
+    signal.signal(signal.SIGTERM, close)
     executor.start_polling(
         dp,
         on_startup=startup,

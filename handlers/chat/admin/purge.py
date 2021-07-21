@@ -9,7 +9,7 @@ from libs.src import any
 from asyncio import sleep
 
 
-@any.command.PurgeParser(
+@any.parsers.purge(
     f.message.is_chat,
     f.bot.has_permission("can_delete_messages"),
     f.user.has_permission("can_delete_messages"),
@@ -20,8 +20,10 @@ async def purge(msg: t.Message):
     """
     Purge handler
     """
-    src = UserText(msg.from_user.language_code)
-    parsed = await src.any.command.PurgeParser.parse(msg)  # Parse the message
+    await msg.delete()
+
+    src = UserText()
+    parsed = await src.any.parsers.purge.parse(msg)  # Parse the message
 
     from_id = msg.reply_to_message.message_id if msg.reply_to_message else msg.message_id - 1
     to_id = from_id - parsed.number
@@ -40,5 +42,3 @@ async def purge(msg: t.Message):
         ),
         reply_markup=system.delete_this.inline
     )
-    await sleep(1)
-    await msg.delete()

@@ -31,6 +31,7 @@ class errors:
     BackError = "⚠ Back error"
     PollCheck = "⚠ Not enough votes"
 
+
 class private:
     start_text = "Hi, I am a ToolKit bot and I am dedicated to everything you can imagine 😜 \n" + \
                  "What I can do 😊 \n" + \
@@ -70,6 +71,8 @@ class chat:
                      "Now you <b>can't</b> use commands like \n" + \
                      _perm
 
+    fix_commands = "✅ Commands fixed"
+
     class admin:
         reason = f"Reason ❓ - {c('{reason}')} \n"
         admin = f"Moderator 👤 - {i('{admin}')} \n"
@@ -101,21 +104,3 @@ class chat:
         reason_empty = "Without any reasons"
 
         purge = "🗑 Chat purged of {count} messages"
-
-
-class help:
-    users = f'👥 Mentions (@username,{l(f"Jack Jackson", "t.me/username")} or reply) \n'
-    until = '⏳ Date[s|m|h|d|M|y] (1m 30s or 1M) \n'
-    reason = '❔ "Reason" (Yes in the quote) \n'
-    poll = '📈 Make a poll (-p --poll)'
-
-    ban = "⛔ /ban \n" + users + until + reason + poll
-    unban = "✅ /unban \n" + users + reason + poll
-    kick = "⚠ /kick \n" + users + reason + poll
-    mute = "🔇 /mute \n" + users + until + reason + poll
-    unmute = "🔈 /unmute \n" + users + reason + poll
-
-    count = "\n🔢 Count (2 - 1000)"
-    reply = "\n⤴ Reply to delete above"
-
-    purge = "🗑 /purge" + count + reply

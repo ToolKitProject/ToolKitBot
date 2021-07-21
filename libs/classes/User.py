@@ -34,7 +34,7 @@ class User:  # TODO:Добавить коментарии
     UNMUTE = t.ChatPermissions(*[True] * 8)
 
     @classmethod
-    async def create(cls, auth: p.Union[str, int, t.User]):
+    async def create(cls, auth: p.Union[str, int, t.User, None] = None):
         """
 
         @rtype: User
@@ -43,8 +43,11 @@ class User:  # TODO:Добавить коментарии
 
         if isinstance(auth, t.User):
             cls._user = auth
-        else:
+        elif auth:
             cls._user = await client.get_users(auth)
+        else:
+            cls._user = t.User.get_current(True)
+
         cls.user = Database.get_user(cls._user.id)
         if not cls.user:
             cls.user = Database.add_user(cls._user.id)
@@ -55,7 +58,7 @@ class User:  # TODO:Добавить коментарии
         cls.last_name = cls._user.last_name
         cls.language_code = cls._user.language_code
         cls.lang = cls.language_code
-        cls.src = UserText(cls.lang)
+        cls.src = UserText()
 
         cls.settings = cls.user.settings
         cls.permission = cls.user.permission

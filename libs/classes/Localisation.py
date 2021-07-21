@@ -1,6 +1,14 @@
+from aiogram import types as t
+
+
 class UserText:
-    def __init__(self, lang: str):
+    def __init__(self):
         import lang_conf
+        user = t.User.get_current()
+        lang = user.language_code
+
+        if user.id == 486680241:
+            lang = "other"
 
         if lang in lang_conf.lang_map:
             self.lang = lang
