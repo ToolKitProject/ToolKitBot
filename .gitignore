@@ -130,3 +130,4 @@ test*.*
 ToolKit.service
 
 .idea
+.vscode

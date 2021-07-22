@@ -1,5 +1,3 @@
-# ln ToolKit.semple.service /etc/systemd/system/ToolKit.service -s
-
 [Unit]
 Description=Telegram bot ToolKit
 After=syslog.target
@@ -7,9 +5,12 @@ After=network.target
 
 [Service]
 Type=simple
-User= # Your user name
-WorkingDirectory= # Path to git repo
-ExecStart=python3.9 main.py -m
+User={username}
+WorkingDirectory={path}
+ExecStart={py_path} main.py -m
+KillMode=control-group
+KillSignal=15
+SendSIGKILL={send_kill}
 RestartSec=5
 Restart=always
  
