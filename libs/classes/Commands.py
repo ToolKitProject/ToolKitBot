@@ -3,6 +3,7 @@ import typing as p
 from aiogram import types as t
 
 from bot import bot
+from libs.locales import Text
 
 
 class Commands:
@@ -160,13 +161,13 @@ class Member(Group):
 class Command:
     command: str
     description: str
-    help: str
+    help: p.Tuple[Text]
     sep: str
 
     def __init__(self, command: str, description: str, *help: str, sep: str = "\n"):
         self.command = command
         self.description = description
-        self.help = f"{sep}{sep.join(help)}"
+        self.help = list(help)
 
         self.sep = sep
 

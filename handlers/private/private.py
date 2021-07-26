@@ -2,9 +2,7 @@ from aiogram import types as t
 
 from bot import dp
 from libs import filters as f
-from libs.classes.Localisation import UserText
-from libs.src import any
-from libs.classes import Errors as e
+from libs import UserText
 
 
 @dp.message_handler(f.message.is_private, commands=["start"])

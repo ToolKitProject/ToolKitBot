@@ -5,7 +5,7 @@ from bot import dp
 from libs import filters as f
 from libs.classes import Errors as e
 from libs.classes.Chat import Chat
-from libs.classes.Localisation import UserText
+from libs import UserText
 from libs.classes.Settings import Settings, DictSettings
 from libs.objects import MessageData
 from libs.system import alias_commands
@@ -32,7 +32,7 @@ async def cancel(msg: t.Message, state: FSMContext):
         element: DictSettings = data.current_element
         menu = element.update_buttons()
 
-    to_msg = await menu.send(msg)
+    to_msg = await menu.send()
     await MessageData.move(from_msg, to_msg)
     await states.add_alias.finish()
 
@@ -71,7 +71,7 @@ async def command_form(msg: t.Message, state: FSMContext):
 
     menu = element.update_buttons()
 
-    to_msg = await menu.send(msg)
+    to_msg = await menu.send()
     await MessageData.move(from_msg, to_msg)
     await states.add_alias.finish()
 

@@ -1,13 +1,4 @@
-from libs.classes.Buttons import Button
 from libs.classes import Stages as s
-
-back = Button("↩", "back")
-delete_this = Button("🗑", "delete_this")
-
-
-def info(text: str):
-    return Button("❓", f"info@{text}")
-
 
 restrict_commands = ["ban", "unban", "kick", "mute", "unmute"]
 alias_commands = [*restrict_commands, "purge"]

@@ -2,12 +2,11 @@ import typing as p
 
 from aiogram import types as t
 
-import lang_conf
 from bot import dp, bot
-from libs import system
+from libs import system, src
 from libs.classes.Buttons import Menu
 from libs.classes import Errors as e
-from libs.classes.Localisation import UserText
+from libs import UserText
 from libs.objects import MessageData
 from libs.src import any
 from libs import filters as f
@@ -49,7 +48,7 @@ async def help(msg: t.Message):  # help command
     await msg.answer(text, disable_web_page_preview=True)
 
 
-@system.delete_this(state="*")
+@src.buttons.delete_this(state="*")
 async def delete_this(clb: t.CallbackQuery):
     """
     *delete_this* button handler
@@ -57,7 +56,7 @@ async def delete_this(clb: t.CallbackQuery):
     await MessageData.delete(clb.message, False)
 
 
-@system.back(state="*")
+@src.buttons.back(state="*")
 async def back(clb: t.CallbackQuery):
     """
     *back* button handler
@@ -67,7 +66,7 @@ async def back(clb: t.CallbackQuery):
         try:
             history: p.List[Menu] = data.history
             history.pop(-1)
-            await history[-1].edit(msg, False)
+            await history[-1].edit(False)
             data.history = history
         except Exception:
             raise e.BackError()

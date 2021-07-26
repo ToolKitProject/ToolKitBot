@@ -45,17 +45,12 @@ class _Settings:
         self.settings: SettingType = None
         self.menu: MenuButton = None
 
-        self.data = CallbackData(key, "chat_id", "lang")
-        self.chat_id = None
-        self.lang = None
-
     def add(self, *elements):
         self.elements += elements
         return self
 
     def get_menu(self, settings: SettingType, chat_id: int, lang: str):
-        menu = MenuButton(self.text, self.title, self.data.new(chat_id=chat_id, lang=lang),
-                          make_unique=False, undo=self.undo, row=self.row)
+        menu = MenuButton(self.title, self.text, self.key)
 
         if isinstance(self, Settings):
             values = settings
@@ -66,20 +61,18 @@ class _Settings:
             values = settings[self.key]
 
         menu.add(
-            *self.get_buttons(values, chat_id, lang)
+            *self.get_buttons(values)
         )
 
         self.menu = menu
         self.settings = values
-        self.chat_id = chat_id
-        self.lang = lang
         return menu
 
     def update_buttons(self):
         self.menu.buttons.clear()
 
         self.menu.add(
-            *self.get_buttons(self.settings, self.chat_id, self.lang)
+            *self.get_buttons(self.settings)
         )
 
         return self.menu
@@ -93,7 +86,7 @@ class _Settings:
             elif isinstance(elem, Button):
                 button = elem
             elif isinstance(elem, _Settings):
-                button = elem.get_menu(values, chat_id, lang)
+                button = elem.get_menu(values)
                 button.storage["current_element"] = elem
                 button.storage["current_menu"] = button
             else:
@@ -126,7 +119,7 @@ class Elements:
 
             button = Button(text, data)
             if self._func:
-                button.set_action(func=self._func)
+                button.set_handler(func=self._func)
             buttons.append(button)
 
         return buttons

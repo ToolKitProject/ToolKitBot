@@ -2,11 +2,10 @@ from aiogram import types as t
 
 from bot import client
 from libs import system
-from libs.classes.Localisation import UserText
+from libs import UserText
 from libs.classes import Utils as u
 from libs import filters as f
 from libs.src import any
-from asyncio import sleep
 
 
 @any.parsers.purge(
@@ -40,5 +39,5 @@ async def purge(msg: t.Message):
         src.text.chat.admin.purge.format(
             count=parsed.number
         ),
-        reply_markup=system.delete_this.inline
+        reply_markup=system.delete_this
     )

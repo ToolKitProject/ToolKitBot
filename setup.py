@@ -8,7 +8,9 @@ term = shutil.get_terminal_size()
 sep = "=" * term.columns
 
 venv = False
+default = 1
 sample_files = ["data/database.sample.db"]
+po_files = ["text.py", "buttons.py", "any.py"]
 
 if os.name == "nt":
     print(f"Setup not supported on {platform.system()}")
@@ -19,11 +21,18 @@ def _opt_selector(options: p.Dict[str, p.Any], default: p.Optional[int] = None, 
     _options = {}
     print("Choose variant")
     print(sep)
-    for num, opt in enumerate(options):
-        d = "*" if default == num + 1 else " "
 
-        print(f"  {d}{num + 1} - {opt}")
-        _options[num + 1] = options[opt]
+    num = 1
+    for opt in options:
+        if options[opt] is None:
+            print()
+            continue
+
+        d = "*" if default == num else " "
+
+        print(f"  {d}{num} - {opt}")
+        _options[num] = options[opt]
+        num += 1
     print(sep)
 
     while True:
@@ -36,6 +45,7 @@ def _opt_selector(options: p.Dict[str, p.Any], default: p.Optional[int] = None, 
             return default, _options[default]
 
         print("Incorrect answer")
+        pmt = ""
 
 
 def _yes(default: bool = True) -> bool:
@@ -111,10 +121,29 @@ def systemd_unit_generator():
         if _yes(False):
             with open("ToolKit.service", "w") as file:
                 file.write(sample)
+            _clear()
+
+            print("Link unit from /etc/systemd/system/ ?")
+            if _yes():
+                print(sep)
+
+                cmd = "sudo mv ToolKit.service /etc/systemd/system/"
+                print(cmd)
+                _enter()
+                os.system(cmd)
+
+                print(sep)
+
+                cmd = "sudo ln /etc/systemd/system/ToolKit.service ./ -s"
+                print(cmd)
+                _enter()
+                os.system(cmd)
             break
         else:
             venv = False
             _clear()
+    print(sep)
+    _enter()
     return True
 
 
@@ -163,7 +192,42 @@ def rename_sample_files():
 
 
 def compile_po_files():
-    return "Coming soon !!"
+    path = "libs/locales/"
+    locales = os.listdir(path)
+    lc = "LC_MESSAGES/"
+
+    if not locales:
+        print("Locales not found")
+    for local in locales:
+        po = f"{local}.po"
+        local = path + local + "/"
+        mo = "ToolKit.mo"
+
+        if not os.path.isdir(local):
+            local = local.removesuffix("/")
+            print(f"{local!r} - is not folder, delete ?")
+            if _yes():
+                os.remove(local)
+            continue
+        po = local + po
+        if not os.path.isfile(po):
+            print(f"{po!r} - file is not exist, skipping {local!r} folder \t(run \"Generate po files\")")
+            continue
+        if not os.path.isdir(local + lc):
+            os.mkdir(local + lc)
+            print(f"Folder {local + lc!r} created ")
+
+        mo = local + lc + mo
+        cmd = f"msgfmt {po} -o {mo}"
+        print(f"Execute \t {cmd!r}")
+        if os.system(cmd) == 0:
+            print(f"{po!r} - file compiled to - {mo!r}")
+        else:
+            print("COMPILE ERROR")
+        print(sep)
+
+    _enter()
+    return True
 
 
 def install_dependencies():
@@ -184,6 +248,115 @@ def install_dependencies():
     return True
 
 
+def generate_locales_files(auto: bool = False):
+    path = "libs/src/"
+    out_path = "libs/locales/"
+    locales = os.listdir(out_path)
+
+    if not locales:
+        print("Locales not found")
+
+    for lc in locales:
+        print(lc + "\n")
+        local = out_path + lc
+        if os.path.isfile(local):
+            os.remove(local)
+            continue
+
+        po = ""
+        pot = ""
+
+        if os.path.isfile(local + f"/{lc}.po"):
+            print("Joined po")
+            po = local + f"/{lc}.po"
+        if os.path.isfile(local + f"/{lc}.pot"):
+            print("Overwritten pot")
+            pot = local + f"/{lc}.pot"
+            with open(pot, "w"):
+                pass
+
+        for f in po_files:
+            if po:
+                os.system(f"xgettext -j {path + f} -o {po}")
+            if pot:
+                os.system(f"xgettext -j {path + f} -o {pot}")
+
+        print(sep)
+    if not auto:
+        _enter()
+    return True
+
+
+def create_locales():
+    path = "libs/locales/"
+    used = False
+    while True:
+        locale = input("Name of locale (telegram format) -> ")
+        if locale == "":
+            if used:
+                break
+            print("Exit ?")
+            if _yes():
+                break
+        locale = path + locale
+
+        if os.path.isfile(locale):
+            os.remove(locale)
+        if os.path.isdir(locale):
+            print("Locale exist, skipping")
+            continue
+
+        os.mkdir(locale)
+        generate_locales_files(True)
+
+        _clear()
+        print("Leave blank to exit")
+        if not used:
+            used = True
+
+    _clear()
+    print("""
+To create the locale, the following remains:
+    1 - Fill in .pot file (libs/locales/)
+    2 - Run "Compile po files"
+        """)
+    _enter()
+    return True
+
+
+def delete_locales():
+    path = "libs/locales/"
+    while True:
+        _clear()
+        print("Leave blank to exit")
+        locale = input("Name of locale -> ")
+        if locale == "":
+            break
+
+        locale = path + locale
+
+        print(sep)
+        print(locale)
+        print(sep)
+
+        if os.path.isfile(locale):
+            os.remove(locale)
+        if not os.path.isdir(locale):
+            print("Locale doesn't exist, skipping")
+            _enter()
+            continue
+
+        print("ARE YOU SURE ?")
+        if _yes(False):
+            print("You 100% sure ?")
+            if _yes(False):
+                cmd = f"rm -rf {locale}"
+                print(cmd)
+                os.system(cmd)
+    _clear()
+    return True
+
+
 if __name__ == '__main__':
     opts = {
         "Setup systemd unit": systemd_unit_generator,
@@ -192,13 +365,21 @@ if __name__ == '__main__':
         "Compile po files": compile_po_files,
         "Install dependencies": install_dependencies,
         "Exit": exit,
-        # "Add new lang": None
+        "0": None,
+        "Generate or join locales files": generate_locales_files,
+        "Create locales": create_locales,
+        "Delete locales": delete_locales,
     }
+    exit_index = 6
     default = 1
     pmt = ""
 
     _clear()
     while True:
+        if default >= exit_index:
+            default = exit_index
+        term = shutil.get_terminal_size()
+        sep = "=" * term.columns
         try:
             _clear()
             num, opt = _opt_selector(opts, default, pmt)
@@ -212,7 +393,7 @@ if __name__ == '__main__':
                 default += 1
 
             if res is not True:
-                pmt = f"The function returned {res!r} "
+                pmt = f"{res!r} "
                 if num == default:
                     default = num + 1
             else:

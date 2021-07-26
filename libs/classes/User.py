@@ -9,7 +9,7 @@ from libs.classes import Database as d
 from libs.objects import Database
 from .Chat import Chat
 from .Database import permissionOBJ, settingsOBJ
-from .Localisation import UserText
+from libs import UserText
 from . import Errors as e
 
 

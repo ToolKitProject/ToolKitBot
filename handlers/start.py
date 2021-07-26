@@ -4,6 +4,7 @@ from aiogram import types as t
 
 from bot import dp
 from libs import filters as f
+from libs.classes.Buttons import Menu, Button, MenuButton
 from libs.classes.Chat import Chat
 from libs.classes.Errors import MyError, ERRORS, IGNORE, ForceError
 from libs.objects import Database
@@ -26,7 +27,18 @@ async def check(msg: t.Message):
 # @dp.edited_message_handler(commands=["test"])
 @dp.message_handler(commands=["test"])
 async def test_xd(msg: t.Message):  # Test func
-    pass
+    menu = Menu("Меню").add(
+        Button("Кнопка 1", "btn1"),
+        MenuButton("Подменю", "Подменю", "mbtn1").add(
+            Button("Кнопка 2", "btn2"),
+            Button("Кнопка 3", "btn3"),
+        ),
+        MenuButton("Подменю 2", "Подменю 2", "mbtn2").add(
+            Button("Кнопка 4", "btn4"),
+            Button("Кнопка 5", "btn5"),
+        )
+    )
+    await menu.send()
 
 
 @dp.errors_handler()

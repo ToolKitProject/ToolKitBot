@@ -7,7 +7,6 @@ from aiogram import types as t
 from bot import bot
 from libs import filters as f
 from libs.classes.CommandParser import ParsedArgs, dates
-from libs.classes.Localisation import UserText
 from libs.classes.User import User
 from libs.classes import Utils as u
 from libs.objects import MessageData
@@ -133,7 +132,7 @@ async def get_text(parsed: ParsedArgs, executor: User) -> p.Tuple[str, t.InlineK
     multi = len(users) > 1
 
     text = None
-    rm = src.buttons.chat.admin.undo.inline
+    rm = src.buttons.chat.admin.undo
 
     if type == "ban":
         text = adm.multi_ban if multi else adm.ban

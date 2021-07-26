@@ -1,4 +1,4 @@
-from .Localisation import UserText
+from libs import UserText
 from aiogram.utils import exceptions as ex
 from aiogram import types as t
 from asyncio import sleep
@@ -41,12 +41,12 @@ class MyError(Exception):
         upd = t.Update.get_current()
         rm = None
         if self.delete:
-            rm = delete_this.inline
+            rm = delete_this
         if upd.edited_message:
             upd.message = upd.edited_message
 
         if upd.message:
-            msg = await upd.message.answer(self.text, reply_markup=rm)
+            msg = await upd.message.answer(self.text, "None", reply_markup=rm)
             if self.auto_delete:
                 try:
                     await sleep(self.auto_delete)

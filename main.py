@@ -29,7 +29,6 @@ else:
 from bot import dp, client
 import handlers
 from libs.objects import MessageData
-import lang_conf
 
 
 def close(signal: int, frame):
@@ -49,8 +48,6 @@ async def startup(dp: Dispatcher):
     await client.start()
 
     logging.warning("Init commands")
-    for src in lang_conf.lang_map.values():
-        await src.any.command_list.set()
 
     logging.warning("Bot initialized")
 

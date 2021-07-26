@@ -1,7 +1,7 @@
 from aiogram import types as t
 
 from libs import filters as f
-from .Localisation import UserText
+from libs import UserText
 
 
 async def get_help(msg: t.Message):

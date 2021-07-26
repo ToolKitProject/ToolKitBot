@@ -9,7 +9,7 @@ from handlers.private import alias_form
 from libs import filters as f
 from libs.classes.Chat import Chat
 from libs.classes.Errors import EmptyOwns
-from libs.classes.Localisation import UserText
+from libs import UserText
 from libs.classes.Settings import DictSettings, Settings
 from libs.classes.User import User
 from libs.classes import Utils as u
@@ -23,7 +23,7 @@ alias_data = CallbackData("alias", "key")
 @dp.message_handler(u.write_action, f.message.is_private, commands=["settings"])
 async def settings_cmd(msg: t.Message):
     src = UserText()
-    await src.buttons.private.settings.settings.send(msg)
+    await src.buttons.private.settings.settings.send()
 
 
 # @s.private_settings(f.message.is_private)
@@ -43,7 +43,7 @@ async def chat_settings(clb: t.CallbackQuery):
     chats = await user.get_owns()
 
     if not chats:
-        await src.buttons.private.settings.settings.edit(clb.message, False)
+        await src.buttons.private.settings.settings.edit(False)
         raise EmptyOwns()
 
     if not chats:
@@ -81,7 +81,7 @@ async def delete_alias_button(clb: t.CallbackQuery, callback_data: p.Dict[str, s
     with await MessageData.data(clb.message) as data:
         data.key = callback_data["key"]
 
-    await src.buttons.private.settings.chat.delete.edit(clb.message, False)
+    await src.buttons.private.settings.chat.delete.edit(False)
 
 
 @s.chat.delete_yes(f.message.is_private)
@@ -95,4 +95,4 @@ async def add_alias_button(clb: t.CallbackQuery):
     menu = element.update_buttons()
     settings.save(chat)
 
-    await menu.edit(clb.message, False)
+    await menu.edit(False)

@@ -5,7 +5,7 @@ from aiogram.dispatcher.filters import state as s
 
 from . import Commands as c
 from bot import bot, dp
-from .Localisation import UserText
+from libs import UserText
 
 
 class StageGroup(s.StatesGroup):

@@ -1,4 +1,3 @@
-from . import Localisation
 from . import Message
 from . import Database
 from . import Chat

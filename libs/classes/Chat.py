@@ -1,4 +1,4 @@
-from typing import *
+import typing as p
 
 from aiogram import types as t
 
@@ -19,7 +19,7 @@ class Chat:
     settings: settingsOBJ
 
     @classmethod
-    async def create(cls, auth: Union[int, str, t.Chat]):
+    async def create(cls, auth: p.Union[int, str, t.Chat, None] = None):
         """
 
         @rtype: Chat
