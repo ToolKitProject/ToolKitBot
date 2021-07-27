@@ -15,5 +15,3 @@
 ## Setup
 
     python3.9 setup.py
-
-> <img src="https://www.jetbrains.com/company/brand/img/jetbrains_logo.png" style="width: 1em" alt="JetBrains logo"/> Thank JetBrains
