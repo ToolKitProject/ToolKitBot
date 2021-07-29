@@ -1,8 +1,7 @@
 import typing as p
 
-from aiogram import types as t
+from aiogram import types as t, Bot
 
-from bot import bot
 from libs.objects import Database
 from .Database import chatOBJ, settingsOBJ
 
@@ -24,6 +23,7 @@ class Chat:
 
         @rtype: Chat
         """
+        bot = Bot.get_current()
         cls = Chat()
 
         if isinstance(auth, t.Chat):

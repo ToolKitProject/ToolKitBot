@@ -1,16 +1,16 @@
 import typing as p
 
-from aiogram import types as t
+from aiogram import types as t, Dispatcher, Bot
 from aiogram.dispatcher.filters import state as s
 
 from . import Commands as c
-from bot import bot, dp
 from libs import UserText
 
 
 class StageGroup(s.StatesGroup):
     @classmethod
     async def next(cls) -> str:
+        bot = Bot.get_current()
         chat = t.Chat.get_current()
         user = t.User.get_current()
 
@@ -24,11 +24,14 @@ class StageGroup(s.StatesGroup):
 
     @classmethod
     async def finish(cls):
+        from libs import system
+        dp = Dispatcher.get_current()
         chat = t.Chat.get_current()
-        user = t.User.get_current()
 
         if chat.type == t.ChatType.PRIVATE:
-            await c.Chat(chat.id).delete(user.language_code)
+            await c.Chat(chat.id).delete("other")
+            for l in system.langs:
+                await c.Chat(chat.id).delete(l)
 
         await dp.current_state().finish()
 
@@ -41,11 +44,13 @@ class Stage(s.State):
         super().__init__(state, group_name)
 
     async def set(self):
+        from libs import system
         chat = t.Chat.get_current()
-        user = t.User.get_current()
 
         if chat.type == t.ChatType.PRIVATE:
-            await self.commands.set(user.language_code)
+            await self.commands.set("other")
+            for l in system.langs:
+                await self.commands.set(l)
 
         await super().set()
 
@@ -57,7 +62,3 @@ class Stage(s.State):
         for cmd in self._commands:
             commands.add(src.any.command_list.get(cmd))
         return commands
-
-    @classmethod
-    async def finish(cls):
-        await dp.current_state().finish()

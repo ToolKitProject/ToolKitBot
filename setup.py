@@ -248,7 +248,7 @@ def install_dependencies():
     return True
 
 
-def generate_locales_files(auto: bool = False):
+def generate_locales_files(new_locale: p.Optional[str] = None):
     path = "libs/src/"
     out_path = "libs/locales/"
     locales = os.listdir(out_path)
@@ -263,57 +263,52 @@ def generate_locales_files(auto: bool = False):
             os.remove(local)
             continue
 
+        if new_locale and new_locale != lc:
+            print(new_locale, lc)
+            continue
+
         po = ""
-        pot = ""
+        pot = local + f"/{lc}.pot"
 
         if os.path.isfile(local + f"/{lc}.po"):
             print("Joined po")
             po = local + f"/{lc}.po"
-        if os.path.isfile(local + f"/{lc}.pot"):
-            print("Overwritten pot")
-            pot = local + f"/{lc}.pot"
-            with open(pot, "w"):
-                pass
+
+        print("Overwritten pot")
+        with open(pot, "w"):
+            pass
 
         for f in po_files:
             if po:
                 os.system(f"xgettext -j {path + f} -o {po}")
-            if pot:
-                os.system(f"xgettext -j {path + f} -o {pot}")
+            os.system(f"xgettext -j {path + f} -o {pot}")
 
         print(sep)
-    if not auto:
+    if not new_locale:
         _enter()
     return True
 
 
 def create_locales():
     path = "libs/locales/"
-    used = False
     while True:
-        locale = input("Name of locale (telegram format) -> ")
-        if locale == "":
-            if used:
-                break
-            print("Exit ?")
-            if _yes():
-                break
-        locale = path + locale
+        print("Leave blank to exit")
+        lc = input("Name of locale (telegram format) -> ")
+        if lc == "":
+            break
+        locale = path + lc
 
         if os.path.isfile(locale):
             os.remove(locale)
         if os.path.isdir(locale):
             print("Locale exist, skipping")
+            print(sep)
             continue
 
         os.mkdir(locale)
-        generate_locales_files(True)
+        generate_locales_files(lc)
 
         _clear()
-        print("Leave blank to exit")
-        if not used:
-            used = True
-
     _clear()
     print("""
 To create the locale, the following remains:

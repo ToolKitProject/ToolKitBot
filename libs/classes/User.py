@@ -1,10 +1,9 @@
 import typing as p
 from datetime import timedelta
 
-from aiogram import types as t
+from aiogram import types as t, Bot
 from aiogram.utils.exceptions import MigrateToChat, ChatNotFound
 
-from bot import bot, client
 from libs.classes import Database as d
 from libs.objects import Database
 from .Chat import Chat
@@ -13,7 +12,7 @@ from libs import UserText
 from . import Errors as e
 
 
-class User:  # TODO:Добавить коментарии
+class User:
     """
     Пользователь
     """
@@ -39,6 +38,7 @@ class User:  # TODO:Добавить коментарии
 
         @rtype: User
         """
+        from bot import client
         cls = User()
 
         if isinstance(auth, t.User):
@@ -104,6 +104,7 @@ class User:  # TODO:Добавить коментарии
                                          t.ReplyKeyboardRemove,
                                          t.ForceReply, None] = None,
                    ):
+        bot = Bot.get_current()
         await bot.send_message(self.id,
                                text=text,
                                entities=entities,
@@ -127,16 +128,21 @@ class User:  # TODO:Добавить коментарии
         return owns
 
     async def ban(self, chat_id: int, until: timedelta):
+        bot = Bot.get_current()
         await bot.ban_chat_member(chat_id, self.id, until_date=until)
 
     async def unban(self, chat_id: int):
+        bot = Bot.get_current()
         await bot.unban_chat_member(chat_id, self.id, only_if_banned=True)
 
     async def mute(self, chat_id: int, until: timedelta):
+        bot = Bot.get_current()
         await bot.restrict_chat_member(chat_id, self.id, self.MUTE, until_date=until)
 
     async def unmute(self, chat_id: int):
+        bot = Bot.get_current()
         await bot.restrict_chat_member(chat_id, self.id, self.UNMUTE)
 
     async def kick(self, chat_id: int):
+        bot = Bot.get_current()
         await bot.unban_chat_member(chat_id, self.id, only_if_banned=False)

@@ -1,3 +1,4 @@
+import os
 import typing as p
 
 from aiogram import types as t
@@ -8,7 +9,7 @@ from libs.classes.Buttons import Menu
 from libs.classes import Errors as e
 from libs import UserText
 from libs.objects import MessageData
-from libs.src import any
+from libs.src import any, text
 from libs import filters as f
 
 
@@ -17,14 +18,12 @@ async def fix_commands(msg: t.Message, send: bool = True):
     """
     Fixes broken hints for commands
     """
-    for lang in lang_conf.lang_map:  # Delete commands for current chat and all locales
-        if lang == "other":
-            lang = None
+    await bot.delete_my_commands(t.BotCommandScopeChat(msg.chat.id), None)
+    for lang in os.listdir("libs/locales"):  # Delete commands for current chat and all locales
         await bot.delete_my_commands(t.BotCommandScopeChat(msg.chat.id), lang)
 
     if send:
-        src = UserText()
-        await msg.answer(src.text.chat.fix_commands)
+        await msg.answer(text.chat.fix_commands)
 
 
 @any.parsers.help()

@@ -74,7 +74,7 @@ class parsers:
     )
 
 
-command_list = c.Commands("other").add(
+command_list = c.Commands().add(
     commands.hide,
     commands.default_commands,
     commands.private_commands,

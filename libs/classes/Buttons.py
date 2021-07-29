@@ -8,32 +8,37 @@ from bot import dp
 class Menu(t.InlineKeyboardMarkup):
     title: str
     undo: bool = False
-    storage: p.Dict[str, p.Any] = {}
+    storage: p.Dict[str, p.Any]
 
-    def __init__(self, title: str, row_width=3, inline_keyboard=None, undo: bool = False):
+    def __init__(self, title: str, row_width: int = 3, inline_keyboard=None, undo: bool = False):
         super().__init__(row_width=row_width, inline_keyboard=inline_keyboard)
         self.title: str = title
         self.undo = undo
 
+        self.storage = {}
+
+    def __deepcopy__(self, *args, **kwargs):
+        return Menu(self.title, row_width=self.row_width, inline_keyboard=self.inline_keyboard, undo=self.undo)
+
     async def send(self):
         from libs import src
-        self = self.copy
+        menu = self.copy
         if self.undo:
-            self.add(src.buttons.back)
+            menu.row(src.buttons.back)
 
-        msg = t.Message.get_current()
-        msg = await msg.answer(self.title, reply_markup=self)
+        msg = t.Message.get_current() or t.CallbackQuery.get_current().message
+        msg = await msg.answer(self.title, reply_markup=menu)
         await self.save_storage(msg)
         return msg
 
     async def edit(self, save: bool = True):
         from libs import src
-        self = self.copy
+        menu = self.copy
         if self.undo:
-            self.add(src.buttons.back)
+            menu.row(src.buttons.back)
 
         msg = t.Message.get_current() or t.CallbackQuery.get_current().message
-        await msg.edit_text(self.title, reply_markup=self)
+        await msg.edit_text(self.title, reply_markup=menu)
         if save:
             await self.save_storage(msg)
         return msg
@@ -50,14 +55,17 @@ class Menu(t.InlineKeyboardMarkup):
                 data[key] = value
 
     def add(self, *args) -> "Menu":
-        return super().add(*args)
+        super().add(*args)
+        return self
 
-    def row(self, *args):
-        return super().row(*args)
+    def row(self, *args) -> "Menu":
+        super().row(*args)
+        return self
 
     @property
     def copy(self):
-        return deepcopy(self)
+        c = deepcopy(self)
+        return c
 
 
 class Button(t.InlineKeyboardButton):
@@ -73,7 +81,6 @@ class Button(t.InlineKeyboardButton):
     def set_handler(self, *filters, func, state=None):
         filters = list(filters)
         filters.insert(0, self._filter)
-
         dp.register_callback_query_handler(
             func,
             *filters,
@@ -81,9 +88,11 @@ class Button(t.InlineKeyboardButton):
         )
         return func
 
-    def to_python(self) -> p.Dict[str, p.Any]:
-        self.text = str(self.text)
-        return super().to_python()
+    def to_python(self) -> p.Dict[str, p.Any]:  # I hate JSON serializer
+        self.text, t = str(self.text), self.text
+        r = super().to_python()
+        self.text = t
+        return r
 
     @property
     def menu(self) -> t.InlineKeyboardMarkup:
@@ -94,13 +103,14 @@ class Button(t.InlineKeyboardButton):
         return str(self.callback_data) == str(clb.data)
 
 
-class MenuButton(Button):
+class Submenu(Button):
     def __init__(self, title: str, text: str, callback_data: str,
-                 row_width=3, inline_keyboard=None, undo: bool = True, state=None):
+                 row_width: int = 3, inline_keyboard=None, undo: bool = True, state=None):
         super().__init__(text=text, callback_data=callback_data)
         self.set_handler(self._filter, func=self.__handler, state=state)
 
         self.__menu = Menu(title=title, row_width=row_width, inline_keyboard=inline_keyboard, undo=undo)
+        self.storage = self.__menu.storage
 
     def add(self, *args):
         self.__menu.add(*args)
@@ -109,6 +119,12 @@ class MenuButton(Button):
     def row(self, *args):
         self.__menu.add(*args)
         return self
+
+    async def edit(self, save: bool = True):
+        return await self.__menu.edit(save)
+
+    async def send(self):
+        return await self.__menu.send()
 
     async def __handler(self, clb: t.CallbackQuery):
         await self.__menu.edit()

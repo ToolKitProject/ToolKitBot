@@ -4,10 +4,21 @@ from aiogram import types as t
 
 from bot import dp
 from libs import filters as f
-from libs.classes.Buttons import Menu, Button, MenuButton
+from libs.classes.Buttons import Menu, Button, Submenu
 from libs.classes.Chat import Chat
 from libs.classes.Errors import MyError, ERRORS, IGNORE, ForceError
-from libs.objects import Database
+from libs.classes.Settings import Settings, Property, Elements
+from libs.objects import Database, MessageData
+
+
+async def test_clb(clb: t.CallbackQuery):
+    with await MessageData.data(clb.message) as data:
+        text = f"{clb.data}\n"
+        for k, v in data.storage.items():
+            text += f"{k} - {v} \n"
+        print(text)
+
+    return False
 
 
 async def check(msg: t.Message):
@@ -22,22 +33,30 @@ async def check(msg: t.Message):
     return False
 
 
-# @dp.callback_query_handler(test_clb)
 # @any.command.AdminCommandParser()
 # @dp.edited_message_handler(commands=["test"])
+# @dp.callback_query_handler(test_clb)
 @dp.message_handler(commands=["test"])
 async def test_xd(msg: t.Message):  # Test func
-    menu = Menu("Меню").add(
-        Button("Кнопка 1", "btn1"),
-        MenuButton("Подменю", "Подменю", "mbtn1").add(
-            Button("Кнопка 2", "btn2"),
-            Button("Кнопка 3", "btn3"),
-        ),
-        MenuButton("Подменю 2", "Подменю 2", "mbtn2").add(
-            Button("Кнопка 4", "btn4"),
-            Button("Кнопка 5", "btn5"),
+    settings = Settings("Настройки").add(
+        Property("Текста", "Настроить текста", "texts", row_width=1).add(
+            Button("Просто кнопка", "btn"),
+            Elements("{key} → {value}", "elem")
         )
     )
+    s = {
+        "texts": {
+            "key1": "value1",
+            "key2": "value2",
+            "key3": "value3",
+            "key4": "value4",
+            "key5": "value5",
+            "key6": "value6",
+        }
+    }
+
+    menu = settings.menu(s)
+    await msg.answer(s, "None")
     await menu.send()
 
 

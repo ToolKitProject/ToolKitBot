@@ -1,4 +1,13 @@
+import os
 from libs.classes import Stages as s
+
+# (libs/locales)
+langs = {
+    "ru": "🇷🇺 Русский"
+}
+assert \
+    len(langs) == len(os.listdir("libs/locales")), \
+    "Add lang to dict plz )))"
 
 restrict_commands = ["ban", "unban", "kick", "mute", "unmute"]
 alias_commands = [*restrict_commands, "purge"]

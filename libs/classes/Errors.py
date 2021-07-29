@@ -37,7 +37,7 @@ class MyError(Exception):
             return member.from_user
 
     async def answer(self):
-        from libs.system import delete_this
+        from libs.src.buttons import delete_this
         upd = t.Update.get_current()
         rm = None
         if self.delete:
@@ -144,13 +144,40 @@ class EmptyOwns(MyError):
         self.alert = True
 
 
-class TypeError(MyError):
+class AliasTypeError(MyError):
     def __init__(self):
         super().__init__()
-        self.text = self.src.text.errors.TypeError
+        self.text = self.src.text.errors.alias_type_error.AliasTypeError
         self.auto_delete = 5
         self.delete = True
         self.alert = True
+
+    class AliasCommandNotSupported(MyError):
+        def __init__(self):
+            super().__init__()
+            self.text = f"{self.src.text.errors.alias_type_error.AliasTypeError}\n" \
+                        f"┗━{self.src.text.errors.alias_type_error.command_not_supported}"
+            self.auto_delete = False
+            self.delete = False
+            self.alert = False
+
+    class AliasStickerSupported(MyError):
+        def __init__(self):
+            super().__init__()
+            self.text = f"{self.src.text.errors.alias_type_error.AliasTypeError}\n" \
+                        f"┗━{self.src.text.errors.alias_type_error.sticker_supported}"
+            self.auto_delete = False
+            self.delete = False
+            self.alert = False
+
+    class AliasTextSupported(MyError):
+        def __init__(self):
+            super().__init__()
+            self.text = f"{self.src.text.errors.alias_type_error.AliasTypeError}\n" \
+                        f"┗━{self.src.text.errors.alias_type_error.text_supported}"
+            self.auto_delete = False
+            self.delete = False
+            self.alert = False
 
 
 class AlreadyExists(MyError):
@@ -207,7 +234,10 @@ ERRORS = [
     ArgumentError,
     HasNotPermission,
     EmptyOwns,
-    TypeError,
+    AliasTypeError,
+    AliasTypeError.AliasStickerSupported,
+    AliasTypeError.AliasTextSupported,
+    AliasTypeError.AliasCommandNotSupported,
     AlreadyExists,
     NotReply,
     BotHasNotPermission,

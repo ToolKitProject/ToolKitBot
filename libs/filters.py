@@ -1,10 +1,8 @@
 import re
 import typing as p
 
-from aiogram import types as t, filters as f
+from aiogram import types as t, filters as f, Bot
 
-import config
-from bot import dp, bot as tBot
 from libs.classes import Errors as e
 from libs.objects import Database
 from libs.system import regex as r
@@ -87,15 +85,16 @@ class message:
 
 
 class bot:
-    is_admin = AdminFilter(tBot.id)
+    is_admin = AdminFilter()
 
     @staticmethod
     def has_permission(permissions: p.List[str]):
         permissions = permissions
 
         async def filter(obj: objType):
+            bot = Bot.get_current()
             user, chat = _helper.get_user_and_chat(obj)
-            admin = await chat.get_member(tBot.id)
+            admin = await chat.get_member(bot.id)
             if not _helper.has_permission(admin, permissions):
                 raise e.BotHasNotPermission()
             return True

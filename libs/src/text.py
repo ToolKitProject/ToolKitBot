@@ -1,3 +1,4 @@
+from click import command
 from libs.locales import Text as _
 
 cancel = _("/cancel - to cancel")
@@ -13,11 +14,17 @@ class errors:
         incorrect = _("Argument <b>{arg_name}</b> incorrect")
         required = _("Argument <b>{arg_name}</b> required")
 
+    class alias_type_error:
+        AliasTypeError = _("⚠ Wrong type")
+
+        command_not_supported = _("Command not supported")
+        sticker_supported = _("Only sticker supported")
+        text_supported = _("Only text supported")
+
     CommandNotFound = _("⚠ Command not found")
     UserNotFound = _("⚠ User not found")
     HasNotPermission = _("⚠ You don't have the permission")
     EmptyOwns = _("⚠ You do not own chats")
-    TypeError = _("⚠ Wrong type")
     AlreadyExists = _("⚠ Already exists")
     NotReply = _("⚠ Not replied")
     BotHasNotPermission = _("⚠ The bot has no or not enough rights")

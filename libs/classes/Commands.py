@@ -1,18 +1,14 @@
 import typing as p
 
-from aiogram import types as t
+from aiogram import types as t, Bot
 
-from bot import bot
-from libs.locales import Text
+from libs.locales import Text, UserText
 
 
 class Commands:
     groups: p.List["Group"]
-    lang: str
 
-    def __init__(self, lang: str):
-        self.lang = _l(lang)
-
+    def __init__(self):
         self.groups = []
 
     def __iter__(self) -> p.Iterator["Group"]:
@@ -65,6 +61,11 @@ class Commands:
         for group in self:
             await group.delete(self.lang)
 
+    @property
+    def lang(self):
+        src = UserText()
+        return src.lang
+
 
 class Group:
     scope: p.Optional[t.BotCommand]
@@ -98,17 +99,19 @@ class Group:
                 return cmd
 
     async def set(self, lang: str) -> bool:
+        bot = Bot.get_current()
         lang = _l(lang)
         await self.delete(lang)
         return await bot.set_my_commands(self.bot_commands, self.scope, lang)
 
     async def delete(self, lang: str) -> bool:
+        bot = Bot.get_current()
         lang = _l(lang)
         return await bot.delete_my_commands(self.scope, lang)
 
     @property
     def bot_commands(self) -> p.List[t.BotCommand]:
-        return [t.BotCommand(c.command, c.description) for c in self]
+        return [c.bot_command for c in self]
 
 
 class Hide(Group):
@@ -161,27 +164,31 @@ class Member(Group):
 class Command:
     command: str
     description: str
-    help: p.Tuple[Text]
+    _help: p.List[Text]
     sep: str
 
     def __init__(self, command: str, description: str, *help: str, sep: str = "\n"):
         self.command = command
         self.description = description
-        self.help = list(help)
+        self._help = list(help)
 
         self.sep = sep
 
     def __format__(self, format_spec: str) -> str:
         if not format_spec:
             format_spec = "/{command} - {description}:{help}"
-        return format_spec.format(**self.__dict__)
+        return format_spec.format(command=self.command, description=self.description, help=self.help)
 
     def __str__(self) -> str:
         return format(self)
 
     @property
     def bot_command(self) -> t.BotCommand:
-        return t.BotCommand(self.command, self.description)
+        return t.BotCommand(str(self.command), str(self.description))
+
+    @property
+    def help(self):
+        return self.sep + self.sep.join([str(t) for t in self._help])
 
 
 def _l(lang: str):
