@@ -53,6 +53,7 @@ class Menu(t.InlineKeyboardMarkup):
 
             for key, value in self.storage.items():
                 data[key] = value
+                data.menu = self
 
     def add(self, *args) -> "Menu":
         super().add(*args)

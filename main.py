@@ -49,11 +49,15 @@ async def startup(dp: Dispatcher):
     logging.warning("Start client")
     await client.start()
 
-    logging.warning("Init commands")
-    await any.command_list.set()
-    for l in system.langs:
-        locales.lang = l
-        await any.command_list.set()
+    if values.main:
+        logging.warning("Init commands")
+        try:
+            await any.command_list.set()
+            for l in system.langs:
+                locales.lang = l
+                await any.command_list.set()
+        except Exception as e:
+            logging.error(f"Init command failed ({e})")
 
     logging.warning("Bot initialized")
 

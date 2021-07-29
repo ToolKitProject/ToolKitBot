@@ -3,6 +3,7 @@ import typing as p
 
 from aiogram import types as t, filters as f, Bot
 
+from bot import bot
 from libs.classes import Errors as e
 from libs.objects import Database
 from libs.system import regex as r
@@ -85,7 +86,7 @@ class message:
 
 
 class bot:
-    is_admin = AdminFilter()
+    is_admin = AdminFilter(bot.id)
 
     @staticmethod
     def has_permission(permissions: p.List[str]):

@@ -1,3 +1,5 @@
+import logging
+
 from aiogram import types as t
 
 from bot import client
@@ -5,7 +7,7 @@ from libs import system
 from libs import UserText
 from libs.classes import Utils as u
 from libs import filters as f
-from libs.src import any
+from libs.src import any, buttons
 
 
 @any.parsers.purge(
@@ -32,12 +34,12 @@ async def purge(msg: t.Message):
         current_ids = all_ids[x * 100:x * 100 + 100]  # Create a local delete list (MAX 100)
         try:
             await client.delete_messages(msg.chat.id, current_ids)  # Purge messages
-        except:
-            pass
+        except Exception as e:
+            logging.warning(e)
 
     await msg.answer(
         src.text.chat.admin.purge.format(
             count=parsed.number
         ),
-        reply_markup=system.delete_this
+        reply_markup=buttons.delete_this
     )

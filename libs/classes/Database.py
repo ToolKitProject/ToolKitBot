@@ -190,7 +190,7 @@ class Database:
         result = self.run(f"SELECT * FROM Users WHERE id={id}", True)
 
         if not result:
-            return
+            return self.add_user(id)
 
         return userOBJ(*result)
 

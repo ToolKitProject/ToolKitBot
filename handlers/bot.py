@@ -4,6 +4,7 @@ from aiogram import types as t
 
 from libs.classes.Chat import Chat
 from libs.objects import Database
+from libs.src import text
 
 
 @dp.my_chat_member_handler(f.user.add_member)
@@ -11,9 +12,8 @@ async def bot_chat_added(upd: t.ChatMemberUpdated):
     """
     If bot added in the chat
     """
-    chat: Chat = await Chat.create()
-    src = chat.owner.src
-    await bot.send_message(chat.id, src.text.chat.start_text)
+    chat: Chat = await Chat.create(upd.chat)
+    await bot.send_message(chat.id, text.chat.start_text)
 
 
 @dp.my_chat_member_handler(f.user.removed_member)
@@ -29,9 +29,8 @@ async def bot_promote(upd: t.ChatMemberUpdated):
     """
     If bot promote to admin
     """
-    chat: Chat = await Chat.create()
-    src = chat.owner.src
-    await bot.send_message(chat.id, src.text.chat.promote_admin)
+    chat: Chat = await Chat.create(upd.chat)
+    await bot.send_message(chat.id, text.chat.promote_admin)
 
 
 @dp.my_chat_member_handler(f.user.restrict_admin)
@@ -39,6 +38,5 @@ async def bot_chat_restrict(upd: t.ChatMemberUpdated):
     """
     If bot restrict to admin
     """
-    chat: Chat = await Chat.create()
-    src = chat.owner.src
-    await bot.send_message(chat.id, src.text.chat.restrict_admin)
+    chat: Chat = await Chat.create(upd.chat)
+    await bot.send_message(chat.id, text.chat.restrict_admin)

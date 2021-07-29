@@ -47,8 +47,8 @@ class UserText:
             self.lang = user.language_code
 
             userOBJ = Database.get_user(user.id)
-            if userOBJ.lang:  # if user setup his lang
-                self.lang = userOBJ.lang
+            if userOBJ.settings.lang:  # if user setup his lang
+                self.lang = userOBJ.settings.lang
         else:
             self.lang = lang
 

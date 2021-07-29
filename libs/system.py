@@ -3,7 +3,8 @@ from libs.classes import Stages as s
 
 # (libs/locales)
 langs = {
-    "ru": "🇷🇺 Русский"
+    "ru": "🇷🇺 Русский",
+    # "pl": "🇵🇱 Polski"
 }
 assert \
     len(langs) == len(os.listdir("libs/locales")), \

@@ -37,12 +37,12 @@ class Settings:
                 buttons += param.buttons(settings)
             elif isinstance(param, Property):
                 if param.key not in settings:
-                    settings[param.key] = None
+                    settings[param.key] = param.default
                 buttons.append(param.menu(settings[param.key]))
             else:  # If type not supported
                 continue
 
-        menu.add(*buttons)  # add buttons
+        menu.add(*buttons)  # add button
         menu.storage["property"] = self
         menu.storage["settings"] = settings
         return menu
@@ -68,9 +68,6 @@ class Property(Settings):
         self.default = {} if default is None else default
 
     def menu(self, settings: "SettingsType", **kwargs) -> Submenu:
-        if settings is None:
-            settings = self.default
-
         return super().menu(settings, self.text, self.key)
 
 

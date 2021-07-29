@@ -84,7 +84,7 @@ class chat:
 
         mute = _("User {user} muted 🔇 \n") + reason + admin + until
         multi_mute = _("Users {user} muted 🔇 \n") + reason + admin + until
-        mute_poll = "🔇 Mute - {user} ?"
+        mute_poll = _("🔇 Mute - {user} ?")
 
         kick = _("User {user} kicked out ⚠ \n") + reason + admin
         multi_kick = _("Users {user} kicked out ⚠ \n") + reason + admin

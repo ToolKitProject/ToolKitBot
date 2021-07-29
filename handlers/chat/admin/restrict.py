@@ -36,8 +36,8 @@ async def command(msg: t.Message):
         msg = await bot.send_poll(
             msg.chat.id,
 
-            text,
-            src.text.chat.admin.options_poll,
+            str(text),
+            [str(s) for s in src.text.chat.admin.options_poll],
 
             is_anonymous=False,
             reply_markup=rm,
@@ -132,7 +132,7 @@ async def get_text(parsed: ParsedArgs, executor: User) -> p.Tuple[str, t.InlineK
     multi = len(users) > 1
 
     text = None
-    rm = src.buttons.chat.admin.undo
+    rm = buttons.chat.admin.undo.menu
 
     if type == "ban":
         text = adm.multi_ban if multi else adm.ban

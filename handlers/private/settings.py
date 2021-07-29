@@ -42,12 +42,14 @@ async def chat_settings(clb: t.CallbackQuery):
         await EmptyOwns().answer()
         await clb.message.delete()
         await buttons.private.settings.settings.send()
+        return
 
     menu = buttons.private.settings.chat_list.copy
     for chat in chats:
         s = chat.settings.row
         settings = buttons.private.settings.chat.settings.menu(s, text=chat.title, callback_data=chat.id)
         settings.storage["chat"] = chat
+        settings.storage["test"] = s
         menu.add(settings)
     await menu.edit()
 
