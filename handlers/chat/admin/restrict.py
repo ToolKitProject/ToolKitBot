@@ -7,7 +7,6 @@ from aiogram import types as t
 from bot import bot
 from libs import filters as f
 from libs.classes.CommandParser import ParsedArgs, dates
-from libs.classes.Localisation import UserText
 from libs.classes.User import User
 from libs.classes import Utils as u
 from libs.objects import MessageData
@@ -15,7 +14,7 @@ from libs.src import any
 from libs.src import buttons
 
 
-@any.command.AdminCommandParser(
+@any.parsers.restrict(
     f.message.is_chat,
     f.bot.has_permission("can_restrict_members"),
     f.user.has_permission("can_restrict_members"),
@@ -27,9 +26,9 @@ async def command(msg: t.Message):
     Restrict command handler
     """
 
-    executor = await User.create(msg.from_user)  # Get executor of command
+    executor = await User.create()  # Get executor of command
     src = executor.src
-    parsed = await src.any.command.AdminCommandParser.parse(msg)  # Parse command
+    parsed = await src.any.parsers.restrict.parse(msg)  # Parse command
 
     # If poll
     if parsed.flags.poll:
@@ -37,8 +36,8 @@ async def command(msg: t.Message):
         msg = await bot.send_poll(
             msg.chat.id,
 
-            text,
-            src.text.chat.admin.options_poll,
+            str(text),
+            [str(s) for s in src.text.chat.admin.options_poll],
 
             is_anonymous=False,
             reply_markup=rm,
@@ -55,7 +54,7 @@ async def command(msg: t.Message):
 
 @buttons.chat.admin.undo(f.message.is_chat, f.user.has_permission("can_restrict_members"))
 async def undo(clb: t.CallbackQuery):
-    executor = await User.create(clb.from_user)  # Get executor of command
+    executor = await User.create()  # Get executor of command
     with await MessageData.data(clb.message) as data:
         parsed: ParsedArgs = data.parsed  # Get parsed obj
         await execute_action(parsed, clb.message.chat.id, True)  # Execute *undo* command
@@ -133,7 +132,7 @@ async def get_text(parsed: ParsedArgs, executor: User) -> p.Tuple[str, t.InlineK
     multi = len(users) > 1
 
     text = None
-    rm = src.buttons.chat.admin.undo.inline
+    rm = buttons.chat.admin.undo.menu
 
     if type == "ban":
         text = adm.multi_ban if multi else adm.ban

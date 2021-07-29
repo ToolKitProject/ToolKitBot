@@ -1,8 +1,7 @@
-from typing import *
+import typing as p
 
-from aiogram import types as t
+from aiogram import types as t, Bot
 
-from bot import bot
 from libs.objects import Database
 from .Database import chatOBJ, settingsOBJ
 
@@ -19,17 +18,20 @@ class Chat:
     settings: settingsOBJ
 
     @classmethod
-    async def create(cls, auth: Union[int, str, t.Chat]):
+    async def create(cls, auth: p.Union[int, str, t.Chat, None] = None):
         """
 
         @rtype: Chat
         """
+        bot = Bot.get_current()
         cls = Chat()
 
         if isinstance(auth, t.Chat):
             cls._chat = auth
-        else:
+        elif auth:
             cls._chat = await bot.get_chat(auth)
+        else:
+            cls._chat = t.Chat.get_current(True)
 
         cls.chat = Database.get_chat(cls._chat.id)
         if not cls.chat:

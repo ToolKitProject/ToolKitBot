@@ -1,168 +1,132 @@
 import typing as p
+import uuid
 from copy import deepcopy
 
-from aiogram.utils.callback_data import CallbackData
-
-from .Buttons import Button, MenuButton
-from .Chat import Chat
-
-clb_data = CallbackData("chat_settings", "chat_id", "lang")
-
-ElementType = p.Union[str, bool]
-ListType = p.List[ElementType]
-DictType = p.Dict[str, ElementType]
-SettingType = p.Dict[str, p.Union[ListType, DictType]]
+from .Buttons import Menu, Button, Submenu
 
 
-class _ElementIter:
-    def __init__(self, values: p.Union[DictType, ListType]):
-        self.values = values
+class Settings:
+    title: str
+    row_width: int
+    undo: bool
 
-    def __iter__(self):
-        if isinstance(self.values, dict):
-            _iter = self.values.items()
-        else:
-            _iter = enumerate(self.values)
+    parameters: "ParameterType"
 
-        num = 0
-        for key, value in _iter:
-            num += 1
-            yield num, key, value
-
-
-class _Settings:
-    def __init__(self, title: str, text: str, key: str, *elements, undo: bool = False, row: int = 1):
-        ParametersType = p.List[p.Union[ListSettings, DictSettings, Elements, Button]]
-
+    def __init__(self, title: str, row_width: int = 1, undo: bool = False):
         self.title = title
-        self.text = text
-        self.key = key
+        self.row_width = row_width
         self.undo = undo
-        self.row = row
-        self.elements: ParametersType = list(elements)
 
-        self.settings: SettingType = None
-        self.menu: MenuButton = None
+        self.parameters = []
 
-        self.data = CallbackData(key, "chat_id", "lang")
-        self.chat_id = None
-        self.lang = None
-
-    def add(self, *elements):
-        self.elements += elements
-        return self
-
-    def get_menu(self, settings: SettingType, chat_id: int, lang: str):
-        menu = MenuButton(self.text, self.title, self.data.new(chat_id=chat_id, lang=lang),
-                          make_unique=False, undo=self.undo, row=self.row)
-
-        if isinstance(self, Settings):
-            values = settings
-        elif self.key not in settings:
-            settings[self.key] = {}
-            values = settings[self.key]
+    def menu(self,
+             settings: "SettingsType",
+             text: p.Optional[str] = None,
+             callback_data: p.Optional[str] = None) -> p.Union[Menu, Submenu]:
+        buttons: p.List[Button, Submenu] = []
+        if text and callback_data:
+            menu = Submenu(self.title, text, str(callback_data) + "@" + str(uuid.uuid4())[0:8], self.row_width,
+                           undo=self.undo)
         else:
-            values = settings[self.key]
+            menu = Menu(self.title, self.row_width, undo=self.undo)
 
-        menu.add(
-            *self.get_buttons(values, chat_id, lang)
-        )
+        for param in self.parameters:  # Create buttons
+            if isinstance(param, Button):
+                buttons.append(param)
+            elif isinstance(param, Elements):
+                buttons += param.buttons(settings)
+            elif isinstance(param, Property):
+                if param.key not in settings:
+                    settings[param.key] = param.default
+                buttons.append(param.menu(settings[param.key]))
+            else:  # If type not supported
+                continue
 
-        self.menu = menu
-        self.settings = values
-        self.chat_id = chat_id
-        self.lang = lang
+        menu.add(*buttons)  # add button
+        menu.storage["property"] = self
+        menu.storage["settings"] = settings
         return menu
 
-    def update_buttons(self):
-        self.menu.buttons.clear()
-
-        self.menu.add(
-            *self.get_buttons(self.settings, self.chat_id, self.lang)
-        )
-
-        return self.menu
-
-    def get_buttons(self, values: p.Union[ListType, DictType], chat_id: int, lang: str):
-        buttons = []
-        for elem in self.elements:
-            if isinstance(elem, Elements):
-                buttons += elem.buttons(values)
-                continue
-            elif isinstance(elem, Button):
-                button = elem
-            elif isinstance(elem, _Settings):
-                button = elem.get_menu(values, chat_id, lang)
-                button.storage["current_element"] = elem
-                button.storage["current_menu"] = button
-            else:
-                continue
-            buttons.append(button)
-
-        return buttons
+    def add(self, *args):
+        self.parameters += list(args)
+        return self
 
     @property
     def copy(self):
         return deepcopy(self)
 
 
-class Elements:
-    def __init__(self, text: str, data: str):
-        """
-        text и data "{num} {key} {value}"
-        """
+class Property(Settings):
+    text: str
+    key: str
+    default: p.Any
+
+    def __init__(self, title: str, text: str, key: str, row_width=3, undo: bool = True, default: p.Any = None):
+        super().__init__(title=title, row_width=row_width, undo=undo)
         self.text = text
-        self.data = data
+        self.key = key
+        self.default = {} if default is None else default
 
-        self._func = None
+    def menu(self, settings: "SettingsType", **kwargs) -> Submenu:
+        return super().menu(settings, self.text, self.key)
 
-    def buttons(self, values: p.Union[DictType, ListType]):
-        buttons = []
-        values = _ElementIter(values)
-        for num, key, value in values:
-            text = self.format_text(num, key, value)
-            data = self.format_data(num, key, value)
 
-            button = Button(text, data)
-            if self._func:
-                button.set_action(func=self._func)
+class Elements:
+    text_format: str
+    callback_data_format: str
+
+    def __init__(self, text_format: str, callback_data_format: str):
+        """
+        Format string:
+            {value} {v} - value of settings dict or list
+            {key} {k} - key of dict (None if list)
+            {num} {n} - number of position in dict or list (start with 0)
+            {num1} {n1} - same as {num}, but start with 1
+        """
+
+        self.callback_data_format = callback_data_format
+        self.text_format = text_format
+
+    def buttons(self, settings: "SettingsType") -> p.List[Button]:
+        num = 0
+        buttons: p.List[Button] = []
+        for key in settings:
+            if isinstance(settings, list):
+                value = key
+                key = None
+            elif isinstance(settings, dict):
+                value = settings[key]
+
+            mapping = {
+                "key": key, "value": value, "num": num, "num1": num + 1,
+                "k": key, "v": value, "n": num, "n1": num + 1
+            }
+
+            text = self.text_format.format(
+                **mapping
+            )
+            callback_data = self.callback_data_format.format(
+                **mapping
+            )
+
+            button = Button(text, callback_data)
             buttons.append(button)
+
+            num += 1
 
         return buttons
 
-    def format_data(self, num: int, key: str, value: ElementType):
-        return self.data.format(
-            num=num,
-            key=key,
-            value=value
-        )
 
-    def format_text(self, num: int, key: str, value: ElementType):
-        return self.text.format(
-            num=num,
-            key=key,
-            value=value
-        )
+SettingsType = p.Union[
+    p.Dict[str, p.Any],
+    p.List[p.Any],
+    p.Any
+]
 
-
-class ListSettings(_Settings):
-    def __init__(self, title: str, text: str, key: str, *elements, undo: bool = True, row: int = 1):
-        super().__init__(title, text, key, *elements, undo=undo, row=row)
-
-
-class DictSettings(_Settings):
-    def __init__(self, title: str, text: str, key: str, *elements, undo: bool = True, row: int = 1):
-        super().__init__(title, text, key, *elements, undo=undo, row=row)
-
-
-class Settings(_Settings):
-    def __init__(self, title: str, text: str, key: str, *elements, undo: bool = True, row: int = 1):
-        super().__init__(title, text, key, *elements, undo=undo, row=row)
-
-    def save(self, chat: Chat):
-        chat.chat.settings = self.settings
-
-    def get_menu(self, settings: SettingType, chat_id: int, lang: str,
-                 edit: bool = False, text: p.Optional[str] = None):
-        self.text = text or self.text
-        return super().get_menu(settings, chat_id, lang)
+ParameterType = p.List[
+    p.Union[
+        Property,
+        Elements,
+        Button
+    ]
+]

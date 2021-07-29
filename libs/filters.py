@@ -1,13 +1,12 @@
 import re
 import typing as p
 
-from aiogram import types as t, filters as f
+from aiogram import types as t, filters as f, Bot
 
-import config
-from bot import dp
+from bot import bot
 from libs.classes import Errors as e
-from libs.classes.Chat import Chat
 from libs.objects import Database
+from libs.system import regex as r
 
 objType = p.Union[t.Message, t.CallbackQuery, t.ChatMemberUpdated]
 
@@ -72,7 +71,7 @@ class AliasFilter(f.BoundFilter):
             text = msg.text
 
         for alias in aliases:
-            pattern = re.compile(f"^{alias}", re.IGNORECASE)
+            pattern = re.compile(r.alias(alias), re.IGNORECASE)
             if pattern.match(text):
                 return True
 
@@ -87,17 +86,18 @@ class message:
 
 
 class bot:
-    is_admin = AdminFilter(dp.bot.id)
+    is_admin = AdminFilter(bot.id)
 
     @staticmethod
     def has_permission(permissions: p.List[str]):
         permissions = permissions
 
         async def filter(obj: objType):
+            bot = Bot.get_current()
             user, chat = _helper.get_user_and_chat(obj)
-            admin = await chat.get_member(config.bot.id)
+            admin = await chat.get_member(bot.id)
             if not _helper.has_permission(admin, permissions):
-                raise e.BotHasNotPermission(user.language_code)
+                raise e.BotHasNotPermission()
             return True
 
         return filter
@@ -114,7 +114,7 @@ class user:
             user, chat = _helper.get_user_and_chat(obj)
             admin = await chat.get_member(user.id)
             if not _helper.has_permission(admin, permissions):
-                raise e.HasNotPermission(user.language_code)
+                raise e.HasNotPermission()
             return True
 
         return filter

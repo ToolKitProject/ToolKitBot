@@ -54,6 +54,7 @@ coverage.xml
 # Translations
 *.mo
 *.pot
+LC_MESSAGES
 
 # Django stuff:
 *.log
@@ -130,3 +131,4 @@ test*.*
 ToolKit.service
 
 .idea
+.vscode

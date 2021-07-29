@@ -10,20 +10,8 @@
 <img alt="GitHub last commit (dev)" src="https://img.shields.io/github/last-commit/igorechek06/ToolKit/dev?label=Last%20dev%20commit&style=for-the-badge"/>
 </div>
 
-## Dependencies
+<!-- I know it is wrong -->
 
-    pip install -r dependencies
+## Setup
 
-## Config
-
-### Required
-
-[Config.py](https://github.com/igorechek06/ToolKit/blob/main/config.sample.py)
-
-[Database - rename to database.db](https://github.com/igorechek06/ToolKit/blob/main/data/database.sample.db)
-
-### Optional
-
-[Unit file - systemd file](https://github.com/igorechek06/ToolKit/blob/main/ToolKit.semple.service)
-
-[Lang conf - supported translations](https://github.com/igorechek06/ToolKit/blob/main/lang_conf.py)
+    python3.9 setup.py

@@ -1,19 +1,18 @@
 import typing as p
 from datetime import timedelta
 
-from aiogram import types as t
+from aiogram import types as t, Bot
 from aiogram.utils.exceptions import MigrateToChat, ChatNotFound
 
-from bot import bot, client
 from libs.classes import Database as d
 from libs.objects import Database
 from .Chat import Chat
 from .Database import permissionOBJ, settingsOBJ
-from .Localisation import UserText
+from libs import UserText
 from . import Errors as e
 
 
-class User:  # TODO:Добавить коментарии
+class User:
     """
     Пользователь
     """
@@ -34,17 +33,21 @@ class User:  # TODO:Добавить коментарии
     UNMUTE = t.ChatPermissions(*[True] * 8)
 
     @classmethod
-    async def create(cls, auth: p.Union[str, int, t.User]):
+    async def create(cls, auth: p.Union[str, int, t.User, None] = None):
         """
 
         @rtype: User
         """
+        from bot import client
         cls = User()
 
         if isinstance(auth, t.User):
             cls._user = auth
-        else:
+        elif auth:
             cls._user = await client.get_users(auth)
+        else:
+            cls._user = t.User.get_current(True)
+
         cls.user = Database.get_user(cls._user.id)
         if not cls.user:
             cls.user = Database.add_user(cls._user.id)
@@ -55,7 +58,7 @@ class User:  # TODO:Добавить коментарии
         cls.last_name = cls._user.last_name
         cls.language_code = cls._user.language_code
         cls.lang = cls.language_code
-        cls.src = UserText(cls.lang)
+        cls.src = UserText()
 
         cls.settings = cls.user.settings
         cls.permission = cls.user.permission
@@ -101,6 +104,7 @@ class User:  # TODO:Добавить коментарии
                                          t.ReplyKeyboardRemove,
                                          t.ForceReply, None] = None,
                    ):
+        bot = Bot.get_current()
         await bot.send_message(self.id,
                                text=text,
                                entities=entities,
@@ -124,16 +128,21 @@ class User:  # TODO:Добавить коментарии
         return owns
 
     async def ban(self, chat_id: int, until: timedelta):
+        bot = Bot.get_current()
         await bot.ban_chat_member(chat_id, self.id, until_date=until)
 
     async def unban(self, chat_id: int):
+        bot = Bot.get_current()
         await bot.unban_chat_member(chat_id, self.id, only_if_banned=True)
 
     async def mute(self, chat_id: int, until: timedelta):
+        bot = Bot.get_current()
         await bot.restrict_chat_member(chat_id, self.id, self.MUTE, until_date=until)
 
     async def unmute(self, chat_id: int):
+        bot = Bot.get_current()
         await bot.restrict_chat_member(chat_id, self.id, self.UNMUTE)
 
     async def kick(self, chat_id: int):
+        bot = Bot.get_current()
         await bot.unban_chat_member(chat_id, self.id, only_if_banned=False)

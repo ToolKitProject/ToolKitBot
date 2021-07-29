@@ -1,1 +1,0 @@
-/home/igor/GitHub/ToolKit/venv/bin/activate.fish

@@ -9,11 +9,24 @@ import typing as p
 
 def clear_dict(d: dict):
     for k, v in copy(d).items():
-        if v is None or v == "":
+        if v is None or v == "" or v == [] or v == {}:
             d.pop(k)
         elif isinstance(v, dict):
             clear_dict(v)
+        elif isinstance(v, list):
+            clear_list(v)
     return d
+
+
+def clear_list(l: list):
+    for n, v in enumerate(copy(l)):
+        if v is None or v == "" or v == [] or v == {}:
+            l.pop(n)
+        elif isinstance(v, dict):
+            clear_dict(v)
+        elif isinstance(v, list):
+            clear_list(v)
+    return l
 
 
 class _link_obj(ABC):
@@ -123,9 +136,13 @@ class userOBJ(_link_obj):
             self.__dict__[name] = value
 
         if name in ["settings", "permission"]:
-            value = dumps(value)
+            value = dumps(clear_dict(value))
 
         Database.run(f"UPDATE {self._table} SET {name}='{value}' WHERE id={self._id};")
+
+    @property
+    def lang(self) -> p.Optional[str]:
+        return self.settings.lang
 
 
 class chatOBJ(_link_obj):
@@ -151,8 +168,8 @@ class chatOBJ(_link_obj):
         if name in self.__dict__:
             self.__dict__[name] = value
 
-        if name == "settings":
-            value = dumps(value)
+        if name in ["settings", "permission"]:
+            value = dumps(clear_dict(value))
         Database.run(f"UPDATE {self._table} SET {name}='{value}' WHERE id={self._id};")
 
 
@@ -173,7 +190,7 @@ class Database:
         result = self.run(f"SELECT * FROM Users WHERE id={id}", True)
 
         if not result:
-            return
+            return self.add_user(id)
 
         return userOBJ(*result)
 

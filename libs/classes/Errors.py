@@ -1,15 +1,14 @@
-from .Localisation import UserText
+from libs import UserText
 from aiogram.utils import exceptions as ex
 from aiogram import types as t
 from asyncio import sleep
 import logging
-from libs.system import delete_this
 from traceback import format_exc
 
 
 class MyError(Exception):
-    def __init__(self, lang: str, auto_delete: int = 0, delete: bool = True, alert: bool = True):
-        self.src = UserText(lang)
+    def __init__(self, auto_delete: int = 0, delete: bool = True, alert: bool = True):
+        self.src = UserText()
         self.auto_delete = auto_delete
         self.delete = delete
         self.alert = alert
@@ -38,15 +37,16 @@ class MyError(Exception):
             return member.from_user
 
     async def answer(self):
+        from libs.src.buttons import delete_this
         upd = t.Update.get_current()
         rm = None
         if self.delete:
-            rm = delete_this.inline
+            rm = delete_this
         if upd.edited_message:
             upd.message = upd.edited_message
 
         if upd.message:
-            msg = await upd.message.answer(self.text, reply_markup=rm)
+            msg = await upd.message.answer(self.text, "None", reply_markup=rm)
             if self.auto_delete:
                 try:
                     await sleep(self.auto_delete)
@@ -78,8 +78,8 @@ class ForceError(MyError):
 
 
 class CommandNotFound(MyError):
-    def __init__(self, lang: str):
-        super().__init__(lang)
+    def __init__(self):
+        super().__init__()
         self.text = self.src.text.errors.CommandNotFound
         self.auto_delete = False
         self.delete = False
@@ -87,8 +87,8 @@ class CommandNotFound(MyError):
 
 
 class UserNotFound(MyError):
-    def __init__(self, lang: str):
-        super().__init__(lang)
+    def __init__(self):
+        super().__init__()
         self.text = self.src.text.errors.UserNotFound
         self.auto_delete = 5
         self.delete = True
@@ -96,27 +96,16 @@ class UserNotFound(MyError):
 
 
 class ArgumentError(MyError):
-    def __init__(self, lang: str, context: str, arg_name: str):
-        super().__init__(lang)
-        self.arg_name = arg_name
-        self.text = f"{self.src.text.errors.argument_error.ArgumentError}\n" \
-                    f"┗━{context.format(**self.__dict__)}"
-        self.auto_delete = 0
-        self.delete = True
-        self.alert = True
-
-
-class ArgumentError(MyError):
-    def __init__(self, lang: str):
-        super().__init__(lang)
+    def __init__(self):
+        super().__init__()
         self.text = f"{self.src.text.errors.argument_error.ArgumentError}"
         self.auto_delete = 0
         self.delete = True
         self.alert = True
 
     class ArgumentRequired(MyError):
-        def __init__(self, lang: str, arg_name: str):
-            super().__init__(lang)
+        def __init__(self, arg_name: str):
+            super().__init__()
             self.arg_name = arg_name
             self.context = self.src.text.errors.argument_error.required
             self.text = f"{self.src.text.errors.argument_error.ArgumentError}\n" \
@@ -126,8 +115,8 @@ class ArgumentError(MyError):
             self.alert = True
 
     class ArgumentIncorrect(MyError):
-        def __init__(self, lang: str, arg_name: str):
-            super().__init__(lang)
+        def __init__(self, arg_name: str):
+            super().__init__()
             self.arg_name = arg_name
             self.context = self.src.text.errors.argument_error.incorrect
             self.text = f"{self.src.text.errors.argument_error.ArgumentError}\n" \
@@ -138,8 +127,8 @@ class ArgumentError(MyError):
 
 
 class HasNotPermission(MyError):
-    def __init__(self, lang: str):
-        super().__init__(lang)
+    def __init__(self):
+        super().__init__()
         self.text = self.src.text.errors.HasNotPermission
         self.auto_delete = 0
         self.delete = True
@@ -147,26 +136,53 @@ class HasNotPermission(MyError):
 
 
 class EmptyOwns(MyError):
-    def __init__(self, lang: str):
-        super().__init__(lang)
+    def __init__(self):
+        super().__init__()
         self.text = self.src.text.errors.EmptyOwns
         self.auto_delete = 5
         self.delete = True
         self.alert = True
 
 
-class TypeError(MyError):
-    def __init__(self, lang: str):
-        super().__init__(lang)
-        self.text = self.src.text.errors.TypeError
+class AliasTypeError(MyError):
+    def __init__(self):
+        super().__init__()
+        self.text = self.src.text.errors.alias_type_error.AliasTypeError
         self.auto_delete = 5
         self.delete = True
         self.alert = True
 
+    class AliasCommandNotSupported(MyError):
+        def __init__(self):
+            super().__init__()
+            self.text = f"{self.src.text.errors.alias_type_error.AliasTypeError}\n" \
+                        f"┗━{self.src.text.errors.alias_type_error.command_not_supported}"
+            self.auto_delete = False
+            self.delete = False
+            self.alert = False
+
+    class AliasStickerSupported(MyError):
+        def __init__(self):
+            super().__init__()
+            self.text = f"{self.src.text.errors.alias_type_error.AliasTypeError}\n" \
+                        f"┗━{self.src.text.errors.alias_type_error.sticker_supported}"
+            self.auto_delete = False
+            self.delete = False
+            self.alert = False
+
+    class AliasTextSupported(MyError):
+        def __init__(self):
+            super().__init__()
+            self.text = f"{self.src.text.errors.alias_type_error.AliasTypeError}\n" \
+                        f"┗━{self.src.text.errors.alias_type_error.text_supported}"
+            self.auto_delete = False
+            self.delete = False
+            self.alert = False
+
 
 class AlreadyExists(MyError):
-    def __init__(self, lang: str):
-        super().__init__(lang)
+    def __init__(self):
+        super().__init__()
         self.text = self.src.text.errors.AlreadyExists
         self.auto_delete = 5
         self.delete = True
@@ -174,8 +190,8 @@ class AlreadyExists(MyError):
 
 
 class NotReply(MyError):
-    def __init__(self, lang: str):
-        super().__init__(lang)
+    def __init__(self):
+        super().__init__()
         self.text = self.src.text.errors.NotReply
         self.auto_delete = 5
         self.delete = True
@@ -183,8 +199,8 @@ class NotReply(MyError):
 
 
 class BotHasNotPermission(MyError):
-    def __init__(self, lang: str):
-        super().__init__(lang)
+    def __init__(self):
+        super().__init__()
         self.text = self.src.text.errors.BotHasNotPermission
         self.auto_delete = 0
         self.delete = True
@@ -192,8 +208,8 @@ class BotHasNotPermission(MyError):
 
 
 class BackError(MyError):
-    def __init__(self, lang: str):
-        super().__init__(lang)
+    def __init__(self):
+        super().__init__()
         self.text = self.src.text.errors.BackError
         self.auto_delete = 5
         self.delete = True
@@ -201,8 +217,8 @@ class BackError(MyError):
 
 
 class PollCheck(MyError):
-    def __init__(self, lang: str):
-        super().__init__(lang)
+    def __init__(self):
+        super().__init__()
         self.text = self.src.text.errors.PollCheck
         self.auto_delete = 5
         self.delete = True
@@ -218,7 +234,10 @@ ERRORS = [
     ArgumentError,
     HasNotPermission,
     EmptyOwns,
-    TypeError,
+    AliasTypeError,
+    AliasTypeError.AliasStickerSupported,
+    AliasTypeError.AliasTextSupported,
+    AliasTypeError.AliasCommandNotSupported,
     AlreadyExists,
     NotReply,
     BotHasNotPermission,
