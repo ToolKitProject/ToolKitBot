@@ -106,9 +106,9 @@ class settingsOBJ(_link_obj):
 
     @property
     def lang(self) -> dict:
-        if self["text_alias"] is None:
+        if self["lang"] is None:
             return {}
-        return self["text_alias"]
+        return self["lang"]
 
     @property
     def raw(self):
