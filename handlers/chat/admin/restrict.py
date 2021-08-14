@@ -127,7 +127,7 @@ async def get_text(parsed: ParsedArgs, executor: User) -> p.Tuple[str, t.InlineK
     src = executor.src
     adm = src.text.chat.admin
 
-    type: str = parsed.command.text
+    type: str = parsed.command.text.lower()
     users: p.List[User] = parsed.user
     multi = len(users) > 1
 

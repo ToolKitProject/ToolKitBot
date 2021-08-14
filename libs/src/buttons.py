@@ -46,7 +46,7 @@ class private:
                 )
             )
 
-            delete = Menu(_("Delete ?"))
+            delete = Menu(_("Delete ?"), hide=True)
             delete_yes = Button(_("Yes 🗑"), "delete_yes")
             delete_no = Button(_("No ↩"), "back")
             delete.add(

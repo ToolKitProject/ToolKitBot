@@ -27,8 +27,10 @@ async def check(msg: t.Message):
     """
     if await f.message.is_chat.check(msg) and not Database.get_chat(msg.chat.id):
         await Chat.create()
-    if not Database.get_user(msg.from_user.id):
-        Database.add_user(msg.from_user.id)
+    Database.get_user(msg.from_user.id)
+
+    if msg.chat.type != t.ChatType.PRIVATE:
+        Database.add_message(msg)
 
     return False
 
@@ -77,7 +79,7 @@ async def errors(_, error: p.Union[MyError, Exception]):
     return True
 
 
-@dp.message_handler(check, content_types=[t.ContentType.TEXT, t.ContentType.PHOTO])
+@dp.message_handler(check, content_types=t.ContentType.ANY)
 async def check():
     """
     Execute check func

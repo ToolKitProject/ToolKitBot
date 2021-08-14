@@ -9,6 +9,7 @@ from bot import dp
 from handlers.private import alias_form
 from libs import filters as f
 from libs.classes import Utils as u
+from libs.classes.Buttons import Submenu
 from libs.classes.Chat import Chat
 from libs.classes.Errors import EmptyOwns
 from libs.classes.Settings import Property, SettingsType
@@ -29,7 +30,7 @@ async def settings_cmd(msg: t.Message):
 @s.private_settings(f.message.is_private)
 async def private_settings(clb: t.CallbackQuery):
     user = await User.create()
-    await buttons.private.settings.private.settings.menu(user.settings.row).edit()
+    await buttons.private.settings.private.settings.menu(user.settings.raw).edit()
 
 
 @s.chat_settings(f.message.is_private)
@@ -46,7 +47,7 @@ async def chat_settings(clb: t.CallbackQuery):
 
     menu = buttons.private.settings.chat_list.copy
     for chat in chats:
-        s = chat.settings.row
+        s = chat.settings.raw
         settings = buttons.private.settings.chat.settings.menu(s, text=chat.title, callback_data=chat.id)
         settings.storage["chat"] = chat
         settings.storage["test"] = s
@@ -80,10 +81,12 @@ async def delete_yes(clb: t.CallbackQuery):
         settings: SettingsType = data.settings
         chat: Chat = data.chat
         prop: Property = data.property
+        menu: Submenu = data.menu
         key = data.key
     settings.pop(key)
-    await prop.menu(settings).edit(False)
-    chat.chat.settings = chat.settings.row
+    menu.update(prop.menu(settings))
+    await menu.edit(False)
+    chat.chat.settings = chat.settings.raw
 
 
 @dp.callback_query_handler(f.message.is_private, lang_data.filter())

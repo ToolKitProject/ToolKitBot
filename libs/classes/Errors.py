@@ -46,7 +46,7 @@ class MyError(Exception):
             upd.message = upd.edited_message
 
         if upd.message:
-            msg = await upd.message.answer(self.text, "None", reply_markup=rm)
+            msg = await upd.message.answer(self.text, reply_markup=rm)
             if self.auto_delete:
                 try:
                     await sleep(self.auto_delete)

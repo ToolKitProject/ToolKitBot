@@ -3,7 +3,6 @@ import logging
 from aiogram import types as t
 
 from bot import client
-from libs import system
 from libs import UserText
 from libs.classes import Utils as u
 from libs import filters as f
@@ -21,10 +20,10 @@ async def purge(msg: t.Message):
     """
     Purge handler
     """
-    await msg.delete()
-
     src = UserText()
     parsed = await src.any.parsers.purge.parse(msg)  # Parse the message
+
+    await msg.delete()
 
     from_id = msg.reply_to_message.message_id if msg.reply_to_message else msg.message_id - 1
     to_id = from_id - parsed.number

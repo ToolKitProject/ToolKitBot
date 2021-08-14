@@ -1,10 +1,14 @@
-import random
-import sqlite3
+import logging
+import typing as p
 from abc import ABC, abstractmethod
 from copy import copy
-from dataclasses import dataclass
+from datetime import datetime
 from json import loads, dumps
-import typing as p
+
+from aiogram import types as t
+from mysql.connector import connect
+
+JSON_DEFAULT = "{}"
 
 
 def clear_dict(d: dict):
@@ -86,7 +90,7 @@ class settingsOBJ(_link_obj):
     def set(self, name: str, value: p.Any):
         from libs.objects import Database
         self._data[name] = value
-        Database.run(f"UPDATE {self._table} SET settings='{dumps(clear_dict(self.row))}' WHERE id={self._id};")
+        Database.update(f"UPDATE {self._table} SET settings='{dumps(clear_dict(self.raw))}' WHERE id={self._id};")
 
     @property
     def sticker_alias(self) -> dict:
@@ -101,29 +105,47 @@ class settingsOBJ(_link_obj):
         return self["text_alias"]
 
     @property
-    def row(self):
+    def lang(self) -> dict:
+        if self["text_alias"] is None:
+            return {}
+        return self["text_alias"]
+
+    @property
+    def raw(self):
         return self._data
 
 
 class permissionOBJ(settingsOBJ):
-    def __init__(self, settings: str, id: str):
-        super().__init__(settings, "Users", id)
+    def __init__(self, permission: str, id: str):
+        super().__init__(permission, "Users", id)
 
     def set(self, name: str, value: p.Any):
         from libs.objects import Database
         self._data[name] = value
-        Database.run(f"UPDATE {self._table} SET permission='{dumps(clear_dict(self.row))}' WHERE id={self._id};")
+        Database.update(f"UPDATE Users SET permission='{dumps(clear_dict(self.raw))}' WHERE id={self._id};")
+
+
+class reportsOBJ(settingsOBJ):
+    def __init__(self, reports: str, id: str):
+        super().__init__(reports, "Users", id)
+
+    def set(self, name: str, value: p.Any):
+        from libs.objects import Database
+        self._data[name] = value
+        Database.update(f"UPDATE Users SET reports='{dumps(clear_dict(self.raw))}' WHERE id={self._id};")
 
 
 class userOBJ(_link_obj):
     id: int
     settings: settingsOBJ
     permission: permissionOBJ
+    reports: reportsOBJ
 
-    def __init__(self, id: int, settings: str, permission: str):
+    def __init__(self, id: int, settings: str, permission: str, reports: str):
         self.id = id
         self.settings = settingsOBJ(settings, "Users", self.id)
         self.permission = permissionOBJ(permission, self.id)
+        self.reports = reportsOBJ(reports, self.id)
         super().__init__("Users", id)
 
     def get(self, name: str):
@@ -138,11 +160,7 @@ class userOBJ(_link_obj):
         if name in ["settings", "permission"]:
             value = dumps(clear_dict(value))
 
-        Database.run(f"UPDATE {self._table} SET {name}='{value}' WHERE id={self._id};")
-
-    @property
-    def lang(self) -> p.Optional[str]:
-        return self.settings.lang
+        Database.update(f"UPDATE {self._table} SET {name}='{value}' WHERE id={self._id};")
 
 
 class chatOBJ(_link_obj):
@@ -170,67 +188,129 @@ class chatOBJ(_link_obj):
 
         if name in ["settings", "permission"]:
             value = dumps(clear_dict(value))
-        Database.run(f"UPDATE {self._table} SET {name}='{value}' WHERE id={self._id};")
+        Database.update(f"UPDATE {self._table} SET {name}='{value}' WHERE id={self._id};")
+
+
+class messageOBJ(_link_obj):
+    user_id: int
+    chat_id: int
+    message: p.Optional[str]
+    type: str
+    data: str
+
+    def __init__(self, user_id: int, chat_id: int, message: p.Optional[str], type: str, date: str):
+        self.user_id = user_id
+        self.chat_id = chat_id
+        self.message = message
+        self.type = type
+        self.date = datetime.fromisoformat(date)
+        super().__init__("Messages", None)
+
+    def get(self, name: str):
+        return
+
+    def set(self, name: str, value: p.Any):
+        logging.warning("messageOBJ is not editable")
 
 
 class Database:
-    def __init__(self, path: str) -> None:
-        self.connect = sqlite3.connect(path)
-        self.cursor = self.connect.cursor()
+    def __init__(self, host: str, user: str, password: str, database: str) -> None:
+        self.connect = connect(
+            host=host,
+            user=user,
+            password=password,
+            database=database
+        )
 
     def add_user(self, id: int) -> userOBJ:
-        self.run(f"INSERT INTO Users (id) VALUES ({id})")
+        self.update(f"INSERT INTO Users VALUES ({id},{JSON_DEFAULT!r},{JSON_DEFAULT!r},{JSON_DEFAULT!r})")
         return self.get_user(id)
 
     def add_chat(self, id: int, owner: int) -> chatOBJ:
-        self.run(f"INSERT INTO Chats (id,owner) VALUES ({id},{owner})")
+        self.update(f"INSERT INTO Chats VALUES ({id},{JSON_DEFAULT!r},{owner})")
         return self.get_chat(id)
 
+    def add_message(self, msg: t.Message) -> messageOBJ:
+        user_id = msg.from_user.id
+        chat_id = msg.chat.id
+        message = msg.text
+        type = msg.content_type
+        date = msg.date.isoformat(" ")
+
+        if message:
+            self.update(
+                f"INSERT INTO Messages(user_id,chat_id,message,type,date) VALUES ({user_id},{chat_id},{message!r},{type!r},{date!r})"
+            )
+        else:
+            self.update(
+                f"INSERT INTO Messages(user_id,chat_id,type,date) VALUES ({user_id},{chat_id},{type!r},{date!r})"
+            )
+        return messageOBJ(user_id, chat_id, message, type, date)
+
     def get_user(self, id: int) -> userOBJ:
-        result = self.run(f"SELECT * FROM Users WHERE id={id}", True)
+        result = self.get(f"SELECT * FROM Users WHERE id={id}", True)
 
         if not result:
             return self.add_user(id)
 
         return userOBJ(*result)
 
-    def get_chat(self, id: int) -> chatOBJ:
-        result = self.run(f"SELECT * FROM Chats WHERE id={id}", True)
+    def get_chat(self, id: int, owner: p.Optional[int] = None) -> chatOBJ:
+        result = self.get(f"SELECT * FROM Chats WHERE id={id}", True)
 
         if not result:
+            if owner:
+                return self.add_chat(id, owner)
             return
 
         return chatOBJ(*result)
 
+    def get_messages(self, user_id: p.Optional[int] = None, chat_id: p.Optional[int] = None) -> p.List[messageOBJ]:
+        if chat_id and user_id:
+            result = self.get(f"SELECT * FROM Messages WHERE chat_id={chat_id} AND user_id={user_id}")
+        elif user_id:
+            result = self.get(f"SELECT * FROM Messages WHERE user_id={user_id}")
+        elif chat_id:
+            result = self.get(f"SELECT * FROM Messages WHERE chat_id={chat_id}")
+        else:
+            raise ValueError("user_id or chat_id required")
+
+        result = [messageOBJ(*i) for i in result]
+        return result
+
     def get_users(self) -> p.List[userOBJ]:
-        result = self.run("SELECT * FROM Users")
+        result = self.get("SELECT * FROM Users")
         result = [userOBJ(*i) for i in result]
         return result
 
     def get_chats(self) -> p.List[chatOBJ]:
-        result = self.run("SELECT * FROM Chats")
+        result = self.get("SELECT * FROM Chats")
         result = [chatOBJ(*i) for i in result]
         return result
 
     def delete_user(self, id: int) -> bool:
-        self.run(f"DELETE FROM Uses WHERE id = {id}")
+        self.update(f"DELETE FROM Uses WHERE id = {id}")
 
     def delete_chat(self, id: int) -> bool:
-        self.run(f"DELETE FROM Chats WHERE id = {id}")
-
-    def run(self, sql: str, one: bool = False) -> p.Union[p.Any, p.List]:
-        with self.connect:
-            result = self.cursor.execute(sql)
-            if one:
-                result = result.fetchone()
-            else:
-                result = result.fetchall()
-
-            return result
+        self.update(f"DELETE FROM Chats WHERE id = {id}")
 
     def get_owns(self, id: int) -> p.List[chatOBJ]:
-        result = self.run(f"SELECT * FROM Chats WHERE owner={id}")
+        result = self.get(f"SELECT * FROM Chats WHERE owner={id}")
         return [chatOBJ(*i) for i in result]
+
+    def get(self, sql: str, one: bool = False) -> p.Union[p.Any, p.List]:
+        with self.connect.cursor() as cursor:
+            cursor.execute(sql)
+            if one:
+                result = cursor.fetchone()
+            else:
+                result = cursor.fetchall()
+        return result
+
+    def update(self, sql: str):
+        with self.connect.cursor() as cursor:
+            cursor.execute(sql)
+        self.connect.commit()
 
 
 if __name__ == "__main__":

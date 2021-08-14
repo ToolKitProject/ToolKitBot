@@ -64,6 +64,30 @@ def _yes(default: bool = True) -> bool:
         print("Incorrect answer")
 
 
+def _input(prompt: str, default: str = None, required: bool = True) -> str:
+    if default:
+        print(f"Default {default}")
+    while True:
+        result = input(f"{prompt} -> ")
+        if not result:
+            if default:
+                result = default
+                break
+            elif required:
+                print("Parameter required")
+        else:
+            break
+
+    return result
+
+
+def _cmd(cmd: str, show_cmd: bool = True) -> bool:
+    if show_cmd:
+        input(f"Press enter for execute {cmd}")
+    result = os.system(cmd)
+    return True if result == 0 else False
+
+
 def _clear():
     print()
     print('\033c', end="")
@@ -74,31 +98,14 @@ def _enter():
 
 
 def systemd_unit_generator():
-    global venv
     while True:
-        username = os.environ["USER"]
-        print(f"{username} - This your username ?")
-        if not _yes():
-            username = input("Your username -> ")
-
-        path = os.path.dirname(os.path.abspath(__file__))
-        print(f"{path} - This path to root of project ?")
-        if not _yes():
-            path = input("Path to root of project -> ")
-
-        print(f"Use venv ?")
-        venv = _yes()
-        if venv:
-            py_path = os.path.join(path, "venv", "bin", "python3.9")
-        else:
-            py_path = sys.executable
-            print(f"{py_path} - This path to python 3.9 ?")
-            if not _yes(py_path.endswith("3.9")):
-                py_path = input("Path to python 3.9 -> ")
+        username = _input("Your username", os.environ["USER"])
+        path = _input("Path to root of project", os.path.dirname(os.path.abspath(__file__)))
+        py_path = _input("Path to python 3.9", sys.executable)
 
         print("Send kill (if SIGTERM Timeout)")
         send_kill = "off"
-        if _yes(False):
+        if _yes(True):
             send_kill = "on"
 
         with open("ToolKit.sample.service", "r") as file:
@@ -125,22 +132,10 @@ def systemd_unit_generator():
 
             print("Link unit from /etc/systemd/system/ ?")
             if _yes():
-                print(sep)
-
-                cmd = "sudo mv ToolKit.service /etc/systemd/system/"
-                print(cmd)
-                _enter()
-                os.system(cmd)
-
-                print(sep)
-
-                cmd = "sudo ln /etc/systemd/system/ToolKit.service ./ -s"
-                print(cmd)
-                _enter()
-                os.system(cmd)
+                _cmd("sudo mv ToolKit.service /etc/systemd/system/")
+                _cmd("sudo ln /etc/systemd/system/ToolKit.service ./ -s")
             break
         else:
-            venv = False
             _clear()
     print(sep)
     _enter()
@@ -148,17 +143,30 @@ def systemd_unit_generator():
 
 
 def config_generator():
+    try:
+        import config
+    except ImportError:
+        config = object()
     while True:
-        main_token = input("Main bot token -> ")
-        test_token = input("Test bot token -> ")
+        main_token = _input("Main bot token", getattr(config, "main_token", None))
+        test_token = _input("Test bot token", getattr(config, "test_token", None))
         _clear()
         print("This can be found here https://my.telegram.org/apps")
-        api_id = input("Api id -> ")
-        api_hash = input("Api hash -> ")
+        api_id = _input("Api id", getattr(config, "api_id", None))
+        api_hash = _input("Api hash", getattr(config, "api_hash", None))
         _clear()
+        print("MySQL database setup")
+        print("Check README.md for more information")
+        sql_host = _input("Host", (getattr(config, "sql_host", "localhost")))
+        sql_user = _input("User", (getattr(config, "sql_user", os.environ["USER"])))
+        sql_password = _input("Password", getattr(config, "sql_password", None))
+        sql_database = _input("Database name", (getattr(config, "sql_database", "ToolKit")))
 
         with open("config.sample.py", "r") as file:
-            sample = file.read().format(main_token=main_token, test_token=test_token, api_id=api_id, api_hash=api_hash)
+            sample = file.read().format(main_token=main_token, test_token=test_token,
+                                        api_id=api_id, api_hash=api_hash,
+                                        sql_user=sql_user, sql_password=sql_password, sql_database=sql_database,
+                                        sql_host=sql_host)
 
         print(
             f"{sep}",
@@ -166,13 +174,20 @@ def config_generator():
             f"{sep}",
             f"Main bot token - {main_token!r}",
             f"Test bot token - {test_token!r}",
+            f"{sep}",
             f"Api id - {api_id!r}",
             f"Api hash - {api_hash!r}",
+            f"{sep}",
+            f"MySQL host - {sql_host!r}",
+            f"MySQL user - {sql_user!r}",
+            f"MySQL password - {sql_password!r}",
+            f"MySQL database - {sql_database!r}",
             f"{sep}",
             f"",
             "All correct ?",
             sep="\n"
         )
+
         if _yes(False):
             with open("config.py", "w") as file:
                 file.write(sample)
@@ -182,11 +197,23 @@ def config_generator():
     return True
 
 
-def rename_sample_files():
-    for file in sample_files:
-        re_file = file.replace(".sample", "")
-        print(f"Rename {file} -> {re_file}")
-        shutil.copy(file, re_file)
+# def rename_sample_files():
+#     for file in sample_files:
+#         re_file = file.replace(".sample", "")
+#         print(f"Rename {file} -> {re_file}")
+#         shutil.copy(file, re_file)
+#     _enter()
+#     return True
+
+def load_mysql():
+    try:
+        import config
+    except ImportError:
+        print("First setup config.py")
+        return "First setup config.py"
+
+    _cmd(f"mysql -p {config.sql_database} < data/database.sql")
+
     _enter()
     return True
 
@@ -218,9 +245,7 @@ def compile_po_files():
             print(f"Folder {local + lc!r} created ")
 
         mo = local + lc + mo
-        cmd = f"msgfmt {po} -o {mo}"
-        print(f"Execute \t {cmd!r}")
-        if os.system(cmd) == 0:
+        if _cmd(f"msgfmt {po} -o {mo}", False):
             print(f"{po!r} - file compiled to - {mo!r}")
         else:
             print("COMPILE ERROR")
@@ -231,7 +256,6 @@ def compile_po_files():
 
 
 def install_dependencies():
-    global venv
     with open("dependencies", "r") as file:
         dependencies = file.read()
     print(
@@ -241,10 +265,9 @@ def install_dependencies():
         f"{sep}",
         sep="\n"
     )
-    if _yes(venv):
-        os.system("pip install -r dependencies")
-        print("\nSuccessfully installed")
-        _enter()
+    _cmd("pip install -U -r dependencies", False)
+    print(f"{sep}\nSuccessfully installed")
+    _enter()
     return True
 
 
@@ -280,8 +303,8 @@ def generate_locales_files(new_locale: p.Optional[str] = None):
 
         for f in po_files:
             if po:
-                os.system(f"xgettext -j {path + f} -o {po}")
-            os.system(f"xgettext -j {path + f} -o {pot}")
+                _cmd(f"xgettext -j {path + f} -o {po}", False)
+            _cmd(f"xgettext -j {path + f} -o {pot}", False)
 
         print(sep)
     if not new_locale:
@@ -293,7 +316,7 @@ def create_locales():
     path = "libs/locales/"
     while True:
         print("Leave blank to exit")
-        lc = input("Name of locale (telegram format) -> ")
+        lc = _input("Name of locale (telegram format)")
         if lc == "":
             break
         locale = path + lc
@@ -324,7 +347,7 @@ def delete_locales():
     while True:
         _clear()
         print("Leave blank to exit")
-        locale = input("Name of locale -> ")
+        locale = _input("Name of locale")
         if locale == "":
             break
 
@@ -345,10 +368,26 @@ def delete_locales():
         if _yes(False):
             print("You 100% sure ?")
             if _yes(False):
-                cmd = f"rm -rf {locale}"
-                print(cmd)
-                os.system(cmd)
+                _cmd(f"rm -rf {locale}", False)
     _clear()
+    return True
+
+
+def dump_mysql():
+    try:
+        import config
+    except ImportError:
+        print("First setup config.py")
+        return
+
+    nd = ""
+    print("Dump data ?")
+    if not _yes(False):
+        nd = "--no-data"
+
+    _cmd(f"mysqldump -v -p {nd} {config.sql_database} > data/database.sql")
+
+    _enter()
     return True
 
 
@@ -356,16 +395,18 @@ if __name__ == '__main__':
     opts = {
         "Setup systemd unit": systemd_unit_generator,
         "Setup config.py": config_generator,
-        "Rename sample files": rename_sample_files,
+        # "Rename sample files": rename_sample_files,
+        "Setup MySQL": load_mysql,
         "Compile po files": compile_po_files,
-        "Install dependencies": install_dependencies,
+        "Install or Update dependencies": install_dependencies,
         "Exit": exit,
         "0": None,
         "Generate or join locales files": generate_locales_files,
         "Create locales": create_locales,
         "Delete locales": delete_locales,
+        "Dump MySQL": dump_mysql
     }
-    exit_index = 6
+    exit_index = list(opts.keys()).index("Exit") + 1
     default = 1
     pmt = ""
 
