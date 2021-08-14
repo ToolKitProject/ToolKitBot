@@ -2,6 +2,7 @@ import os
 import platform
 import shutil
 import sys
+import traceback
 import typing as p
 
 term = shutil.get_terminal_size()
@@ -493,4 +494,7 @@ if __name__ == '__main__':
             break
         except Exception as e:
             pmt = f"An error has occurred ({e.__class__.__name__}:{e.args[0]})"
+            trc = traceback.format_exc()
+            print(trc)
+            _enter()
     _clear()
