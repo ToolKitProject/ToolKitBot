@@ -2,11 +2,12 @@ from aiogram import types as t
 from aiogram.dispatcher import FSMContext
 
 from bot import dp
+from libs import UserText
 from libs import filters as f
 from libs.classes import Errors as e
+from libs.classes.Buttons import Submenu
 from libs.classes.Chat import Chat
-from libs import UserText
-from libs.classes.Settings import Settings, Property, SettingsType
+from libs.classes.Settings import Property, SettingsType
 from libs.objects import MessageData
 from libs.system import alias_commands
 from libs.system import states
@@ -64,12 +65,14 @@ async def command_form(msg: t.Message, state: FSMContext):
     with await MessageData.data(from_msg) as data:
         settings: SettingsType = data.settings
         prop: Property = data.property
+        menu: Submenu = data.menu
         chat: Chat = data.chat
 
     settings[key] = value
-    chat.chat.settings = chat.settings.row
+    chat.chat.settings = chat.settings.raw
 
-    to_msg = await prop.menu(settings).send()
+    menu.update(prop.menu(settings))
+    to_msg = await menu.send()
     await MessageData.move(from_msg, to_msg)
     await states.add_alias.finish()
 

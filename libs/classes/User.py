@@ -49,8 +49,6 @@ class User:
             cls._user = t.User.get_current(True)
 
         cls.user = Database.get_user(cls._user.id)
-        if not cls.user:
-            cls.user = Database.add_user(cls._user.id)
 
         cls.id = cls._user.id
         cls.username = cls._user.username
