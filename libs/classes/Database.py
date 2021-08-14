@@ -105,9 +105,9 @@ class settingsOBJ(_link_obj):
         return self["text_alias"]
 
     @property
-    def lang(self) -> dict:
+    def lang(self) -> str:
         if self["lang"] is None:
-            return {}
+            return None
         return self["lang"]
 
     @property
