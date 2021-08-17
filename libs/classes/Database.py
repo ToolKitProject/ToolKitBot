@@ -54,22 +54,26 @@ class _link_obj(ABC):
         pass
 
     def __getattr__(self, name: str):
+        name = str(name)
         if self._init:
             return self.get(name)
 
     def __getitem__(self, name: str):
+        name = str(name)
         if name in self.__dict__:
             return self.__dict__[name]
         elif self._init:
             return self.get(name)
 
     def __setattr__(self, key: str, value: p.Any):
+        key = str(key)
         if self._init:
             self.set(key, value)
         else:
             self.__dict__[key] = value
 
     def __setitem__(self, key: str, value: p.Any):
+        key = str(key)
         if self._init:
             self.set(key, value)
         else:
@@ -91,6 +95,15 @@ class settingsOBJ(_link_obj):
         from libs.objects import Database
         self._data[name] = value
         Database.update(f"UPDATE {self._table} SET settings='{dumps(clear_dict(self.raw))}' WHERE id={self._id};")
+
+    def values(self):
+        return self._data.values()
+
+    def keys(self):
+        return self._data.keys()
+
+    def items(self):
+        return self._data.items()
 
     @property
     def sticker_alias(self) -> dict:
@@ -128,6 +141,10 @@ class permissionOBJ(settingsOBJ):
 class reportsOBJ(settingsOBJ):
     def __init__(self, reports: str, id: str):
         super().__init__(reports, "Users", id)
+
+    def get(self, name):
+        result = super().get(name)
+        return result or 0
 
     def set(self, name: str, value: p.Any):
         from libs.objects import Database
@@ -230,12 +247,8 @@ class Database:
         self.update(f"INSERT INTO Chats VALUES ({id},{JSON_DEFAULT!r},{owner})")
         return self.get_chat(id)
 
-    def add_message(self, msg: t.Message) -> messageOBJ:
-        user_id = msg.from_user.id
-        chat_id = msg.chat.id
-        message = msg.text
-        type = msg.content_type
-        date = msg.date.isoformat(" ")
+    def add_message(self, user_id: int, chat_id: int, message: str, type: str, date: datetime) -> messageOBJ:
+        date = date.isoformat(" ")
 
         if message:
             self.update(
@@ -275,6 +288,9 @@ class Database:
         else:
             raise ValueError("user_id or chat_id required")
 
+        if not result:
+            return
+
         result = [messageOBJ(*i) for i in result]
         return result
 
@@ -292,6 +308,7 @@ class Database:
         self.update(f"DELETE FROM Uses WHERE id = {id}")
 
     def delete_chat(self, id: int) -> bool:
+        self.update(f"DELETE FROM Messages WHERE chat_id={id}")
         self.update(f"DELETE FROM Chats WHERE id = {id}")
 
     def get_owns(self, id: int) -> p.List[chatOBJ]:

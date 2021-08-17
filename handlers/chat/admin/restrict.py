@@ -48,14 +48,14 @@ async def command(msg: t.Message):
             text, rm = await get_text(parsed, executor)  # Get text
             msg = await msg.answer(text, reply_markup=rm)  # Send text
 
-    with await MessageData.data(msg) as data:
+    with MessageData.data(msg) as data:
         data.parsed = parsed  # Save message data
 
 
 @buttons.chat.admin.undo(f.message.is_chat, f.user.has_permission("can_restrict_members"))
 async def undo(clb: t.CallbackQuery):
     executor = await User.create()  # Get executor of command
-    with await MessageData.data(clb.message) as data:
+    with MessageData.data() as data:
         parsed: ParsedArgs = data.parsed  # Get parsed obj
         await execute_action(parsed, clb.message.chat.id, True)  # Execute *undo* command
         text, rm = await get_text(parsed, executor)  # Get text

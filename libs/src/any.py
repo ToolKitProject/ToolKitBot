@@ -69,6 +69,10 @@ class parsers:
         )
     )
 
+    report = p.Command("report", _("Report command")).add(
+        p.UserArg(_("User"))
+    )
+
     purge = p.Command("purge", _("Purge command")).add(
         p.NumberArg(2, 1000, _("Message count"), required=True)
     )

@@ -60,14 +60,10 @@ async def back(clb: t.CallbackQuery):
     """
     *back* button handler
     """
-    msg = clb.message
     try:
-        with await MessageData.data(msg) as data:
+        with MessageData.data() as data:
             history: p.List[Menu] = data.history
             while True:
-                if not history:
-                    raise e.BackError()
-
                 history.pop(-1)
                 try:
                     await history[-1].edit(False)

@@ -4,33 +4,38 @@ from aiogram import types as t
 
 from bot import dp
 from libs import filters as f
-from libs.classes.Buttons import Menu, Button, Submenu
+from libs.classes.Buttons import Button
 from libs.classes.Chat import Chat
 from libs.classes.Errors import MyError, ERRORS, IGNORE, ForceError
 from libs.classes.Settings import Settings, Property, Elements
+from libs.classes.User import User
 from libs.objects import Database, MessageData
 
-
-async def test_clb(clb: t.CallbackQuery):
-    with await MessageData.data(clb.message) as data:
-        text = f"{clb.data}\n"
-        for k, v in data.storage.items():
-            text += f"{k} - {v} \n"
-        print(text)
-
-    return False
+chek_types = t.ContentType.all()
+chek_types.remove(t.ContentType.LEFT_CHAT_MEMBER)
 
 
 async def check(msg: t.Message):
     """
     Creates records in the database
     """
-    if await f.message.is_chat.check(msg) and not Database.get_chat(msg.chat.id):
-        await Chat.create()
-    Database.get_user(msg.from_user.id)
 
-    if msg.chat.type != t.ChatType.PRIVATE:
-        Database.add_message(msg)
+    if msg.content_type not in chek_types:
+        return False
+
+    if await f.message.is_chat.check(msg):
+        chat = await Chat.create()
+    user = await User.create()
+
+    if await f.message.is_chat.check(msg):
+        mode = chat.statistic_mode
+        if user.statistic_mode < mode:
+            mode = user.statistic_mode
+
+        if mode == 2:
+            Database.add_message(msg.from_user.id, msg.chat.id, msg.text, msg.content_type, msg.date)
+        elif mode == 1:
+            Database.add_message(msg.from_user.id, msg.chat.id, None, msg.content_type, msg.date)
 
     return False
 
@@ -38,7 +43,7 @@ async def check(msg: t.Message):
 # @any.command.AdminCommandParser()
 # @dp.edited_message_handler(commands=["test"])
 # @dp.callback_query_handler(test_clb)
-@dp.message_handler(commands=["test"])
+# @dp.message_handler(commands=["test"])
 async def test_xd(msg: t.Message):  # Test func
     settings = Settings("Настройки").add(
         Property("Текста", "Настроить текста", "texts", row_width=1).add(

@@ -7,7 +7,7 @@ from aiogram.utils.exceptions import MigrateToChat, ChatNotFound
 from libs.classes import Database as d
 from libs.objects import Database
 from .Chat import Chat
-from .Database import permissionOBJ, settingsOBJ
+from .Database import permissionOBJ, settingsOBJ, reportsOBJ, userOBJ
 from libs import UserText
 from . import Errors as e
 
@@ -25,8 +25,10 @@ class User:
     lang: str
     src: UserText
 
+    userOBJ: userOBJ
     settings: settingsOBJ
     permission: permissionOBJ
+    reports: reportsOBJ
     owns: p.List[d.chatOBJ]
 
     MUTE = t.ChatPermissions(can_send_messages=False)
@@ -48,7 +50,7 @@ class User:
         else:
             cls._user = t.User.get_current(True)
 
-        cls.user = Database.get_user(cls._user.id)
+        cls.userOBJ = Database.get_user(cls._user.id)
 
         cls.id = cls._user.id
         cls.username = cls._user.username
@@ -58,8 +60,9 @@ class User:
         cls.lang = cls.language_code
         cls.src = UserText()
 
-        cls.settings = cls.user.settings
-        cls.permission = cls.user.permission
+        cls.settings = cls.userOBJ.settings
+        cls.permission = cls.userOBJ.permission
+        cls.reports = cls.userOBJ.reports
         cls.owns = Database.get_owns(cls.id)
 
         return cls
@@ -89,29 +92,17 @@ class User:
         else:
             return self.link
 
-    async def send(self,
-                   text: str,
-                   parse_mode: p.Optional[str] = None,
-                   entities: p.Optional[p.List[t.MessageEntity]] = None,
-                   disable_web_page_preview: p.Optional[bool] = None,
-                   disable_notification: p.Optional[bool] = None,
-                   reply_to_message_id: p.Optional[int] = None,
-                   allow_sending_without_reply: p.Optional[bool] = None,
-                   reply_markup: p.Union[t.InlineKeyboardMarkup,
-                                         t.ReplyKeyboardMarkup,
-                                         t.ReplyKeyboardRemove,
-                                         t.ForceReply, None] = None,
-                   ):
-        bot = Bot.get_current()
-        await bot.send_message(self.id,
-                               text=text,
-                               entities=entities,
-                               parse_mode=parse_mode,
-                               disable_web_page_preview=disable_web_page_preview,
-                               disable_notification=disable_notification,
-                               reply_to_message_id=reply_to_message_id,
-                               allow_sending_without_reply=allow_sending_without_reply,
-                               reply_markup=reply_markup, )
+    @property
+    def global_reports(self):
+        result = 0
+        for r in self.reports.values():
+            result += r
+        return result
+
+    @property
+    def statistic_mode(self):
+        s = self.settings["statistic"]
+        return s["mode"] if s else 2
 
     async def get_owns(self) -> p.List[Chat]:
         owns = []

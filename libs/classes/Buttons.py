@@ -47,16 +47,16 @@ class Menu(t.InlineKeyboardMarkup):
 
     async def save_storage(self, msg: t.Message):
         from libs.objects import MessageData
-        with await MessageData.data(msg) as data:
-            if not data.history:
-                data.history = [self]
-            else:
-                data.history.append(self)
-
+        with MessageData.data(msg) as data:
             for key, value in self.storage.items():
                 data[key] = value
                 if not self.hide:
                     data.menu = self
+
+            if not data.history:
+                data.history = [self]
+            else:
+                data.history.append(self)
 
     def add(self, *args) -> "Menu":
         super().add(*args)
@@ -77,8 +77,8 @@ class Menu(t.InlineKeyboardMarkup):
 
 
 class Button(t.InlineKeyboardButton):
-    def __init__(self, text: str, callback_data: str) -> None:
-        super().__init__(text, callback_data=callback_data)
+    def __init__(self, text: str, callback_data: str = None, url: str = None) -> None:
+        super().__init__(text, callback_data=callback_data, url=url)
 
     def __call__(self, *filters, state=None):
         def wrapper(func):
@@ -87,6 +87,9 @@ class Button(t.InlineKeyboardButton):
         return wrapper
 
     def set_handler(self, *filters, func, state=None):
+        if not self.callback_data:
+            raise TypeError("This button has no callback_data")
+
         filters = list(filters)
         filters.insert(0, self._filter)
         dp.register_callback_query_handler(
