@@ -4,6 +4,7 @@ from aiogram import types as t
 
 from libs import filters as f
 from libs.classes import Utils as u
+from libs.classes.CommandParser import ParsedArgs
 from libs.classes.User import User
 from libs.src import any
 
@@ -13,8 +14,7 @@ from libs.src import any
     u.write_action,
     u.get_help
 )
-async def report(msg: t.Message):
-    parsed = await any.parsers.report.parse(msg)
+async def report(msg: t.Message, parsed: ParsedArgs):
     users: p.List[User] = parsed.user
 
     text = ""

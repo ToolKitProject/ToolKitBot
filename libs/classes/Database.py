@@ -208,26 +208,19 @@ class chatOBJ(_link_obj):
         Database.update(f"UPDATE {self._table} SET {name}='{value}' WHERE id={self._id};")
 
 
-class messageOBJ(_link_obj):
+class messageOBJ:
     user_id: int
     chat_id: int
     message: p.Optional[str]
     type: str
     data: str
 
-    def __init__(self, user_id: int, chat_id: int, message: p.Optional[str], type: str, date: str):
+    def __init__(self, user_id: int, chat_id: int, message: p.Optional[str], type: str, date: datetime):
         self.user_id = user_id
         self.chat_id = chat_id
         self.message = message
         self.type = type
-        self.date = datetime.fromisoformat(date)
-        super().__init__("Messages", None)
-
-    def get(self, name: str):
-        return
-
-    def set(self, name: str, value: p.Any):
-        logging.warning("messageOBJ is not editable")
+        self.date = date
 
 
 class Database:
@@ -248,15 +241,13 @@ class Database:
         return self.get_chat(id)
 
     def add_message(self, user_id: int, chat_id: int, message: str, type: str, date: datetime) -> messageOBJ:
-        date = date.isoformat(" ")
-
         if message:
             self.update(
-                f"INSERT INTO Messages(user_id,chat_id,message,type,date) VALUES ({user_id},{chat_id},{message!r},{type!r},{date!r})"
+                f"INSERT INTO Messages(user_id,chat_id,message,type,date) VALUES ({user_id},{chat_id},{message!r},{type!r},{date.isoformat(' ')!r})"
             )
         else:
             self.update(
-                f"INSERT INTO Messages(user_id,chat_id,type,date) VALUES ({user_id},{chat_id},{type!r},{date!r})"
+                f"INSERT INTO Messages(user_id,chat_id,type,date) VALUES ({user_id},{chat_id},{type!r},{date.isoformat(' ')!r})"
             )
         return messageOBJ(user_id, chat_id, message, type, date)
 
@@ -278,31 +269,65 @@ class Database:
 
         return chatOBJ(*result)
 
-    def get_messages(self, user_id: p.Optional[int] = None, chat_id: p.Optional[int] = None) -> p.List[messageOBJ]:
-        if chat_id and user_id:
-            result = self.get(f"SELECT * FROM Messages WHERE chat_id={chat_id} AND user_id={user_id}")
-        elif user_id:
-            result = self.get(f"SELECT * FROM Messages WHERE user_id={user_id}")
-        elif chat_id:
-            result = self.get(f"SELECT * FROM Messages WHERE chat_id={chat_id}")
-        else:
+    def get_messages(self,
+                     user_id: p.Optional[int] = None,
+                     chat_id: p.Optional[int] = None,
+                     type: p.Optional[str] = None) -> p.List[messageOBJ]:
+        sql = "SELECT * FROM Messages WHERE "
+        selectors = []
+        if not (user_id and chat_id):
             raise ValueError("user_id or chat_id required")
 
-        if not result:
-            return
+        if user_id:
+            selectors.append(f"user_id = {user_id}")
+        if chat_id:
+            selectors.append(f"chat_id = {chat_id}")
+        if type:
+            selectors.append(f"type = {type!r}")
+        if not selectors:
+            ValueError("Selectors required")
 
-        result = [messageOBJ(*i) for i in result]
+        sql += " AND ".join(selectors)
+
+        result = self.get(sql)
+        if result:
+            result = self._create_list_of_objects(result, messageOBJ)
+        return result
+
+    def get_messages_by_date(self,
+                             from_date: datetime,
+                             to_date: p.Optional[datetime] = None,
+                             contain: bool = True
+                             ) -> p.List[messageOBJ]:
+        sql = "SELECT * FROM Messages WHERE "
+
+        fd = repr(from_date.isoformat(" "))
+
+        if from_date and to_date:
+            td = repr(to_date.isoformat(" "))
+            if contain:
+                sql += f"date >= {fd} AND date <= {td}"
+            else:
+                sql += f"date > {fd} AND date < {td}"
+        elif from_date:
+            sql += f"date = {fd}"
+
+        result = self.get(sql)
+        if result:
+            result = self._create_list_of_objects(result, messageOBJ)
         return result
 
     def get_users(self) -> p.List[userOBJ]:
         result = self.get("SELECT * FROM Users")
-        result = [userOBJ(*i) for i in result]
-        return result
+        return self._create_list_of_objects(result, userOBJ)
 
     def get_chats(self) -> p.List[chatOBJ]:
         result = self.get("SELECT * FROM Chats")
-        result = [chatOBJ(*i) for i in result]
-        return result
+        return self._create_list_of_objects(result, chatOBJ)
+
+    def get_owns(self, id: int) -> p.List[chatOBJ]:
+        result = self.get(f"SELECT * FROM Chats WHERE owner={id}")
+        return self._create_list_of_objects(result, chatOBJ)
 
     def delete_user(self, id: int) -> bool:
         self.update(f"DELETE FROM Uses WHERE id = {id}")
@@ -310,10 +335,6 @@ class Database:
     def delete_chat(self, id: int) -> bool:
         self.update(f"DELETE FROM Messages WHERE chat_id={id}")
         self.update(f"DELETE FROM Chats WHERE id = {id}")
-
-    def get_owns(self, id: int) -> p.List[chatOBJ]:
-        result = self.get(f"SELECT * FROM Chats WHERE owner={id}")
-        return [chatOBJ(*i) for i in result]
 
     def get(self, sql: str, one: bool = False) -> p.Union[p.Any, p.List]:
         with self.connect.cursor() as cursor:
@@ -328,6 +349,10 @@ class Database:
         with self.connect.cursor() as cursor:
             cursor.execute(sql)
         self.connect.commit()
+
+    @staticmethod
+    def _create_list_of_objects(l: p.List[p.Tuple[p.Any]], o: p.Any):
+        return [o(*i) for i in l]
 
 
 if __name__ == "__main__":
