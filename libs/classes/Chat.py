@@ -73,7 +73,7 @@ class Chat:
     @property
     def statistic_mode(self):
         s = self.settings["statistic"]
-        return s["mode"] if s else 2
+        return s["mode"] if "mode" in s else 2
 
     async def _owner(self):
         from .User import User
