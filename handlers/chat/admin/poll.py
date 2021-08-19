@@ -24,7 +24,7 @@ async def check_poll(clb: t.CallbackQuery):
     no = poll.options[1]
 
     if yes.voter_count > no.voter_count:
-        with MessageData.data() as data:
+        with await MessageData.data(clb.message) as data:
             parsed: ParsedArgs = data.parsed
             if await execute_action(parsed, clb.message.chat.id):
                 text, rm = await get_text(parsed, executor)  # Get text

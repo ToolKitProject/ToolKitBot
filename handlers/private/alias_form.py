@@ -29,7 +29,7 @@ async def start_text(clb: t.CallbackQuery):
 async def cancel(msg: t.Message, state: FSMContext):
     async with state.proxy() as data:
         from_msg: t.Message = data["settings_message"]
-    with MessageData.data(from_msg) as data:
+    with await MessageData.data(from_msg) as data:
         prop: Property = data.property
         settings: SettingsType = data.settings
 
@@ -62,14 +62,14 @@ async def command_form(msg: t.Message, state: FSMContext):
         from_msg: t.Message = data["settings_message"]
         key: str = data["key"]
         value: str = msg.text
-    with MessageData.data(from_msg) as data:
+    with await MessageData.data(from_msg) as data:
         settings: SettingsType = data.settings
         prop: Property = data.property
         menu: Submenu = data.menu
         chat: Chat = data.chat
 
     settings[key] = value
-    chat.chatOBJ.settings = chat.settings.raw
+    chat.chat.settings = chat.settings.raw
 
     menu.update(prop.menu(settings))
     to_msg = await menu.send()

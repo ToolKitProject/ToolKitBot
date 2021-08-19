@@ -8,7 +8,6 @@ from libs import system, src
 from libs.classes.Buttons import Menu
 from libs.classes import Errors as e
 from libs import UserText
-from libs.classes.CommandParser import ParsedArgs
 from libs.objects import MessageData
 from libs.src import any, text
 from libs import filters as f
@@ -28,18 +27,20 @@ async def fix_commands(msg: t.Message, send: bool = True):
 
 
 @any.parsers.help()
-async def help(msg: t.Message, parsed: ParsedArgs):  # help command
+async def help(msg: t.Message):  # help command
+    src = UserText()
+    parsed = await src.any.parsers.help.parse(msg)
     cmd: str = parsed.cmd
     if not cmd:  # if not search command
         if await f.message.is_chat.check(msg):  # if chat
             if await f.user.is_admin.check(msg):  # if member admin
-                text = str(any.command_list.get_group(t.BotCommandScopeAllChatAdministrators()))
+                text = str(src.any.command_list.get_group(t.BotCommandScopeAllChatAdministrators()))
             else:
-                text = str(any.command_list.get_group(t.BotCommandScopeAllGroupChats()))
+                text = str(src.any.command_list.get_group(t.BotCommandScopeAllGroupChats()))
         elif await f.message.is_private.check(msg):  # if private chat
-            text = str(any.command_list.get_group(t.BotCommandScopeAllPrivateChats()))
+            text = str(src.any.command_list.get_group(t.BotCommandScopeAllPrivateChats()))
     else:
-        command = any.command_list.get(cmd.removeprefix("/"))
+        command = src.any.command_list.get(cmd.removeprefix("/"))
         if not command:  # if command not found
             raise e.CommandNotFound()
         text = str(command)
@@ -59,10 +60,14 @@ async def back(clb: t.CallbackQuery):
     """
     *back* button handler
     """
+    msg = clb.message
     try:
-        with MessageData.data() as data:
+        with await MessageData.data(msg) as data:
             history: p.List[Menu] = data.history
             while True:
+                if not history:
+                    raise e.BackError()
+
                 history.pop(-1)
                 try:
                     await history[-1].edit(False)

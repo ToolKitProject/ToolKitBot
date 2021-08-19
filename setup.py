@@ -212,13 +212,7 @@ def load_mysql():
     except ImportError:
         return 'Please run "Setup config.py"'
 
-    print("Use dump")
-    if _yes(False):
-        cmd = f"mysql -p {config.sql_database} < {_input('Path to dump file', 'data/Database_dump.sql')}"
-    else:
-        cmd = f"mysql -p {config.sql_database} < data/database.sql"
-
-    _cmd(cmd)
+    _cmd(f"mysql -p {config.sql_database} < data/database.sql")
 
     _enter()
     return True
@@ -385,13 +379,12 @@ def dump_mysql():
     except ImportError:
         return 'Please run "Setup config.py"'
 
-    print("Dump for GitHub ?")
-    if _yes(True):
-        cmd = f"mysqldump -v -p --no-data {config.sql_database} > data/database.sql"
-    else:
-        cmd = f"mysqldump -v -p {config.sql_database} > {_input('Path to dump file', 'data/Database_dump.sql')}"
+    nd = ""
+    print("Dump data ?")
+    if not _yes(False):
+        nd = "--no-data"
 
-    _cmd(cmd)
+    _cmd(f"mysqldump -v -p {nd} {config.sql_database} > data/database.sql")
 
     _enter()
     return True
@@ -456,7 +449,7 @@ if __name__ == '__main__':
         "Setup systemd unit": systemd_unit_generator,
         "Setup config.py": config_generator,
         # "Rename sample files": rename_sample_files,
-        "Setup MySQL (Load dump)": load_mysql,
+        "Setup MySQL": load_mysql,
         "Compile po files": compile_po_files,
         "Install or Update dependencies": install_dependencies,
         "Exit": exit,
@@ -466,7 +459,7 @@ if __name__ == '__main__':
         "Delete locales": delete_locales,
         "1": None,
         "Dump MySQL": dump_mysql,
-        # "Migrate data to MySQL": migrate_data,
+        "Migrate data to MySQL": migrate_data,
     }
     exit_index = list(opts.keys()).index("Exit") + 1
     default = 1

@@ -21,13 +21,15 @@ from libs.src import buttons
     u.write_action,
     u.get_help
 )
-async def command(msg: t.Message, parsed: ParsedArgs):
+async def command(msg: t.Message):
     """
     Restrict command handler
     """
 
     executor = await User.create()  # Get executor of command
     src = executor.src
+    parsed = await src.any.parsers.restrict.parse(msg)  # Parse command
+
     # If poll
     if parsed.flags.poll:
         text, rm = await get_poll_text(parsed, executor)
@@ -46,14 +48,14 @@ async def command(msg: t.Message, parsed: ParsedArgs):
             text, rm = await get_text(parsed, executor)  # Get text
             msg = await msg.answer(text, reply_markup=rm)  # Send text
 
-    with MessageData.data(msg) as data:
+    with await MessageData.data(msg) as data:
         data.parsed = parsed  # Save message data
 
 
 @buttons.chat.admin.undo(f.message.is_chat, f.user.has_permission("can_restrict_members"))
 async def undo(clb: t.CallbackQuery):
     executor = await User.create()  # Get executor of command
-    with MessageData.data() as data:
+    with await MessageData.data(clb.message) as data:
         parsed: ParsedArgs = data.parsed  # Get parsed obj
         await execute_action(parsed, clb.message.chat.id, True)  # Execute *undo* command
         text, rm = await get_text(parsed, executor)  # Get text
@@ -63,8 +65,8 @@ async def undo(clb: t.CallbackQuery):
 
 async def execute_action(parsed: ParsedArgs, chat_id: str, undo: bool = False):
     type: str = parsed.command.text
-    users: p.List[User] = parsed.targets
-    until: timedelta = parsed.until
+    users: p.List[User] = parsed.user
+    until: timedelta = parsed.date if parsed.date else None
 
     result = False
 
@@ -115,7 +117,7 @@ async def get_poll_text(parsed: ParsedArgs, executor: User):
     elif type == "unmute":
         text = adm.unmute_poll
 
-    users = " ".join([u.full_name for u in parsed.targets])
+    users = " ".join([u.full_name for u in parsed.user])
     text = text.format(user=users)
 
     return text, rm
@@ -126,7 +128,7 @@ async def get_text(parsed: ParsedArgs, executor: User) -> p.Tuple[str, t.InlineK
     adm = src.text.chat.admin
 
     type: str = parsed.command.text.lower()
-    users: p.List[User] = parsed.targets
+    users: p.List[User] = parsed.user
     multi = len(users) > 1
 
     text = None
@@ -145,17 +147,18 @@ async def get_text(parsed: ParsedArgs, executor: User) -> p.Tuple[str, t.InlineK
         text = adm.multi_unmute if multi else adm.unmute
 
     users = " ".join([u.link for u in users])
+    reason: str = parsed.reason.raw if parsed.reason else adm.reason_empty
 
     until = adm.forever
-    if parsed.until:
-        if dates.forever(parsed.until):
+    if parsed.date:
+        if dates.forever(parsed.date):
             until: str = adm.forever
         else:
-            until: str = (dates.now() + parsed.until).strftime("%Y %m %d")
+            until: str = (dates.now() + parsed.date).strftime("%Y %m %d")
 
     text = text.format(
         user=users,
-        reason=parsed.reason,
+        reason=reason,
         admin=executor.link,
         until=until
     )

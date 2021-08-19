@@ -3,12 +3,6 @@ from libs.locales import Text as _
 
 cancel = _("/cancel - to cancel")
 
-statistic_modes = {
-    0: _("Off"),
-    1: _("Date only"),
-    2: _("Full")
-}
-
 
 class errors:
     class restrict:
@@ -53,8 +47,6 @@ class private:
         text = _("1⃣ Send me text \n") + cancel
 
         command = _("2⃣ Send me command")
-
-        statistic_mode_changed = _("Statistic mode changed on {mode}")
 
 
 class chat:

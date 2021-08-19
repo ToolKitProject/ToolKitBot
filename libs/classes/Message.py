@@ -82,29 +82,26 @@ class MessageData:
     def __init__(self):
         self.storage: Dict[int, Dict[int, Data]] = {}
 
-    def data(self, msg: t.Message = None) -> Data:
+    async def data(self, msg: t.Message) -> Data:
         """
         Создает или возвращает данные
         """
-        if not msg:
-            msg = t.Message.get_current() or t.CallbackQuery.get_current().message
-
         if msg.chat.id in self.storage and msg.message_id in self.storage[msg.chat.id]:
-            return self.get(msg)
+            return await self.get(msg)
         else:
-            return self.new(msg)
+            return await self.new(msg)
 
     async def delete(self, msg: t.Message, markup: bool = True):
         """
         Удаляет данные и сообщение
         """
-        self.remove(msg)
+        await self.remove(msg)
         if markup:
             await msg.delete_reply_markup()
         else:
             await msg.delete()
 
-    def remove(self, msg: t.Message):
+    async def remove(self, msg: t.Message):
         """
         Удаляет данные
         """
@@ -123,7 +120,7 @@ class MessageData:
             for data in storage.values():
                 await data.close(markup)
 
-    def new(self, msg: t.Message) -> Data:
+    async def new(self, msg: t.Message) -> Data:
         """
         Добавляет данные к сообщению
         """
@@ -134,13 +131,19 @@ class MessageData:
         return data
 
     async def move(self, from_msg: t.Message, to_msg: t.Message):
-        data = self.get(from_msg)
+        data = await self.get(from_msg)
         await data.close(True)
         data.msg = to_msg
         self.storage[to_msg.chat.id][to_msg.message_id] = data
 
-    def get(self, msg: t.Message) -> Data:
+    async def get(self, msg: t.Message) -> Data:
         """
         Возвращает данные
         """
         return self.storage[msg.chat.id][msg.message_id]
+
+    async def get_by_id(self, chat_id: int, message_id: int):
+        """
+        Возвращает данные
+        """
+        return self.storage[chat_id][message_id]

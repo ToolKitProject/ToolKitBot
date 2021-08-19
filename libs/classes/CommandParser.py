@@ -2,7 +2,6 @@ import re
 import typing as p
 from abc import ABC, abstractmethod
 from calendar import isleap, monthrange
-from copy import deepcopy
 from datetime import datetime, timedelta
 
 from aiogram import types as t, filters as f
@@ -115,7 +114,10 @@ class ParsedArgs:
             self.add(key, value)
 
     def add(self, key: str, value: p.Any):
-        if value is not None:
+        add = value == [] or \
+              value == {} or \
+              value is None
+        if not add:
             self.__dict__[key] = value
 
 
@@ -129,11 +131,10 @@ class ParseObj:
 
 
 class BaseArg(ABC):
-    def __init__(self, dest: str, name: str, required: bool, default: p.Optional[p.Any] = None):
+    def __init__(self, dest: str, name: str, required: bool):
         self.dest = dest
         self.name = name
         self.required = required
-        self.default = default
 
     @abstractmethod
     async def parse(self, parse: ParseObj):
@@ -153,7 +154,7 @@ class Command:
         self.args: p.List[BaseArg] = []
 
         self.add(
-            Arg(r.parse.command, self.name, "command", True)
+            Arg(r.parse.command, "command", self.name, True)
         )
 
     def __call__(self, *filters, state=None):
@@ -168,20 +169,15 @@ class Command:
 
     async def parse(self, msg: t.Message):
         items = ParsedArgs()
-        parseOBJ = ParseObj(msg)
-        chekJBJ = ParseObj(msg)
+        obj = ParseObj(msg)
 
         await self.check(msg)
 
         for arg in self.args:
-            if await arg.check(chekJBJ):
-                try:
-                    item = await arg.parse(parseOBJ)
-                except:
-                    raise e.ArgumentError.ArgumentIncorrect(arg.name)
-            else:
-                item = arg.default
-
+            try:
+                item = await arg.parse(obj)
+            except:
+                raise e.ArgumentError.ArgumentIncorrect(arg.name)
             items.add(arg.dest, item)
         return items
 
@@ -209,20 +205,16 @@ class Command:
                     return False
         return True
 
-    def set_action(self, *filters, func: p.Callable[[t.Message, ParsedArgs], p.Any], state=None):
-        async def pre_handler(msg: t.Message):
-            parsed = await self.parse(msg)
-            await func(msg, parsed)
-
+    def set_action(self, *filters, func, state=None):
         filters = list(filters)
         filters.insert(0, self._filter)
 
         dp.register_message_handler(
-            pre_handler,
+            func,
             *filters,
             state=state
         )
-        return pre_handler
+        return func
 
     @property
     def _filter(self):
@@ -230,16 +222,9 @@ class Command:
 
 
 class Arg(BaseArg):
-    def __init__(
-            self,
-            regexp: p.Union[re.Pattern, str],
-            name: str,
-            dest: str,
-            required: bool = True,
-            default: p.Optional[p.Any] = None
-    ):
+    def __init__(self, regexp: p.Union[re.Pattern, str], dest: str, name: str, required: bool = True):
         self.regexp = regexp if isinstance(regexp, re.Pattern) else re.compile(regexp)
-        super().__init__(dest, name, required=required, default=default)
+        super().__init__(dest, name, required=required)
 
     async def parse(self, parse: ParseObj):
         items = ParsedArgs()
@@ -256,45 +241,11 @@ class Arg(BaseArg):
         return False
 
 
-class ReasonArg(BaseArg):
-    def __init__(
-            self,
-            name: str,
-            dest: str = "reason",
-            required: bool = False,
-            default: p.Optional[p.Any] = ""
-    ):
-        from libs.system import regex as r
-        self.regexp = re.compile(r.parse.reason)
-        super().__init__(dest, name, required, default)
-
-    async def parse(self, parse: ParseObj):
-        matches = await find(self.regexp, parse)
-
-        reason = ""
-        for match in matches:
-            reason = match.group("raw")
-
-        return reason
-
-    async def check(self, parse: ParseObj):
-        matches = await find(self.regexp, parse)
-        for _ in matches:
-            return True
-        return False
-
-
 class UserArg(BaseArg):
-    def __init__(
-            self,
-            name: str,
-            dest: str = "users",
-            required: bool = True,
-            default: p.Optional[p.Any] = []
-    ):
+    def __init__(self, name: str, required: bool = True):
         from libs.system import regex as r
         self.regexp = re.compile(r.parse.user)
-        super().__init__(dest, name, required, default)
+        super().__init__("user", name, required)
 
     async def parse(self, parse: ParseObj):
         users = []
@@ -326,15 +277,9 @@ class UserArg(BaseArg):
 
 
 class DateArg(BaseArg):
-    def __init__(
-            self,
-            name: str,
-            dest: str = "date",
-            required: bool = False,
-            default: p.Optional[p.Any] = timedelta()
-    ):
+    def __init__(self, name: str, required: bool = False):
         from libs.system import regex as r
-        super().__init__(dest, name, required, default)
+        super().__init__("date", name, required)
         self.regexp = re.compile(r.parse.date)
 
     async def parse(self, parse: ParseObj):
@@ -368,17 +313,11 @@ class DateArg(BaseArg):
 
 
 class TextArg(BaseArg):
-    def __init__(
-            self, name: str,
-            dest: str = "text",
-            sep: str = " ",
-            required: bool = False,
-            default: p.Optional[p.Any] = ""
-    ):
+    def __init__(self, name: str, dest: str = "text", sep: str = " ", required: bool = False):
         from libs.system import regex as r
         self.regexp = re.compile(r.parse.text)
         self.sep = sep
-        super().__init__(dest, name, required, default)
+        super().__init__(dest, name, required)
 
     async def parse(self, parse: ParseObj):
         matches = await find(self.regexp, parse)
@@ -395,24 +334,14 @@ class TextArg(BaseArg):
 
 
 class NumberArg(BaseArg):
-    def __init__(
-            self, name: str,
-            minimal: p.Optional[int] = None,
-            maximal: p.Optional[int] = None,
-            contain: bool = True,
-            dest: str = "number",
-            func: p.Callable[[p.List[int]], int] = sum,
-            required: bool = False,
-            default: p.Optional[p.Any] = 0
-    ):
-
+    def __init__(self, minimal: int, maximal: int, name: str, dest: str = "number",
+                 func: p.Callable[[p.List[int]], int] = sum, required: bool = False):
         from libs.system import regex as r
         self.min = minimal
         self.max = maximal
-        self.contain = contain
         self.func = func
         self.regexp = re.compile(r.parse.number)
-        super().__init__(dest, name, required, default)
+        super().__init__(dest, name, required)
 
     async def parse(self, parse: ParseObj):
         matches = await find(self.regexp, parse)
@@ -421,22 +350,8 @@ class NumberArg(BaseArg):
             numbers.append(int(match.group()))
 
         num = self.func(numbers)
-        if self.min and self.max:
-            if self.contain:
-                assert self.min <= num <= self.max
-            else:
-                assert self.min < num < self.max
-        elif self.min:
-            if self.contain:
-                assert self.min <= num
-            else:
-                assert self.min < num
-        elif self.max:
-            if self.contain:
-                assert num <= self.max
-            else:
-                assert num < self.max
-
+        if numbers and not (self.min <= num <= self.max):
+            raise ValueError()
         return num
 
     async def check(self, parse: ParseObj):
@@ -447,9 +362,9 @@ class NumberArg(BaseArg):
 
 
 class FlagArg(BaseArg):
-    def __init__(self, dest: str = "flags"):
+    def __init__(self):
         self.flags: p.List[Flag] = []
-        super().__init__(dest, None, True, None)
+        super().__init__("flags", None, True)
 
     def add(self, *flags: BaseArg):
         self.flags += list(flags)
@@ -472,14 +387,7 @@ class FlagArg(BaseArg):
 
 
 class Flag(BaseArg):
-    def __init__(
-            self,
-            small: str,
-            full: str,
-            dest: str,
-            name: str,
-            required: bool = False
-    ):
+    def __init__(self, small: str, full: str, dest: str, name: str, required: bool = False):
         from libs.system import regex as r
         assert len(small) == 1
         assert len(full) > 1

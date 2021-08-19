@@ -1,6 +1,3 @@
-from datetime import timedelta
-from libs.src import text
-
 from libs.classes import CommandParser as p
 from libs.classes import Commands as c
 from libs.system import regex as r
@@ -64,24 +61,16 @@ class parsers:
     )
 
     restrict = p.Command(restrict_commands, _("Admin command")).add(
-        p.ReasonArg(_("Reason"), default=text.chat.admin.reason_empty),
-        p.DateArg(_("Date"), dest="until", default=None),
-        p.UserArg(_("User"), dest="targets"),
+        p.Arg(r.parse.reason, "reason", _("Reason"), False),
+        p.DateArg(_("Date")),
+        p.UserArg(_("User")),
         p.FlagArg().add(
-            p.Flag("p", "poll", dest="poll", name=_("Poll flag"))
+            p.Flag("p", "poll", "poll", "Poll flag")
         )
     )
 
-    test = p.Command("history", "Test command").add(
-        p.DateArg(_("Date"), dest="delta", default=timedelta(minutes=1))
-    )
-
-    report = p.Command("report", _("Report command")).add(
-        p.UserArg(_("User"), dest="target")
-    )
-
     purge = p.Command("purge", _("Purge command")).add(
-        p.NumberArg(_("Message count"), 2, 1000, dest="count", required=True)
+        p.NumberArg(2, 1000, _("Message count"), required=True)
     )
 
 

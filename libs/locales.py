@@ -11,13 +11,11 @@ lang = None
 # noinspection PyMissingConstructor
 class Text(UserString):
     message: str
-    _format_callback: p.Callable[[str], str]
     _added: p.List[p.Union["Text", str]]
 
     def __init__(self, message: str):
         self.message = message
         self._added = []
-        self._format_callback = None
 
     def __add__(self, other: p.Union["Text"]):
         self._added.append(other)
@@ -33,19 +31,7 @@ class Text(UserString):
     @property
     def data(self):
         src = UserText()
-        text = src(self.message)
-
-        if self._format_callback:
-            text = self._format_callback(text)
-
-        return text + self.added
-
-    def format_callback(self):
-        def wrapper(func):
-            self._format_callback = func
-            return func
-
-        return wrapper
+        return src(self.message) + self.added
 
 
 class UserText:
