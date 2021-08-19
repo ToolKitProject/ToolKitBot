@@ -132,3 +132,4 @@ ToolKit.service
 
 .idea
 .vscode
+*dump*.sql

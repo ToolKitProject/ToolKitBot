@@ -22,7 +22,7 @@ class Menu(t.InlineKeyboardMarkup):
     def __deepcopy__(self, *args, **kwargs):
         return Menu(self.title, row_width=self.row_width, inline_keyboard=self.inline_keyboard, undo=self.undo)
 
-    async def send(self):
+    async def send(self, history: bool = True):
         from libs import src
         menu = self.copy
         if self.undo:
@@ -30,10 +30,10 @@ class Menu(t.InlineKeyboardMarkup):
 
         msg = t.Message.get_current() or t.CallbackQuery.get_current().message
         msg = await msg.answer(self.title, reply_markup=menu)
-        await self.save_storage(msg)
+        await self.save_storage(msg, history)
         return msg
 
-    async def edit(self, save: bool = True):
+    async def edit(self, history: bool = True):
         from libs import src
         menu = self.copy
         if self.undo:
@@ -41,22 +41,21 @@ class Menu(t.InlineKeyboardMarkup):
 
         msg = t.Message.get_current() or t.CallbackQuery.get_current().message
         await msg.edit_text(self.title, reply_markup=menu)
-        if save:
-            await self.save_storage(msg)
+        await self.save_storage(msg, history)
         return msg
 
-    async def save_storage(self, msg: t.Message):
+    async def save_storage(self, msg: t.Message, history: bool = True):
         from libs.objects import MessageData
-        with await MessageData.data(msg) as data:
-            if not data.history:
-                data.history = [self]
-            else:
-                data.history.append(self)
-
+        with MessageData.data(msg) as data:
             for key, value in self.storage.items():
                 data[key] = value
                 if not self.hide:
                     data.menu = self
+            if history:
+                if not data.history:
+                    data.history = [self]
+                else:
+                    data.history.append(self)
 
     def add(self, *args) -> "Menu":
         super().add(*args)
@@ -77,8 +76,8 @@ class Menu(t.InlineKeyboardMarkup):
 
 
 class Button(t.InlineKeyboardButton):
-    def __init__(self, text: str, callback_data: str) -> None:
-        super().__init__(text, callback_data=callback_data)
+    def __init__(self, text: str, callback_data: str = None, url: str = None) -> None:
+        super().__init__(text, callback_data=callback_data, url=url)
 
     def __call__(self, *filters, state=None):
         def wrapper(func):
@@ -87,6 +86,9 @@ class Button(t.InlineKeyboardButton):
         return wrapper
 
     def set_handler(self, *filters, func, state=None):
+        if not self.callback_data:
+            raise TypeError("This button has no callback_data")
+
         filters = list(filters)
         filters.insert(0, self._filter)
         dp.register_callback_query_handler(
