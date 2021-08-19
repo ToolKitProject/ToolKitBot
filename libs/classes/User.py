@@ -102,7 +102,10 @@ class User:
     @property
     def statistic_mode(self):
         s = self.settings["statistic"]
-        return s["mode"] if "mode" in s else 2
+        if s:
+            return s["mode"] if "mode" in s else 2
+        else:
+            return 2
 
     async def get_owns(self) -> p.List[Chat]:
         owns = []
