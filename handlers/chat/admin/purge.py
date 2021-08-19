@@ -6,7 +6,8 @@ from bot import client
 from libs import UserText
 from libs.classes import Utils as u
 from libs import filters as f
-from libs.src import any, buttons
+from libs.classes.CommandParser import ParsedArgs
+from libs.src import any, buttons, text
 
 
 @any.parsers.purge(
@@ -16,13 +17,10 @@ from libs.src import any, buttons
     u.write_action,
     u.get_help
 )
-async def purge(msg: t.Message):
+async def purge(msg: t.Message, parsed: ParsedArgs):
     """
     Purge handler
     """
-    src = UserText()
-    parsed = await src.any.parsers.purge.parse(msg)  # Parse the message
-
     await msg.delete()
 
     from_id = msg.reply_to_message.message_id if msg.reply_to_message else msg.message_id - 1
@@ -37,7 +35,7 @@ async def purge(msg: t.Message):
             logging.warning(e)
 
     await msg.answer(
-        src.text.chat.admin.purge.format(
+        text.chat.admin.purge.format(
             count=parsed.number
         ),
         reply_markup=buttons.delete_this

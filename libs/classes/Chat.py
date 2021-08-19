@@ -8,7 +8,7 @@ from .Database import chatOBJ, settingsOBJ
 
 class Chat:
     _chat: t.Chat
-    chat: chatOBJ
+    chatOBJ: chatOBJ
 
     id: int
     type: str
@@ -33,11 +33,11 @@ class Chat:
         else:
             cls._chat = t.Chat.get_current(True)
 
-        if cls._chat.type not in [t.ChatType.GROUP, t.ChatType.SUPERGROUP]:
+        if cls._chat.type in [t.ChatType.PRIVATE]:
             ValueError("Chat type incorrect")
 
         cls.owner = await cls._owner()
-        cls.chat = Database.get_chat(cls._chat.id, cls.owner.id)
+        cls.chatOBJ = Database.get_chat(cls._chat.id, cls.owner.id)
 
         cls.id = cls._chat.id
         cls.type = cls._chat.type
@@ -45,10 +45,10 @@ class Chat:
         cls.username = cls._chat.username
         cls.invite_link = None
 
-        cls.settings = cls.chat.settings
+        cls.settings = cls.chatOBJ.settings
 
-        if cls.chat.owner.id != cls.owner.id:
-            cls.chat.owner = cls.owner.id
+        if cls.chatOBJ.owner.id != cls.owner.id:
+            cls.chatOBJ.owner = cls.owner.id
 
         return cls
 
@@ -69,6 +69,11 @@ class Chat:
             return f"@{self.username}"
         else:
             return self.link
+
+    @property
+    def statistic_mode(self):
+        s = self.settings["statistic"]
+        return s["mode"] if s else 2
 
     async def _owner(self):
         from .User import User
