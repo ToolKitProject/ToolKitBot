@@ -1,14 +1,8 @@
 # 🛠 [ToolKit bot](https://t.me/Tool_Kit_Bot)
 
-<div style="text-align: center">
-<img alt="GitHub" src="https://img.shields.io/github/license/igorechek06/ToolKit?style=for-the-badge"/>
-<img alt="Telegram" src="https://img.shields.io/badge/Telegam-bot-0088cc?style=for-the-badge&logo=telegram" />
-
-<br> 
-
-<img alt="GitHub last commit (main)" src="https://img.shields.io/github/last-commit/igorechek06/ToolKit/main?label=Last%20main%20commit&style=for-the-badge"/>
-<img alt="GitHub last commit (dev)" src="https://img.shields.io/github/last-commit/igorechek06/ToolKit/dev?label=Last%20dev%20commit&style=for-the-badge"/>
-</div>
+![GitHub](https://img.shields.io/github/license/igorechek06/ToolKit?style=for-the-badge)
+![Telegram](https://img.shields.io/badge/Telegam-bot-0088cc?style=for-the-badge&logo=telegram)
+!["GitHub last commit (main)"](https://img.shields.io/github/last-commit/igorechek06/ToolKit/main?label=Last%20main%20commit&style=for-the-badge)
 
 <!-- I know it is wrong -->
 
