@@ -1,17 +1,17 @@
 import typing as p
 from copy import copy
-from datetime import timedelta
+from datetime import timedelta, datetime
 
 from aiogram import types as t
 
 from bot import bot
+from handlers.chat.admin import purge
 from libs import filters as f
 from libs.classes.CommandParser import ParsedArgs, dates
 from libs.classes.User import User
 from libs.classes import Utils as u
-from libs.objects import MessageData
-from libs.src import any
-from libs.src import buttons
+from libs.objects import MessageData, Database
+from libs.src import any, text, buttons
 
 
 @any.parsers.restrict(
@@ -27,15 +27,12 @@ async def command(msg: t.Message, parsed: ParsedArgs):
     """
 
     executor = await User.create()  # Get executor of command
-    src = executor.src
     # If poll
     if parsed.flags.poll:
-        text, rm = await get_poll_text(parsed, executor)
-        msg = await bot.send_poll(
-            msg.chat.id,
-
-            str(text),
-            [str(s) for s in src.text.chat.admin.options_poll],
+        txt, rm = await get_poll_text(parsed)
+        msg = await msg.answer_poll(
+            txt,
+            text.chat.admin.options_poll,
 
             is_anonymous=False,
             reply_markup=rm,
@@ -43,8 +40,8 @@ async def command(msg: t.Message, parsed: ParsedArgs):
     else:
         # Execute restrict command
         if await execute_action(parsed, msg.chat.id):
-            text, rm = await get_text(parsed, executor)  # Get text
-            msg = await msg.answer(text, reply_markup=rm)  # Send text
+            txt, rm = await get_text(parsed, executor)  # Get text
+            msg = await msg.answer(txt, reply_markup=rm)  # Send text
 
     with MessageData.data(msg) as data:
         data.parsed = parsed  # Save message data
@@ -56,8 +53,8 @@ async def undo(clb: t.CallbackQuery):
     with MessageData.data() as data:
         parsed: ParsedArgs = data.parsed  # Get parsed obj
         await execute_action(parsed, clb.message.chat.id, True)  # Execute *undo* command
-        text, rm = await get_text(parsed, executor)  # Get text
-        await clb.message.edit_text(text, reply_markup=rm)  # Edit message text
+        txt, rm = await get_text(parsed, executor)  # Get text
+        await clb.message.edit_text(txt, reply_markup=rm)  # Edit message text
         data.parsed = parsed  # Save parsed obj
 
 
@@ -87,62 +84,67 @@ async def execute_action(parsed: ParsedArgs, chat_id: str, undo: bool = False):
                 await user.mute(chat_id, until)
             elif type == "unmute":
                 await user.unmute(chat_id)
+
+            if parsed.flags.clear_history and type in ["ban", "mute", "kick"]:
+                to_date = datetime.now()
+                from_date = to_date - timedelta(hours=1)
+                msg_ids = Database.get_message_ids(user.id, chat_id, from_date, to_date)
+                await purge.execute(msg_ids, chat_id)
+
             result = True
         except Exception as error:
-            text = f"⚠ {user.link}\n" \
-                   f"┗━{error.args[0]}"
-            await bot.send_message(chat_id, text)
-            parsed.user.remove(user)
+            txt = f"⚠ {user.link}\n" \
+                  f"┗━{error.args[0]}"
+            await bot.send_message(chat_id, txt)
+            parsed.targets.remove(user)
     return result
 
 
-async def get_poll_text(parsed: ParsedArgs, executor: User):
-    src = executor.src
+async def get_poll_text(parsed: ParsedArgs):
     type: str = parsed.command.text
-    adm = src.text.chat.admin
+    adm = text.chat.admin
 
-    text = None
-    rm = src.buttons.chat.admin.poll
+    txt = None
+    rm = buttons.chat.admin.poll
 
     if type == "ban":
-        text = adm.ban_poll
+        txt = adm.ban_poll
     elif type == "unban":
-        text = adm.unban_poll
+        txt = adm.unban_poll
     elif type == "kick":
-        text = adm.kick_poll
+        txt = adm.kick_poll
     elif type == "mute":
-        text = adm.mute_poll
+        txt = adm.mute_poll
     elif type == "unmute":
-        text = adm.unmute_poll
+        txt = adm.unmute_poll
 
     users = " ".join([u.full_name for u in parsed.targets])
-    text = text.format(user=users)
+    txt = txt.format(user=users)
 
-    return text, rm
+    return txt, rm
 
 
 async def get_text(parsed: ParsedArgs, executor: User) -> p.Tuple[str, t.InlineKeyboardMarkup]:
-    src = executor.src
-    adm = src.text.chat.admin
+    adm = text.chat.admin
 
     type: str = parsed.command.text.lower()
     users: p.List[User] = parsed.targets
     multi = len(users) > 1
 
-    text = None
+    txt = None
     rm = buttons.chat.admin.undo.menu
 
     if type == "ban":
-        text = adm.multi_ban if multi else adm.ban
+        txt = adm.multi_ban if multi else adm.ban
     elif type == "unban":
-        text = adm.multi_unban if multi else adm.unban
+        txt = adm.multi_unban if multi else adm.unban
     elif type == "kick":
-        text = adm.multi_kick if multi else adm.kick
+        txt = adm.multi_kick if multi else adm.kick
         rm = None
     elif type == "mute":
-        text = adm.multi_mute if multi else adm.mute
+        txt = adm.multi_mute if multi else adm.mute
     elif type == "unmute":
-        text = adm.multi_unmute if multi else adm.unmute
+        txt = adm.multi_unmute if multi else adm.unmute
 
     users = " ".join([u.link for u in users])
 
@@ -153,11 +155,14 @@ async def get_text(parsed: ParsedArgs, executor: User) -> p.Tuple[str, t.InlineK
         else:
             until: str = (dates.now() + parsed.until).strftime("%Y %m %d")
 
-    text = text.format(
+    txt = txt.format(
         user=users,
         reason=parsed.reason,
         admin=executor.link,
         until=until
     )
 
-    return text, rm
+    if parsed.flags.clear_history and type in ["ban", "mute", "kick"]:
+        txt += text.chat.admin.clear_history
+
+    return txt, rm

@@ -1,3 +1,5 @@
+import asyncio
+
 from libs import UserText
 from aiogram.utils import exceptions as ex
 from aiogram import types as t
@@ -41,7 +43,7 @@ class MyError(Exception):
         upd = t.Update.get_current()
         rm = None
         if self.delete:
-            rm = delete_this
+            rm = delete_this.menu
         if upd.edited_message:
             upd.message = upd.edited_message
 
@@ -246,5 +248,9 @@ ERRORS = [
 ]
 
 IGNORE = [
-    ex.MessageNotModified
+    ex.MessageNotModified,
+    ex.Throttled,
+    ex.TimeoutWarning,
+    ex.NetworkError,
+    asyncio.TimeoutError,
 ]

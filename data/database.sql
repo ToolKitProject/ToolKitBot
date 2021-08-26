@@ -29,7 +29,7 @@ CREATE TABLE `Chats` (
   UNIQUE KEY `Chats_id_uindex` (`id`),
   KEY `Chats_Users_id_fk` (`owner`),
   CONSTRAINT `Chats_Users_id_fk` FOREIGN KEY (`owner`) REFERENCES `Users` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+);
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -49,7 +49,7 @@ CREATE TABLE `Messages` (
   KEY `Messages_Users_id_fk` (`user_id`),
   CONSTRAINT `Messages_Chats_id_fk` FOREIGN KEY (`chat_id`) REFERENCES `Chats` (`id`),
   CONSTRAINT `Messages_Users_id_fk` FOREIGN KEY (`user_id`) REFERENCES `Users` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+);
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -65,7 +65,7 @@ CREATE TABLE `Users` (
   `permissions` json NOT NULL,
   `reports` json NOT NULL,
   UNIQUE KEY `Users_id_uindex` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+);
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 

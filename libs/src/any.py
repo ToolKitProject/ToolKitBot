@@ -1,12 +1,10 @@
 from datetime import timedelta
-from libs.src import text
 
 from libs.classes import CommandParser as p
 from libs.classes import Commands as c
-from libs.system import regex as r
-from libs.system import restrict_commands
-from aiogram.utils.markdown import hlink as l
 from libs.locales import Text as _
+from libs.src import text
+from libs.system import restrict_commands
 
 
 class commands:
@@ -16,20 +14,21 @@ class commands:
         until = _("⏳ Date[s|m|h|d|M|y] (1m 30s or 1M)")
         reason = _("❔ \"Reason\" (Yes in the quote)")
         poll = _("📈 Make a poll (-p --poll)")
-
-        ban = [users, until, reason, poll]
-        unban = [users, reason, poll]
-        kick = [users, reason, poll]
-        mute = [users, until, reason, poll]
-        unmute = [users, reason, poll]
-
+        clear_history_flag = _(
+            "🔥 Delete messages sent by the user") + "(-c --clear-history)"
         count = _("🔢 Count (2 - 1000)")
         reply = _("⤴ Reply to delete above")
 
+        ban = [users, until, reason, poll, clear_history_flag]
+        unban = [users, reason, poll]
+        kick = [users, reason, poll, clear_history_flag]
+        mute = [users, until, reason, poll, clear_history_flag]
+        unmute = [users, reason, poll]
         purge = [count, reply]
+        clear_history = [users, until]
 
     hide = c.Hide().add(
-        c.Command("cancel", _("◀️ To cancel"),
+        c.Command("cancel", _("◀ To cancel"),
                   _("Exit from form"))
     )
 
@@ -55,10 +54,16 @@ class commands:
         c.Command("mute", _("🔇 Mute user"), *_help_text.mute),
         c.Command("unmute", _("🔈 Unmute user"), *_help_text.unmute),
         c.Command("purge", _("🗑 Purge messages"), *_help_text.purge),
+        c.Command("clear_history", _(
+            "🔥 Delete messages sent by the user"), *_help_text.clear_history),
     )
 
 
 class parsers:
+    test = p.Command("history", "Test command").add(
+        p.DateArg(_("Date"), dest="delta", default=timedelta(minutes=1))
+    )
+
     help = p.Command("help", _("Help command")).add(
         p.TextArg(_("Command"), "cmd", sep="")
     )
@@ -68,16 +73,19 @@ class parsers:
         p.DateArg(_("Date"), dest="until", default=None),
         p.UserArg(_("User"), dest="targets"),
         p.FlagArg().add(
-            p.Flag("p", "poll", dest="poll", name=_("Poll flag"))
+            p.Flag("p", "poll", dest="poll", name=_("Poll flag")),
+            p.Flag("c", "clear-history", dest="clear_history",
+                   name=_("Clear history flag"))
         )
-    )
-
-    test = p.Command("history", "Test command").add(
-        p.DateArg(_("Date"), dest="delta", default=timedelta(minutes=1))
     )
 
     report = p.Command("report", _("Report command")).add(
         p.UserArg(_("User"), dest="target")
+    )
+
+    clear_history = p.Command("clear_history", _("Clear history command")).add(
+        p.UserArg(_("User"), dest="target"),
+        p.DateArg(_("Date"), dest="time", default=timedelta(days=1))
     )
 
     purge = p.Command("purge", _("Purge command")).add(

@@ -1,4 +1,3 @@
-from click import command
 from libs.locales import Text as _
 
 cancel = _("/cancel - to cancel")
@@ -85,6 +84,7 @@ class chat:
         reason = _("Reason ❓ - <code>{reason}</code> \n")
         admin = _("Moderator 👤 - <i>{admin}</i> \n")
         until = _("Until ⌛ - <b>{until}</b> \n")
+        clear_history = _("🔥 Messages was be purged \n")
 
         unmute = _("User {user} unmuted 🔈 \n") + reason + admin
         multi_unmute = _("Users {user} unmuted 🔈 \n") + reason + admin

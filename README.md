@@ -1,6 +1,6 @@
-# 🛠 [ToolKit bot](t.me/Tool_Kit_Bot)
+# 🛠 [ToolKit bot](https://t.me/Tool_Kit_Bot)
 
-<div align="center">
+<div style="text-align: center">
 <img alt="GitHub" src="https://img.shields.io/github/license/igorechek06/ToolKit?style=for-the-badge"/>
 <img alt="Telegram" src="https://img.shields.io/badge/Telegam-bot-0088cc?style=for-the-badge&logo=telegram" />
 

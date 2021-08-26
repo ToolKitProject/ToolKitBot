@@ -98,12 +98,6 @@ class Button(t.InlineKeyboardButton):
         )
         return func
 
-    def to_python(self) -> p.Dict[str, p.Any]:  # I hate JSON serializer
-        self.text, t = str(self.text), self.text
-        r = super().to_python()
-        self.text = t
-        return r
-
     @property
     def menu(self) -> t.InlineKeyboardMarkup:
         im = t.InlineKeyboardMarkup().add(self)

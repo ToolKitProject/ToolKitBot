@@ -5,6 +5,10 @@ import signal
 from aiogram import executor
 from aiogram import types as t
 from aiogram.dispatcher.dispatcher import Dispatcher
+from aiogram.dispatcher.middlewares import BaseMiddleware
+from aiogram.dispatcher.handler import CancelHandler
+from aiogram.utils import json as aiogram_json
+import json
 
 import config
 
@@ -62,8 +66,15 @@ async def startup(dp: Dispatcher):
     logging.warning("Bot initialized")
 
 
+def dumps(data):
+    return json.dumps(data, ensure_ascii=False, cls=locales.TextEncoder)
+
+
 if __name__ == "__main__":
+    aiogram_json.dumps = dumps
+
     signal.signal(signal.SIGTERM, close)
+
     executor.start_polling(
         dp,
         on_startup=startup,
