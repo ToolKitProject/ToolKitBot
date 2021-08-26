@@ -29,8 +29,8 @@ class regex:
         text = r"(?P<text>\w+)"
         number = r"(?P<number>-?[\d]+)"
 
-        flag = r"(?P<flag>(?P<prefix>—|--|-)(?P<text>\w+))(\s|$)"
-        value_flag = r"(?P<flag>(?P<prefix>—|--|-)(?P<text>\w+)[:|=](?P<value>[\"|'].+[\"|']|\w+))(\s|$)"
+        flag = r"(?P<flag>(?P<prefix>—|--|-)(?P<text>[\w-]+))(\s|$)"
+        value_flag = r"(?P<flag>(?P<prefix>—|--|-)(?P<text>[\w-]+)[:|=](?P<value>[\"|'].+[\"|']|\w+))(\s|$)"
 
     class settings:
         chat_settings = r"^(?P<prefix>settings)@(?P<id>-100[0-9]+)$"

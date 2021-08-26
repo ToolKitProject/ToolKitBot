@@ -1,3 +1,4 @@
+import json
 from collections import UserString
 
 from aiogram import types as t
@@ -6,6 +7,15 @@ import gettext as g
 import os
 
 lang = None
+
+
+class TextEncoder(json.JSONEncoder):
+    def default(self, object):
+        if isinstance(object, Text):
+            result = str(object)
+        else:
+            result = super().default(object)
+        return result
 
 
 # noinspection PyMissingConstructor

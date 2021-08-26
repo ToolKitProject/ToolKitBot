@@ -67,7 +67,7 @@ class Data:
                 await self.msg.delete_reply_markup()
             else:
                 await self.msg.delete()
-        except:
+        except Exception:
             pass
 
     async def auto_close(self, time: int):
@@ -112,7 +112,7 @@ class MessageData:
             self.storage[msg.chat.id].pop(msg.message_id)
             if not self.storage[msg.chat.id]:
                 self.storage.pop(msg.chat.id)
-        except:
+        except Exception:
             pass
 
     async def close(self, markup: bool = True):

@@ -188,7 +188,7 @@ class Command:
 
     @property
     def help(self):
-        return self.sep + self.sep.join([str(t) for t in self._help])
+        return self.sep + self.sep.join([str(h) for h in self._help])
 
 
 def _l(lang: str):

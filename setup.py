@@ -5,6 +5,13 @@ import sys
 import traceback
 import typing as p
 
+sql = """alter table Messages
+	add message_id BIGINT not null after chat_id;
+
+alter table Messages modify type text null;
+
+alter table Messages modify date datetime null;"""
+
 term = shutil.get_terminal_size()
 sep = "=" * term.columns
 
@@ -397,55 +404,22 @@ def dump_mysql():
     return True
 
 
-def migrate_data():
+def update_database():
     try:
-        from sqlite3 import connect as sqlite
         from mysql.connector import connect as mysql
         import config
     except ImportError:
         return 'Please run "Setup config.py" and "Install or Update dependencies"'
 
-    if not os.path.isfile("data/database.db"):
-        return "SQLite database not found"
-
-    sqlite = sqlite("data/database.db")
     mysql = mysql(
         host=config.sql_host,
         user=config.sql_user,
         password=config.sql_password,
         database=config.sql_database
     )
-
-    with sqlite:
-        c = sqlite.cursor()
-
-        c.execute("SELECT * FROM Users")
-        sqlite_users = c.fetchall()
-
-        c.execute("SELECT * FROM Chats")
-        sqlite_chats = c.fetchall()
-
     with mysql.cursor() as c:
-        for user in sqlite_users:
-            user = list(user)
-            user.append("{}")
-            user = tuple(user)
-
-            sql = f"INSERT INTO Users VALUES {user!r}"
-            print(sql)
-            c.execute(sql)
-
-        for chat in sqlite_chats:
-            sql = f"INSERT INTO Chats VALUES {chat!r}"
-            print(sql)
-            c.execute(sql)
-
-        print("Commit changes")
-        if _yes(False):
-            mysql.commit()
-            print("Changes committed")
-        else:
-            print("Changes reverted")
+        c.execute(sql)
+    mysql.commit()
 
     _enter()
     return True
@@ -466,7 +440,7 @@ if __name__ == '__main__':
         "Delete locales": delete_locales,
         "1": None,
         "Dump MySQL": dump_mysql,
-        # "Migrate data to MySQL": migrate_data,
+        "Update database": update_database,
     }
     exit_index = list(opts.keys()).index("Exit") + 1
     default = 1

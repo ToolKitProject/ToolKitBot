@@ -121,10 +121,8 @@ class ParsedArgs:
 
 class ParseObj:
     def __init__(self, msg: t.Message):
-        self.lang = msg.from_user.language_code
         self.text = msg.text
         self.entities = msg.entities
-
         self.reply_user = msg.reply_to_message.from_user if msg.reply_to_message else None
 
 
@@ -177,7 +175,7 @@ class Command:
             if await arg.check(chekJBJ):
                 try:
                     item = await arg.parse(parseOBJ)
-                except:
+                except Exception:
                     raise e.ArgumentError.ArgumentIncorrect(arg.name)
             else:
                 item = arg.default
@@ -458,7 +456,7 @@ class FlagArg(BaseArg):
     async def parse(self, parse: ParseObj):
         items = ParsedArgs()
         for flag in self.flags:
-            item = await flag.parse(parse)
+            item = await flag.parse(deepcopy(parse))
             items.add(flag.dest, item)
         return items
 
@@ -507,10 +505,32 @@ class Flag(BaseArg):
         return await self.parse(parse)
 
 
-# I will make later
-class ValueFlags(Flag):
-    def __init__(self):
-        pass
+class ValueFlag(Flag):
+    def __init__(
+            self,
+            small: str,
+            full: str,
+            dest: str,
+            name: str,
+            required: bool = False
+    ):
+        from libs.system import regex as r
+
+        super().__init__(small, full, dest, name, required)
+        self.regexp = re.compile(r.parse.value_flag)
+
+    async def parse(self, parse: ParseObj):
+        if not await super().parse(deepcopy(parse)):
+            return False
+
+        matches = await find(self.regexp, parse)
+        result = None
+        for match in matches:
+            result = match.group("value")
+        return result
+
+    async def check(self, parse: ParseObj):
+        return super().parse(parse)
 
 
 async def find(regexp: re.Pattern, parse: ParseObj):
