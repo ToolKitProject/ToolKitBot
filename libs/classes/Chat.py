@@ -17,15 +17,24 @@ class Chat:
     invite_link: str
     settings: settingsOBJ
 
+    def __init__(self):
+        self.owner = await self._owner()
+        self.chatOBJ = Database.get_chat(self._chat.id, self.owner.id)
+
+        self.id = self._chat.id
+        self.type = self._chat.type
+        self.title = self._chat.title
+        self.username = self._chat.username
+        self.invite_link = None
+
+        self.settings = self.chatOBJ.settings
+
+        if self.chatOBJ.owner.id != self.owner.id:
+            self.chatOBJ.owner = self.owner.id
+
     @classmethod
-    async def create(cls, auth: p.Union[int, str, t.Chat, None] = None):
-        """
-
-        @rtype: Chat
-        """
+    async def create(cls, auth: p.Union[int, str, t.Chat, None] = None) -> "Chat":
         bot = Bot.get_current()
-        cls = Chat()
-
         if isinstance(auth, t.Chat):
             cls._chat = auth
         elif auth:
@@ -34,23 +43,9 @@ class Chat:
             cls._chat = t.Chat.get_current(True)
 
         if cls._chat.type in [t.ChatType.PRIVATE]:
-            ValueError("Chat type incorrect")
+            raise ValueError("Chat type incorrect")
 
-        cls.owner = await cls._owner()
-        cls.chatOBJ = Database.get_chat(cls._chat.id, cls.owner.id)
-
-        cls.id = cls._chat.id
-        cls.type = cls._chat.type
-        cls.title = cls._chat.title
-        cls.username = cls._chat.username
-        cls.invite_link = None
-
-        cls.settings = cls.chatOBJ.settings
-
-        if cls.chatOBJ.owner.id != cls.owner.id:
-            cls.chatOBJ.owner = cls.owner.id
-
-        return cls
+        return super().__new__(cls)
 
     @property
     def mention(self):

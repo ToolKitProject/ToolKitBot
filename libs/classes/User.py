@@ -34,6 +34,22 @@ class User:
     MUTE = t.ChatPermissions(can_send_messages=False)
     UNMUTE = t.ChatPermissions(*[True] * 8)
 
+    def __init__(self):
+        self.userOBJ = Database.get_user(self._user.id)
+
+        self.id = self._user.id
+        self.username = self._user.username
+        self.first_name = self._user.first_name
+        self.last_name = self._user.last_name
+        self.language_code = self._user.language_code
+        self.lang = self.language_code
+        self.src = UserText()
+
+        self.settings = self.userOBJ.settings
+        self.permission = self.userOBJ.permission
+        self.reports = self.userOBJ.reports
+        self.owns = Database.get_owns(self.id)
+
     @classmethod
     async def create(cls, auth: p.Union[str, int, t.User, None] = None):
         """
@@ -41,7 +57,6 @@ class User:
         @rtype: User
         """
         from bot import client
-        cls = User()
 
         if isinstance(auth, t.User):
             cls._user = auth
@@ -50,22 +65,7 @@ class User:
         else:
             cls._user = t.User.get_current(True)
 
-        cls.userOBJ = Database.get_user(cls._user.id)
-
-        cls.id = cls._user.id
-        cls.username = cls._user.username
-        cls.first_name = cls._user.first_name
-        cls.last_name = cls._user.last_name
-        cls.language_code = cls._user.language_code
-        cls.lang = cls.language_code
-        cls.src = UserText()
-
-        cls.settings = cls.userOBJ.settings
-        cls.permission = cls.userOBJ.permission
-        cls.reports = cls.userOBJ.reports
-        cls.owns = Database.get_owns(cls.id)
-
-        return cls
+        return super().__new__(cls)
 
     @property
     def full_name(self):

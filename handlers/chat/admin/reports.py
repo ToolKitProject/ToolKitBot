@@ -2,8 +2,7 @@ import typing as p
 
 from aiogram import types as t
 
-from libs import filters as f
-from libs.classes import Utils as u
+from libs import filters as f, utils as u
 from libs.classes.CommandParser import ParsedArgs
 from libs.classes.User import User
 from libs.src import any

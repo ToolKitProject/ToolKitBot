@@ -7,15 +7,14 @@ from aiogram.utils.callback_data import CallbackData
 import handlers.all
 from bot import dp
 from handlers.private import alias_form
-from libs import filters as f, UserText, system
-from libs.classes import Utils as u
+from libs import filters as f, utils as u
 from libs.classes.Buttons import Submenu
 from libs.classes.Chat import Chat
 from libs.classes.Errors import EmptyOwns
 from libs.classes.Settings import Property, SettingsType
 from libs.classes.User import User
-from libs.objects import MessageData, Database
-from libs.src import buttons, text, any
+from libs.objects import MessageData
+from libs.src import buttons, text
 
 s = buttons.private.settings
 alias_data = CallbackData("delete_alias", "key")
@@ -75,7 +74,7 @@ async def add_alias(clb: t.CallbackQuery, state: FSMContext):
 async def delete_alias(clb: t.CallbackQuery, callback_data: p.Dict[str, str]):
     with MessageData.data() as data:
         data.key = callback_data["key"]
-    await buttons.private.settings.chat.delete.edit(False)
+    await buttons.private.settings.chat.delete.edit()
 
 
 @s.chat.delete_yes(f.message.is_private)

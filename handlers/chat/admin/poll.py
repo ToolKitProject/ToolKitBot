@@ -2,11 +2,11 @@ from aiogram import types as t
 
 from bot import bot
 from libs import filters as f
+from libs.classes import Errors as e
 from libs.classes.CommandParser import ParsedArgs
 from libs.classes.User import User
 from libs.objects import MessageData
 from libs.src import buttons as b
-from libs.classes import Errors as e
 from .restrict import get_text, execute_action
 
 
