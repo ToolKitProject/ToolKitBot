@@ -16,7 +16,7 @@ class User:
     """
     Пользователь
     """
-    _user: t.User
+    user: t.User
     id: int
     username: str
     first_name: str
@@ -34,14 +34,15 @@ class User:
     MUTE = t.ChatPermissions(can_send_messages=False)
     UNMUTE = t.ChatPermissions(*[True] * 8)
 
-    def __init__(self):
-        self.userOBJ = Database.get_user(self._user.id)
+    def __init__(self, user: t.User):
+        self.user = user
+        self.userOBJ = Database.get_user(user.id)
 
-        self.id = self._user.id
-        self.username = self._user.username
-        self.first_name = self._user.first_name
-        self.last_name = self._user.last_name
-        self.language_code = self._user.language_code
+        self.id = user.id
+        self.username = user.username
+        self.first_name = user.first_name
+        self.last_name = user.last_name
+        self.language_code = user.language_code
         self.lang = self.language_code
         self.src = UserText()
 
@@ -59,13 +60,13 @@ class User:
         from bot import client
 
         if isinstance(auth, t.User):
-            cls._user = auth
+            user = auth
         elif auth:
-            cls._user = await client.get_users(auth)
+            user = await client.get_users(auth)
         else:
-            cls._user = t.User.get_current(True)
+            user = t.User.get_current(True)
 
-        return super().__new__(cls)
+        return cls(user)
 
     @property
     def full_name(self):

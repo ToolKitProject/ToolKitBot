@@ -7,7 +7,7 @@ from .Database import chatOBJ, settingsOBJ
 
 
 class Chat:
-    _chat: t.Chat
+    chat: t.Chat
     chatOBJ: chatOBJ
 
     id: int
@@ -17,14 +17,15 @@ class Chat:
     invite_link: str
     settings: settingsOBJ
 
-    def __init__(self):
+    def __init__(self, chat: t.Chat):
+        self.chat = chat
         self.owner = await self._owner()
-        self.chatOBJ = Database.get_chat(self._chat.id, self.owner.id)
+        self.chatOBJ = Database.get_chat(chat.id, self.owner.id)
 
-        self.id = self._chat.id
-        self.type = self._chat.type
-        self.title = self._chat.title
-        self.username = self._chat.username
+        self.id = chat.id
+        self.type = chat.type
+        self.title = chat.title
+        self.username = chat.username
         self.invite_link = None
 
         self.settings = self.chatOBJ.settings
@@ -36,16 +37,16 @@ class Chat:
     async def create(cls, auth: p.Union[int, str, t.Chat, None] = None) -> "Chat":
         bot = Bot.get_current()
         if isinstance(auth, t.Chat):
-            cls._chat = auth
+            chat = auth
         elif auth:
-            cls._chat = await bot.get_chat(auth)
+            chat = await bot.get_chat(auth)
         else:
-            cls._chat = t.Chat.get_current(True)
+            chat = t.Chat.get_current(True)
 
-        if cls._chat.type in [t.ChatType.PRIVATE]:
+        if chat.type in [t.ChatType.PRIVATE]:
             raise ValueError("Chat type incorrect")
 
-        return super().__new__(cls)
+        return cls(chat)
 
     @property
     def mention(self):
@@ -75,8 +76,8 @@ class Chat:
 
     async def _owner(self):
         from .User import User
-        admins = await self._chat.get_administrators()
+        admins = await self.chat.get_administrators()
         for admin in admins:
-            if t.ChatMemberStatus.is_chat_creator(admin.status):
+            if admin.status == t.ChatMemberStatus.CREATOR:
                 result = await User.create(admin.user)
                 return result
