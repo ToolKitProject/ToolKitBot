@@ -1,6 +1,4 @@
 import typing as p
-from datetime import timedelta
-from time import sleep, time
 
 from aiogram import types as t
 from aiogram.types import ContentType as c
@@ -11,7 +9,6 @@ from libs.classes.Chat import Chat
 from libs.classes.Errors import MyError, ERRORS, IGNORE, ForceError
 from libs.classes.User import User
 from libs.objects import Database
-from libs.objects import Cache
 
 chek_types = [
     c.ANIMATION,
