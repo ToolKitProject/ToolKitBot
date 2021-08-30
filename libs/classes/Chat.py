@@ -17,9 +17,9 @@ class Chat:
     invite_link: str
     settings: settingsOBJ
 
-    def __init__(self, chat: t.Chat):
+    def __init__(self, chat: t.Chat, owner: t.User):
         self.chat = chat
-        self.owner = await self._owner()
+        self.owner = owner
         self.chatOBJ = Database.get_chat(chat.id, self.owner.id)
 
         self.id = chat.id
@@ -35,6 +35,7 @@ class Chat:
 
     @classmethod
     async def create(cls, auth: p.Union[int, str, t.Chat, None] = None) -> "Chat":
+        from .User import User
         bot = Bot.get_current()
         if isinstance(auth, t.Chat):
             chat = auth
@@ -46,7 +47,12 @@ class Chat:
         if chat.type in [t.ChatType.PRIVATE]:
             raise ValueError("Chat type incorrect")
 
-        return cls(chat)
+        owner = None
+        for admin in await chat.get_administrators():
+            if admin.status == t.ChatMemberStatus.CREATOR:
+                owner = await User.create(admin.user)
+
+        return cls(chat, owner)
 
     @property
     def mention(self):
@@ -73,11 +79,3 @@ class Chat:
             return s["mode"] if "mode" in s else 2
         else:
             return 2
-
-    async def _owner(self):
-        from .User import User
-        admins = await self.chat.get_administrators()
-        for admin in admins:
-            if admin.status == t.ChatMemberStatus.CREATOR:
-                result = await User.create(admin.user)
-                return result

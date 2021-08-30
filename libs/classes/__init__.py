@@ -1,4 +1,5 @@
 from . import Message
+from . import Cache
 from . import Database
 from . import Chat
 from . import Buttons

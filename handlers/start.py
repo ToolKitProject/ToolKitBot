@@ -1,15 +1,17 @@
 import typing as p
+from datetime import timedelta
+from time import sleep, time
 
-import pyrogram.types
 from aiogram import types as t
 from aiogram.types import ContentType as c
 
-from bot import dp, client
+from bot import dp
 from libs import filters as f
 from libs.classes.Chat import Chat
 from libs.classes.Errors import MyError, ERRORS, IGNORE, ForceError
 from libs.classes.User import User
 from libs.objects import Database
+from libs.objects import Cache
 
 chek_types = [
     c.ANIMATION,
@@ -89,4 +91,4 @@ async def middleware():
 
 @dp.message_handler(commands=["test"])
 async def test_xd(msg: t.Message):  # Test func
-    Database.get_message(msg.from_user.id, msg.chat.id, msg.message_id)
+    pass
