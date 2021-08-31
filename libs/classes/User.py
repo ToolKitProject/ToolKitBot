@@ -10,6 +10,7 @@ from .Chat import Chat
 from .Database import permissionOBJ, settingsOBJ, reportsOBJ, userOBJ
 from libs import UserText
 from . import Errors as e
+from libs.objects import Cache
 
 
 class User:
@@ -52,11 +53,8 @@ class User:
         self.owns = Database.get_owns(self.id)
 
     @classmethod
-    async def create(cls, auth: p.Union[str, int, t.User, None] = None):
-        """
-
-        @rtype: User
-        """
+    @Cache.register(timedelta(minutes=10), 10)
+    async def create(cls, auth: p.Union[str, int, t.User, None] = None) -> "User":
         from bot import client
 
         if isinstance(auth, t.User):
@@ -108,6 +106,7 @@ class User:
         else:
             return 2
 
+    @Cache.register(timedelta(minutes=5), 5)
     async def get_owns(self) -> p.List[Chat]:
         owns = []
         for chat in self.owns:

@@ -1,8 +1,9 @@
 import typing as p
+from datetime import timedelta
 
 from aiogram import types as t, Bot
 
-from libs.objects import Database
+from libs.objects import Database, Cache
 from .Database import chatOBJ, settingsOBJ
 
 
@@ -34,6 +35,7 @@ class Chat:
             self.chatOBJ.owner = self.owner.id
 
     @classmethod
+    @Cache.register(timedelta(minutes=10), 10)
     async def create(cls, auth: p.Union[int, str, t.Chat, None] = None) -> "Chat":
         from .User import User
         bot = Bot.get_current()

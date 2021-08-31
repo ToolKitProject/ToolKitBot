@@ -53,7 +53,7 @@ async def chat_settings(clb: t.CallbackQuery):
         settings = buttons.private.settings.chat.settings.menu(s, text=chat.title, callback_data=chat.id)
         settings.storage["chat"] = chat
         settings.storage["test"] = s
-        menu.add(settings)
+        menu.add(settings, )
     await menu.edit()
 
 

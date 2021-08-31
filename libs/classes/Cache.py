@@ -5,6 +5,7 @@ from datetime import datetime, timedelta
 
 
 def register_class(obj: p.Type, group: "CacheGroup"):
+    @functools.wraps(obj.__new__)
     def new(cls: p.Type, *args, **kwargs):
         key = key_gen(args, kwargs)
         inst = group.get(key)
@@ -24,8 +25,7 @@ def register_callable(call: p.Callable, group: "CacheGroup"):
             key = key_gen(args, kwargs)
             result = group.get(key)
             if result is None:
-                result = await call(*args, **kwargs)
-                group.add(result, key)
+                result = group.add(await call(*args, **kwargs), key)
             return result
     else:
         @functools.wraps(call)
@@ -33,15 +33,14 @@ def register_callable(call: p.Callable, group: "CacheGroup"):
             key = key_gen(args, kwargs)
             result = group.get(key)
             if result is None:
-                result = call(*args, **kwargs)
-                group.add(result, key)
+                result = group.add(call(*args, **kwargs), key)
             return result
 
     return new
 
 
 def key_gen(args, kwargs) -> str:
-    return f"{args} {kwargs}"
+    return hash(args) + hash(tuple(kwargs.values()))
 
 
 class Cache:
@@ -78,9 +77,16 @@ class Cache:
             return self._cache[group_name]
         return
 
+    def expire(self, group_name: p.Optional[str] = None, hash: p.Optional[int] = None):
+        if group_name:
+            self._cache[group_name].expire(hash)
+        else:
+            for group in self._cache.values():
+                group.expire()
+
 
 class CacheGroup:
-    _cache: p.Dict[str, "CachedObject"]
+    _cache: p.Dict[int, "CachedObject"]
 
     expires_delta: timedelta
     expires_count: int
@@ -91,14 +97,21 @@ class CacheGroup:
         self.expires_delta = expires_delta
         self.expires_count = expires_count
 
-    def add(self, obj, key) -> p.Any:
+    def add(self, obj, hash: int) -> p.Any:
         cache = CachedObject(obj, self.expires_delta, self.expires_count)
-        self._cache[key] = cache
-        return obj
+        self._cache[hash] = cache
+        return cache.cache
 
-    def get(self, key) -> p.Any:
-        if key in self._cache:
-            return self._cache[key].cache
+    def get(self, hash: int) -> p.Any:
+        if hash in self._cache:
+            return self._cache[hash].cache
+
+    def expire(self, hash: p.Optional[int] = None):
+        if hash:
+            self._cache[hash].expire()
+        else:
+            for cache in self._cache.values():
+                cache.expire()
 
 
 class CachedObject:
