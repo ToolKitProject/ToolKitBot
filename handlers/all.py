@@ -1,35 +1,20 @@
-import os
 import typing as p
 
 from aiogram import types as t
 
-from bot import dp, bot
-from libs import system, src
-from libs.classes.Buttons import Menu
+from libs import filters as f
+from libs import src
 from libs.classes import Errors as e
-from libs import UserText
+from libs.classes.Buttons import Menu
 from libs.classes.CommandParser import ParsedArgs
 from libs.objects import MessageData
-from libs.src import any, text
-from libs import filters as f
-
-
-@dp.message_handler(commands=["fix"])
-async def fix_commands(msg: t.Message, send: bool = True):
-    """
-    Fixes broken hints for commands
-    """
-    await bot.delete_my_commands(t.BotCommandScopeChat(msg.chat.id), None)
-    for lang in os.listdir("libs/locales"):  # Delete commands for current chat and all locales
-        await bot.delete_my_commands(t.BotCommandScopeChat(msg.chat.id), lang)
-
-    if send:
-        await msg.answer(text.chat.fix_commands)
+from libs.src import any
 
 
 @any.parsers.help()
 async def help(msg: t.Message, parsed: ParsedArgs):  # help command
     cmd: str = parsed.cmd
+    text = None
     if not cmd:  # if not search command
         if await f.message.is_chat.check(msg):  # if chat
             if await f.user.is_admin.check(msg):  # if member admin
