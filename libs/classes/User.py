@@ -54,15 +54,13 @@ class User:
 
     @classmethod
     @Cache.register(timedelta(minutes=10), 10)
-    async def create(cls, auth: p.Union[str, int, t.User, None] = None) -> "User":
+    async def create(cls, auth: p.Union[str, int, t.User]) -> "User":
         from bot import client
 
         if isinstance(auth, t.User):
             user = auth
-        elif auth:
-            user = await client.get_users(auth)
         else:
-            user = t.User.get_current(True)
+            user = await client.get_users(auth)
 
         return cls(user)
 

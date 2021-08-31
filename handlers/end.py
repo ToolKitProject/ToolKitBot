@@ -17,7 +17,7 @@ async def alias_executor(msg: t.Message):
     Execute the alias as a new update
     """
     upd = t.Update.get_current()  # Get update obj
-    chat = await Chat.create()  # Get chat obj
+    chat = await Chat.create(msg.chat)  # Get chat obj
     text = None
 
     # Edit text
@@ -41,4 +41,3 @@ async def alias_executor(msg: t.Message):
 @dp.message_handler(f.message.is_private, content_types=t.ContentType.ANY)
 async def command(msg: t.Message):  # If command not found
     await e.CommandNotFound().answer()
-    await handlers.all.fix_commands(msg, False)

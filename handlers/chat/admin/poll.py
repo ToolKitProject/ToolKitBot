@@ -16,7 +16,7 @@ from .restrict import get_text, execute_action
 )
 async def check_poll(clb: t.CallbackQuery):
     poll = clb.message.poll
-    executor = await User.create()
+    executor = await User.create(clb.from_user)
     if poll.total_voter_count < 2:
         raise e.PollCheck()
 

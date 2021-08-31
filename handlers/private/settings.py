@@ -29,7 +29,7 @@ async def settings_cmd(msg: t.Message):
 
 @s.private_settings(f.message.is_private)
 async def private_settings(clb: t.CallbackQuery):
-    user = await User.create()
+    user = await User.create(clb.from_user)
     with MessageData.data() as data:
         data.user = user
     await buttons.private.settings.private.settings.menu(user.settings.raw).edit()
@@ -37,7 +37,7 @@ async def private_settings(clb: t.CallbackQuery):
 
 @s.chat_settings(f.message.is_private)
 async def chat_settings(clb: t.CallbackQuery):
-    user = await User.create()
+    user = await User.create(clb.from_user)
     await clb.message.edit_text(text.private.settings.chat_loading)
     chats = await user.get_owns()
 

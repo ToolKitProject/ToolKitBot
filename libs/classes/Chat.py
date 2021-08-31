@@ -36,15 +36,13 @@ class Chat:
 
     @classmethod
     @Cache.register(timedelta(minutes=10), 10)
-    async def create(cls, auth: p.Union[int, str, t.Chat, None] = None) -> "Chat":
+    async def create(cls, auth: p.Union[int, str, t.Chat]) -> "Chat":
         from .User import User
         bot = Bot.get_current()
         if isinstance(auth, t.Chat):
             chat = auth
-        elif auth:
-            chat = await bot.get_chat(auth)
         else:
-            chat = t.Chat.get_current(True)
+            chat = await bot.get_chat(auth)
 
         if chat.type in [t.ChatType.PRIVATE]:
             raise ValueError("Chat type incorrect")

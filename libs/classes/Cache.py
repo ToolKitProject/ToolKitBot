@@ -8,6 +8,8 @@ def register_class(obj: p.Type, group: "CacheGroup"):
     @functools.wraps(obj.__new__)
     def new(cls: p.Type, *args, **kwargs):
         key = key_gen(args, kwargs)
+        if key is None:
+            return
         inst = group.get(key)
         if inst is None:
             cls.__init__(cls, *args, **kwargs)
@@ -23,6 +25,8 @@ def register_callable(call: p.Callable, group: "CacheGroup"):
         @functools.wraps(call)
         async def new(*args, **kwargs):
             key = key_gen(args, kwargs)
+            if key is None:
+                return
             result = group.get(key)
             if result is None:
                 result = group.add(await call(*args, **kwargs), key)
@@ -31,6 +35,8 @@ def register_callable(call: p.Callable, group: "CacheGroup"):
         @functools.wraps(call)
         def new(*args, **kwargs):
             key = key_gen(args, kwargs)
+            if key is None:
+                return
             result = group.get(key)
             if result is None:
                 result = group.add(call(*args, **kwargs), key)

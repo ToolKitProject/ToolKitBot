@@ -35,6 +35,7 @@ import handlers
 from libs.objects import MessageData
 from libs import system, locales
 from libs.src import any
+from libs.utils import UpdateDatabase
 
 
 def close(signal: int, frame):
@@ -72,8 +73,8 @@ def dumps(data):
 
 if __name__ == "__main__":
     aiogram_json.dumps = dumps
-
     signal.signal(signal.SIGTERM, close)
+    dp.setup_middleware(UpdateDatabase())
 
     executor.start_polling(
         dp,
