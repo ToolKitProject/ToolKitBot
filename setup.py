@@ -394,9 +394,9 @@ def dump_mysql():
 
     print("Dump for GitHub ?")
     if _yes(True):
-        cmd = f"mysqldump -v -p --no-data {config.sql_database} > data/database.sql"
+        cmd = f"mysqldump -v -p --add-drop-table=false --compatible=ansi --no-data {config.sql_database} > data/database.sql"
     else:
-        cmd = f"mysqldump -v -p {config.sql_database} > {_input('Path to dump file', 'data/Database_dump.sql')}"
+        cmd = f"mysqldump -v -p --comments=false {config.sql_database} > {_input('Path to dump file', 'data/Database_dump.sql')}"
 
     _cmd(cmd)
 

@@ -33,8 +33,6 @@ class commands:
     )
 
     default_commands = c.Default().add(
-        c.Command("fix", _("🔧 Fix hints for commands"),
-                  _("Fixes hints for commands")),
         c.Command("help", _("🚑 Help for commands"),
                   _("Shows help (/help or /help ban)"))
     )
