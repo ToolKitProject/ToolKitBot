@@ -87,7 +87,7 @@ async def execute_action(parsed: ParsedArgs, chat_id: str, undo: bool = False):
             if parsed.flags.clear_history and type in ["ban", "mute", "kick"]:
                 to_date = datetime.now()
                 from_date = to_date - timedelta(hours=1)
-                msg_ids = Database.get_message_ids(user.id, chat_id, from_date, to_date)
+                msg_ids = Database.get_messages_id(user.id, chat_id, from_date, to_date)
                 await purge.execute(msg_ids, chat_id)
 
             result = True

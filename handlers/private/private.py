@@ -24,4 +24,4 @@ async def chat_settings(msg: t.Message, chat_id: int):
     chat = await Chat.create(chat_id)
     if chat.owner.id != msg.from_user.id:
         raise e.HasNotPermission()
-    await buttons.private.settings.chat.settings.menu(chat.settings.raw).send()
+    await buttons.private.settings.chat.settings.menu(chat.settings).send()

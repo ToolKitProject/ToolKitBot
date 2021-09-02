@@ -58,7 +58,7 @@ class commands:
 
 
 class parsers:
-    test = p.Command("history", "Test command").add(
+    test = p.Command("test", "Test command").add(
         p.DateArg(_("Date"), dest="delta", default=timedelta(minutes=1))
     )
 
@@ -78,7 +78,7 @@ class parsers:
     )
 
     report = p.Command("report", _("Report command")).add(
-        p.UserArg(_("User"), dest="target")
+        p.UserArg(_("User"), dest="targets")
     )
 
     clear_history = p.Command("clear_history", _("Clear history command")).add(

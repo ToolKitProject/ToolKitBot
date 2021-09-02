@@ -54,7 +54,7 @@ async def clear_history(msg: t.Message, parsed: ParsedArgs):
     messages = []
 
     for user in users:
-        messages += Database.get_message_ids(user.id, msg.chat.id, from_date, to_date)
+        messages += Database.get_messages_id(user.id, msg.chat.id, from_date, to_date)
 
     await execute(messages, msg.chat.id)
 

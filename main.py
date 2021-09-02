@@ -35,7 +35,7 @@ import handlers
 from libs.objects import MessageData
 from libs import system, locales
 from libs.src import any
-from libs.utils import UpdateDatabase
+from libs.utils import NewInstance, LogMiddleware
 
 
 def close(signal: int, frame):
@@ -51,6 +51,7 @@ async def shutdown(dp: Dispatcher):
 
 
 async def startup(dp: Dispatcher):
+    config.bot = await dp.bot.get_me()
     logging.warning("Start client")
     await client.start()
 
@@ -74,7 +75,8 @@ def dumps(data):
 if __name__ == "__main__":
     aiogram_json.dumps = dumps
     signal.signal(signal.SIGTERM, close)
-    dp.setup_middleware(UpdateDatabase())
+    dp.setup_middleware(NewInstance())
+    dp.setup_middleware(LogMiddleware())
 
     executor.start_polling(
         dp,

@@ -1,10 +1,10 @@
+import config
 from aiogram import Bot
-from aiogram.types import InlineKeyboardMarkup as IM
 from aiogram import types as t
-
+from aiogram.types import InlineKeyboardMarkup as IM
 from libs import system
 from libs.classes.Buttons import Button, Menu, Submenu
-from libs.classes.Settings import Property, Elements, Settings
+from libs.classes.Settings import Elements, Property, Settings
 from libs.locales import Text as _
 
 statistic_title = _("Off - Nothing will be saved (nothing) \n" +
@@ -24,12 +24,9 @@ _statistic_property = Property(
 
 class chat:
     @staticmethod
-    async def start_button(chat: t.Chat) -> IM:
-        bot = await Bot.get_current().get_me()
-        return IM().add(
-            Button(_("Chat settings (owner only)"),
-                   url=f"t.me/{bot.username}?start=chatsettings_{chat.id}")
-        )
+    def start_button(chat_id) -> Button:
+        return Button(_("Chat settings (owner only)"),
+                      url=f"t.me/{config.bot.username}?start=chatsettings_{chat_id}").menu
 
     class admin:
         undo = Button(_("↩ Undo"), "undo")

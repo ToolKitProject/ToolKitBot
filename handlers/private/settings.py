@@ -32,7 +32,7 @@ async def private_settings(clb: t.CallbackQuery):
     user = await User.create(clb.from_user)
     with MessageData.data() as data:
         data.user = user
-    await buttons.private.settings.private.settings.menu(user.settings.raw).edit()
+    await buttons.private.settings.private.settings.menu(user.settings).edit()
 
 
 @s.chat_settings(f.message.is_private)
@@ -49,7 +49,7 @@ async def chat_settings(clb: t.CallbackQuery):
 
     menu = buttons.private.settings.chat_list.copy
     for chat in chats:
-        s = chat.settings.raw
+        s = chat.settings
         settings = buttons.private.settings.chat.settings.menu(s, text=chat.title, callback_data=chat.id)
         settings.storage["chat"] = chat
         settings.storage["test"] = s
@@ -88,16 +88,16 @@ async def delete_yes(clb: t.CallbackQuery):
     settings.pop(key)
     menu.update(prop.menu(settings))
     await menu.edit(False)
-    chat.chatOBJ.settings = chat.settings.raw
+    chat.chatOBJ.settings = chat.settings
 
 
 @dp.callback_query_handler(f.message.is_private, lang_data.filter())
 async def edit_lang(clb: t.CallbackQuery, callback_data: p.Dict[str, str]):
     with MessageData.data() as data:
         settings: SettingsType = data.settings
-        user = data.user
+        user: User = data.user
     settings["lang"] = callback_data["lang"]
-    user.userOBJ.settings = user.settings.raw
+    user.userOBJ.settings = user.settings
     await handlers.all.back(clb)
 
 
@@ -110,9 +110,9 @@ async def statistic_change(clb: t.CallbackQuery, callback_data: p.Dict[str, str]
 
     settings["mode"] = int(callback_data["mode"])
     if isinstance(target, Chat):
-        target.chatOBJ.settings = target.settings.raw
+        target.chatOBJ.settings = target.settings
     else:
-        target.userOBJ.settings = target.settings.raw
+        target.userOBJ.settings = target.settings
 
     await menu.edit(False)
     await clb.answer(text.private.settings.statistic_mode_changed)

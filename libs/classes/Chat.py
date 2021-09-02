@@ -4,7 +4,8 @@ from datetime import timedelta
 from aiogram import types as t, Bot
 
 from libs.objects import Database, Cache
-from .Database import chatOBJ, settingsOBJ
+from .Database import chatOBJ
+from ..utils import get_value
 
 
 class Chat:
@@ -16,7 +17,7 @@ class Chat:
     title: str
     username: str
     invite_link: str
-    settings: settingsOBJ
+    settings: p.Dict
 
     def __init__(self, chat: t.Chat, owner: t.User):
         self.chat = chat
@@ -27,18 +28,19 @@ class Chat:
         self.type = chat.type
         self.title = chat.title
         self.username = chat.username
-        self.invite_link = None
+        self.invite_link = chat.invite_link
 
         self.settings = self.chatOBJ.settings
 
-        if self.chatOBJ.owner.id != self.owner.id:
-            self.chatOBJ.owner = self.owner.id
+        if self.chatOBJ.owner_id != self.owner.id:
+            self.chatOBJ.owner_id = self.owner.id
 
     @classmethod
-    @Cache.register(timedelta(minutes=10), 10)
+    @Cache.register(timedelta(minutes=10))
     async def create(cls, auth: p.Union[int, str, t.Chat]) -> "Chat":
         from .User import User
         bot = Bot.get_current()
+
         if isinstance(auth, t.Chat):
             chat = auth
         else:
@@ -51,6 +53,11 @@ class Chat:
         for admin in await chat.get_administrators():
             if admin.status == t.ChatMemberStatus.CREATOR:
                 owner = await User.create(admin.user)
+
+        try:
+            await chat.export_invite_link()
+        except Exception:
+            pass
 
         return cls(chat, owner)
 
@@ -74,8 +81,4 @@ class Chat:
 
     @property
     def statistic_mode(self):
-        s = self.settings["statistic"]
-        if s:
-            return s["mode"] if "mode" in s else 2
-        else:
-            return 2
+        return get_value(self.settings, ["statistic", "mode"], 2)

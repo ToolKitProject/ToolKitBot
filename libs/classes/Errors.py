@@ -5,6 +5,7 @@ from aiogram.utils import exceptions as ex
 from aiogram import types as t
 from asyncio import sleep
 import logging
+from libs import filters as f
 from traceback import format_exc
 
 
@@ -42,7 +43,7 @@ class MyError(Exception):
         from libs.src.buttons import delete_this
         upd = t.Update.get_current()
         rm = None
-        if self.delete:
+        if self.delete and await f.message.is_chat.check(upd.message or upd.callback_query or upd.chat_member):
             rm = delete_this.menu
         if upd.edited_message:
             upd.message = upd.edited_message

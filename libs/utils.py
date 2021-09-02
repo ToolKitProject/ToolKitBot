@@ -5,6 +5,7 @@ import typing as p
 from libs import filters as f
 from libs import UserText
 from .objects import Database
+from .classes.Database import LogType as l
 from aiogram.types import ContentType as c
 
 
@@ -26,7 +27,17 @@ async def write_action(msg: t.Message):
     return True
 
 
-class UpdateDatabase(BaseMiddleware):
+def get_value(_dict: p.Dict, key_history: p.List, default: p.Any = None):
+    value = default
+    for k in key_history:
+        if k in _dict:
+            value = _dict[k]
+        else:
+            return default
+    return value
+
+
+class NewInstance(BaseMiddleware):
     def __init__(self):
         self.chek_types = [
             c.ANIMATION,
@@ -47,7 +58,7 @@ class UpdateDatabase(BaseMiddleware):
         ]
         super().__init__()
 
-    async def on_process_update(self, upd: t.Update, date: p.Dict):
+    async def on_process_update(self, upd: t.Update, *args):
         from libs.classes.Chat import Chat
         from libs.classes.User import User
 
@@ -73,3 +84,30 @@ class UpdateDatabase(BaseMiddleware):
                                          date=msg.date)
                 elif mode == 0:
                     Database.add_message(msg.from_user.id, msg.chat.id, msg.message_id)
+
+
+class LogMiddleware(BaseMiddleware):
+    def __init__(self):
+        super().__init__()
+
+    async def on_process_update(self, upd: t.Update, *args):
+        upd = upd.chat_member
+        if upd:
+            member = upd.new_chat_member.user
+            date = upd.date.isoformat(" ")
+
+            txt = None
+            if f.user.promote_admin(upd):
+                Database.add_log(upd.chat.id, upd.from_user.id, member.id, l.PROMOTE_ADMIN, date)
+            if f.user.restrict_admin(upd):
+                Database.add_log(upd.chat.id, upd.from_user.id, member.id, l.RESTRICT_ADMIN, date)
+
+            if f.user.promote_member(upd):
+                Database.add_log(upd.chat.id, upd.from_user.id, member.id, l.PROMOTE_MEMBER, date)
+            if f.user.restrict_member(upd):
+                Database.add_log(upd.chat.id, upd.from_user.id, member.id, l.RESTRICT_MEMBER, date)
+
+            if f.user.add_member(upd):
+                Database.add_log(upd.chat.id, upd.from_user.id, member.id, l.ADD_MEMBER, date)
+            if f.user.removed_member(upd):
+                Database.add_log(upd.chat.id, upd.from_user.id, member.id, l.REMOVE_MEMBER, date)

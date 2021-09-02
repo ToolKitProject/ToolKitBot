@@ -5,12 +5,10 @@ import sys
 import traceback
 import typing as p
 
-sql = """alter table Messages
-	add message_id BIGINT not null after chat_id;
-
-alter table Messages modify type text null;
-
-alter table Messages modify date datetime null;"""
+updates = [
+    "alter table Users drop column reports",
+    "alter table Chats change owner owner_id bigint not null"
+]
 
 term = shutil.get_terminal_size()
 sep = "=" * term.columns
@@ -418,7 +416,8 @@ def update_database():
         database=config.sql_database
     )
     with mysql.cursor() as c:
-        c.execute(sql)
+        for sql in updates:
+            c.execute(sql)
     mysql.commit()
 
     _enter()
@@ -439,12 +438,14 @@ if __name__ == '__main__':
         "Create locales": create_locales,
         "Delete locales": delete_locales,
         "1": None,
-        "Dump MySQL": dump_mysql,
-        "Update database": update_database,
+        "Dump MySQL": dump_mysql
     }
     exit_index = list(opts.keys()).index("Exit") + 1
     default = 1
     pmt = ""
+
+    if updates:
+        opts["Update database"] = update_database
 
     _clear()
     while True:

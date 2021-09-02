@@ -69,7 +69,7 @@ async def command_form(msg: t.Message, state: FSMContext):
         chat: Chat = data.chat
 
     settings[key] = value
-    chat.chatOBJ.settings = chat.settings.raw
+    chat.chatOBJ.settings = chat.settings
 
     menu.update(prop.menu(settings))
     to_msg = await menu.send()

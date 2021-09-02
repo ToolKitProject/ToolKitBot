@@ -307,7 +307,7 @@ class UserArg(BaseArg):
         for m in matches:
             users.append(await User.create(m.group("user")))
 
-        return users
+        return list(set(users))
 
     async def check(self, parse: ParseObj):
         matches = await find(self.regexp, parse)

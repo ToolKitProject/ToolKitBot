@@ -13,7 +13,7 @@ async def bot_chat_added(upd: t.ChatMemberUpdated):
     If bot added in the chat
     """
     chat: Chat = await Chat.create(upd.chat)
-    await bot.send_message(chat.id, text.chat.start_text, reply_markup=await buttons.chat.start_button(upd.chat))
+    await bot.send_message(chat.id, text.chat.start_text, reply_markup=buttons.chat.start_button(upd.chat.id))
 
 
 @dp.my_chat_member_handler(f.user.removed_member, f.message.is_chat)

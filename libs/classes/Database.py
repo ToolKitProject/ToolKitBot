@@ -1,8 +1,7 @@
 import typing as p
-from abc import ABC, abstractmethod
 from copy import copy
 from datetime import datetime
-from json import loads, dumps
+from aiogram.utils.json import loads, dumps
 
 from pymysql import connect
 
@@ -31,7 +30,35 @@ def clear_list(l: list):
     return l
 
 
-class _link_obj(ABC):
+class LogType:
+    ADD_MEMBER = "add_member"
+    REMOVE_MEMBER = "removed_member"
+    PROMOTE_ADMIN = "promote_admin"
+    RESTRICT_ADMIN = "restrict_admin"
+    PROMOTE_MEMBER = "promote_member"
+    RESTRICT_MEMBER = "restrict_member"
+    REPORT = "report"
+
+    def __contains__(self, item):
+        return item in list(self.__dict__.values())
+
+    @property
+    def my(self):
+        return [self.REPORT]
+
+    @property
+    def telegram(self):
+        return [
+            self.ADD_MEMBER,
+            self.REMOVE_MEMBER,
+            self.PROMOTE_ADMIN,
+            self.RESTRICT_ADMIN,
+            self.PROMOTE_MEMBER,
+            self.RESTRICT_MEMBER
+        ]
+
+
+class _link_obj:
     _init: bool = False
 
     _table: str
@@ -43,13 +70,19 @@ class _link_obj(ABC):
 
         self._init = True
 
-    @abstractmethod
     def get(self, name: str):
-        pass
+        return
 
-    @abstractmethod
     def set(self, name: str, value: p.Any):
-        pass
+        from libs.objects import Database
+
+        if name in self.__dict__:
+            self.__dict__[name] = value
+
+        if name in ["settings", "permission"]:
+            value = dumps(clear_dict(value))
+
+        Database.update(f"UPDATE {self._table} SET {name}='{value}' WHERE id={self._id};")
 
     def __getattr__(self, name: str):
         name = str(name)
@@ -78,132 +111,30 @@ class _link_obj(ABC):
             self.__dict__[key] = value
 
 
-class settingsOBJ(_link_obj):
-    _data: dict
-
-    def __init__(self, settings: str, table: str, id: str):
-        self._data = loads(settings)
-        super().__init__(table, id)
-
-    def get(self, name):
-        if name in self._data:
-            return self._data[name]
-
-    def set(self, name: str, value: p.Any):
-        from libs.objects import Database
-        self._data[name] = value
-        Database.update(f"UPDATE {self._table} SET settings='{dumps(clear_dict(self.raw))}' WHERE id={self._id};")
-
-    def values(self):
-        return self._data.values()
-
-    def keys(self):
-        return self._data.keys()
-
-    def items(self):
-        return self._data.items()
-
-    @property
-    def sticker_alias(self) -> dict:
-        if self["sticker_alias"] is None:
-            return {}
-        return self["sticker_alias"]
-
-    @property
-    def text_alias(self) -> dict:
-        if self["text_alias"] is None:
-            return {}
-        return self["text_alias"]
-
-    @property
-    def lang(self) -> str:
-        if self["lang"] is None:
-            return None
-        return self["lang"]
-
-    @property
-    def raw(self):
-        return self._data
-
-
-class permissionOBJ(settingsOBJ):
-    def __init__(self, permission: str, id: str):
-        super().__init__(permission, "Users", id)
-
-    def set(self, name: str, value: p.Any):
-        from libs.objects import Database
-        self._data[name] = value
-        Database.update(f"UPDATE Users SET permission='{dumps(clear_dict(self.raw))}' WHERE id={self._id};")
-
-
-class reportsOBJ(settingsOBJ):
-    def __init__(self, reports: str, id: str):
-        super().__init__(reports, "Users", id)
-
-    def get(self, name):
-        result = super().get(name)
-        return result or 0
-
-    def set(self, name: str, value: p.Any):
-        from libs.objects import Database
-        self._data[name] = value
-        Database.update(f"UPDATE Users SET reports='{dumps(clear_dict(self.raw))}' WHERE id={self._id};")
-
-
 class userOBJ(_link_obj):
     id: int
-    settings: settingsOBJ
-    permission: permissionOBJ
-    reports: reportsOBJ
+    settings: p.Dict
+    permission: p.Dict
 
-    def __init__(self, id: int, settings: str, permission: str, reports: str):
+    def __init__(self, id: int, settings: str, permission: str):
         self.id = id
-        self.settings = settingsOBJ(settings, "Users", self.id)
-        self.permission = permissionOBJ(permission, self.id)
-        self.reports = reportsOBJ(reports, self.id)
+        self.settings = loads(settings)
+        self.permission = loads(permission)
+
         super().__init__("Users", id)
-
-    def get(self, name: str):
-        return None
-
-    def set(self, name: str, value: p.Any):
-        from libs.objects import Database
-
-        if name in self.__dict__:
-            self.__dict__[name] = value
-
-        if name in ["settings", "permission"]:
-            value = dumps(clear_dict(value))
-
-        Database.update(f"UPDATE {self._table} SET {name}='{value}' WHERE id={self._id};")
 
 
 class chatOBJ(_link_obj):
     id: int
-    settings: settingsOBJ
-    owner: userOBJ
+    settings: p.Dict
+    owner_id: p.Dict
 
-    def __init__(self, id: str, settings: str, owner: int):
-        from libs.objects import Database
-
+    def __init__(self, id: str, settings: str, owner_id: int):
         self.id = id
-        self.settings = settingsOBJ(settings, "Chats", self.id)
-        self.owner = Database.get_user(owner)
+        self.settings = loads(settings)
+        self.owner_id = owner_id
 
         super().__init__("Chats", id)
-
-    def get(self, name: str):
-        return None
-
-    def set(self, name: str, value: p.Any):
-        from libs.objects import Database
-
-        if name in self.__dict__:
-            self.__dict__[name] = value
-
-        if name in ["settings", "permission"]:
-            value = dumps(clear_dict(value))
-        Database.update(f"UPDATE {self._table} SET {name}='{value}' WHERE id={self._id};")
 
 
 class messageOBJ:
@@ -218,14 +149,36 @@ class messageOBJ:
                  user_id: int,
                  chat_id: int,
                  message_id: int,
-                 message: p.Optional[str], type: str,
+                 message: p.Optional[str],
+                 type: str,
                  date: datetime):
-        from libs.objects import Database
-
-        self.user_id = Database.get_user(user_id)
-        self.chat_id = Database.get_chat(chat_id)
+        self.user_id = user_id
+        self.chat_id = chat_id
         self.message_id = message_id
         self.message = message
+        self.type = type
+        self.date = date
+
+
+class logOBJ:
+    log_id: int
+    chat_id: int
+    executor_id: int
+    target_id: int
+    type: str
+    date: datetime
+
+    def __init__(self,
+                 log_id: int,
+                 chat_id: int,
+                 executor_id: int,
+                 target_id: int,
+                 type: str,
+                 date: datetime):
+        self.log_id = log_id
+        self.chat_id = chat_id
+        self.executor_id = executor_id
+        self.target_id = target_id
         self.type = type
         self.date = date
 
@@ -243,8 +196,8 @@ class Database:
         self.update(f"INSERT INTO Users VALUES ({id},{JSON_DEFAULT!r},{JSON_DEFAULT!r},{JSON_DEFAULT!r})")
         return self.get_user(id)
 
-    def add_chat(self, id: int, owner: int) -> chatOBJ:
-        self.update(f"INSERT INTO Chats VALUES ({id},{JSON_DEFAULT!r},{owner})")
+    def add_chat(self, id: int, owner_id: int) -> chatOBJ:
+        self.update(f"INSERT INTO Chats VALUES ({id},{JSON_DEFAULT!r},{owner_id})")
         return self.get_chat(id)
 
     def add_message(self,
@@ -265,7 +218,23 @@ class Database:
         )
         self.update(sql)
 
-        return self.get_message(user_id, chat_id, message_id)
+        return self.get_message(chat_id, message_id)
+
+    def add_log(self,
+                chat_id: int,
+                executor_id: int,
+                target_id: int,
+                type: str,
+                date: datetime):
+        sql = self._optionals_sql(
+            "INSERT INTO Logs({columns}) VALUES ({values})", mode="INSERT",
+            chat_id=chat_id,
+            executor_id=executor_id,
+            target_id=target_id,
+            type=type,
+            date=date
+        )
+        self.update(sql)
 
     def get_user(self, id: int) -> userOBJ:
         result = self.get(f"SELECT * FROM Users WHERE id={id}", True)
@@ -275,19 +244,19 @@ class Database:
 
         return userOBJ(*result)
 
-    def get_chat(self, id: int, owner: p.Optional[int] = None) -> p.Optional[chatOBJ]:
+    def get_chat(self, id: int, owner_id: p.Optional[int] = None) -> p.Optional[chatOBJ]:
         result = self.get(f"SELECT * FROM Chats WHERE id={id}", True)
 
         if not result:
-            if owner is not None:
-                return self.add_chat(id, owner)
+            if owner_id is not None:
+                return self.add_chat(id, owner_id)
             return
 
         return chatOBJ(*result)
 
-    def get_message(self, user_id: int, chat_id: int, message_id: int) -> messageOBJ:
+    def get_message(self, chat_id: int, message_id: int) -> messageOBJ:
         result = self.get(
-            f"SELECT * FROM Messages WHERE user_id={user_id} AND chat_id={chat_id} AND message_id={message_id}",
+            f"SELECT * FROM Messages WHERE chat_id={chat_id} AND message_id={message_id}",
             one=True
         )
         return messageOBJ(*result)
@@ -302,11 +271,7 @@ class Database:
             chat_id=chat_id,
             type=type,
         )
-
-        result = self.get(sql)
-        if result:
-            result = self._create_list_of_objects(result, messageOBJ)
-        return result
+        return self._create_list_of_objects(self.get(sql), messageOBJ)
 
     def get_messages_by_date(self,
                              from_date: datetime,
@@ -331,7 +296,7 @@ class Database:
             result = self._create_list_of_objects(result, messageOBJ)
         return result
 
-    def get_message_ids(self,
+    def get_messages_id(self,
                         user_id: int,
                         chat_id: int,
                         from_date: p.Optional[datetime] = None,
@@ -349,11 +314,47 @@ class Database:
             else:
                 sql += f"date > {fd} AND date < {td}"
 
-        result = self.get(sql)
-        result = list(sum(result, ()))  # from ((...)) to [...]
-        if len(result) > 1000:
-            result = result[:1000]
-        return result
+        return self.get(sql, size=1000)
+
+    def get_all_messages(self) -> p.List[messageOBJ]:
+        return self._create_list_of_objects(self.get("SELECT * FROM Messages"), messageOBJ)
+
+    def get_logs(self,
+                 chat_id: p.Optional[int] = None,
+                 executor_id: p.Optional[int] = None,
+                 target_id: p.Optional[int] = None,
+                 type: p.Optional[str] = None) -> p.List[logOBJ]:
+        sql = self._optionals_sql(
+            "SELECT * FROM Logs WHERE {where}", mode="where",
+            chat_id=chat_id,
+            executor_id=executor_id,
+            target_id=target_id,
+            type=type
+        )
+        return self._create_list_of_objects(self.get(sql), logOBJ)
+
+    def get_logs_by_date(self,
+                         from_date: datetime,
+                         to_date: p.Optional[datetime] = None,
+                         contain: bool = True
+                         ) -> p.List[logOBJ]:
+        sql = "SELECT * FROM Logs WHERE "
+
+        fd = repr(from_date.isoformat(" "))
+
+        if from_date and to_date:
+            td = repr(to_date.isoformat(" "))
+            if contain:
+                sql += f"date >= {fd} AND date <= {td}"
+            else:
+                sql += f"date > {fd} AND date < {td}"
+        elif from_date:
+            sql += f"date = {fd}"
+
+        return self._create_list_of_objects(self.get(sql), logOBJ)
+
+    def get_all_logs(self) -> p.List[logOBJ]:
+        return self._create_list_of_objects(self.get("SELECT * FROM Logs"), logOBJ)
 
     def get_users(self) -> p.List[userOBJ]:
         result = self.get("SELECT * FROM Users")
@@ -364,36 +365,43 @@ class Database:
         return self._create_list_of_objects(result, chatOBJ)
 
     def get_owns(self, id: int) -> p.List[chatOBJ]:
-        result = self.get(f"SELECT * FROM Chats WHERE owner={id}")
+        result = self.get(f"SELECT * FROM Chats WHERE owner_id={id}")
         return self._create_list_of_objects(result, chatOBJ)
 
     def delete_user(self, id: int):
+        self.update(f"DELETE FROM Messages WHERE user_id={id}")
+        self.update(f"DELETE FROM Messages WHERE target_id={id} OR executor_id={id}")
+        self.update(f"DELETE FROM Chats WHERE owner_id = {id}")
         self.update(f"DELETE FROM Uses WHERE id = {id}")
 
     def delete_chat(self, id: int):
         self.update(f"DELETE FROM Messages WHERE chat_id={id}")
+        self.update(f"DELETE FROM Logs WHERE chat_id={id}")
         self.update(f"DELETE FROM Chats WHERE id = {id}")
 
     def delete_messages(self, chat_id: int, ids: p.Union[int, p.List[int]]):
         if isinstance(ids, int):
             ids = [ids]
 
-        sql = f"DELETE FROM Messages WHERE chat_id={chat_id}"
         for id in ids:
-            self.update(f"{sql} AND message_id={id}")
+            self.update(f"DELETE FROM Messages WHERE chat_id={chat_id} AND message_id={id}")
 
-    def get(self, sql: str, one: bool = False) -> p.Union[p.Any, p.List]:
+    def get(self, sql: str, one: bool = False, size: int = None) -> p.Union[p.Any, p.List]:
         with self.connect.cursor() as cursor:
             cursor.execute(sql)
             if one:
                 result = cursor.fetchone()
             else:
-                result = cursor.fetchall()
+                if size:
+                    result = cursor.fetchmany(size)
+                else:
+                    result = cursor.fetchall()
         return result
 
     def update(self, sql: str):
         with self.connect.cursor() as cursor:
             cursor.execute(sql)
+
         self.connect.commit()
 
     @staticmethod
@@ -412,13 +420,15 @@ class Database:
                     v = repr(v)
                 elif isinstance(v, datetime):
                     v = repr(v.isoformat(" "))
+                elif isinstance(v, list) or isinstance(v, dict):
+                    v = repr(dumps(v))
                 else:
                     v = str(v)
 
                 columns.append(c)
                 values.append(v)
         if not (columns or values):
-            ValueError("Selectors required")
+            raise ValueError("Selectors required")
 
         if mode == "insert":
             columns = ",".join(columns)

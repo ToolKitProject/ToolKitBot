@@ -64,15 +64,14 @@ class UserText:
 
     def __init__(self):
         from libs.objects import Database
+        from libs.utils import get_value
+
         user = t.User.get_current()
 
         self.lang = None
         if user:  # if user found
-            self.lang = user.language_code
-
             userOBJ = Database.get_user(user.id)
-            if userOBJ.settings.lang:  # if user setup his lang
-                self.lang = userOBJ.settings.lang
+            self.lang = get_value(userOBJ.settings, "lang", user.language_code)
         else:
             self.lang = lang
 
