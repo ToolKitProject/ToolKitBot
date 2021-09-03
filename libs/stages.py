@@ -39,11 +39,11 @@ class Stage(s.State):
     _commands: p.List[str] = []
 
     def __init__(self, commands: p.List[str] = [], state: p.Optional[str] = None, group_name: p.Optional[str] = None):
-        self._commands = commands
+        self._commands = ["cancel"] + commands
         super().__init__(state, group_name)
 
     async def set(self):
-        from libs import system
+        from src import system
         chat = t.Chat.get_current()
 
         if chat.type == t.ChatType.PRIVATE:

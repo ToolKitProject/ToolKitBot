@@ -1,13 +1,17 @@
 import typing as p
 
 from aiogram import types as t
+from aiogram.dispatcher import FSMContext
 
 import src
+from bot import dp
 from libs import errors as e
 from libs.buttons import Menu
 from libs.commandParser import ParsedArgs
+from libs.settings import Property, SettingsType
 from src.objects import MessageData
 from src import other, filters as f
+from src.system import states
 
 
 @other.parsers.help()
@@ -58,3 +62,16 @@ async def back(clb: t.CallbackQuery):
             data.history = history
     except Exception:
         raise e.BackError()
+
+
+@dp.message_handler(f.message.is_private, commands=["cancel"], state="*")
+async def cancel(msg: t.Message, state: FSMContext):
+    async with state.proxy() as data:
+        from_msg: t.Message = data["settings_message"]
+    with MessageData.data(from_msg) as data:
+        prop: Property = data.property
+        settings: SettingsType = data.settings
+
+    to_msg = await prop.menu(settings).send()
+    await MessageData.move(from_msg, to_msg)
+    await states.add_alias.finish()

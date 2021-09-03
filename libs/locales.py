@@ -21,35 +21,30 @@ class TextEncoder(json.JSONEncoder):
 
 # noinspection PyMissingConstructor
 class Text(UserString):
-    message: str
+    messages: p.List[str]
     _format_callback: p.Callable[[str], str]
-    _added: p.List[p.Union["Text", str]]
 
     def __init__(self, message: str):
-        self.message = message
-        self._added = []
+        self.messages = [message]
         self._format_callback = None
 
     def __add__(self, other: p.Union["Text"]) -> "Text":
-        self._added.append(other)
-        return self
-
-    @property
-    def added(self) -> str:
-        text = ""
-        for a in self._added:
-            text += str(a)
-        return text
+        new = deepcopy(self)
+        new.messages.append(other)
+        return new
 
     @property
     def data(self):
         src = UserText()
-        text = src(self.message)
+        message = ""
 
-        if self._format_callback:
-            text = self._format_callback(text)
+        for msg in self.messages:
+            txt = src(msg)
+            if self._format_callback:
+                txt = self._format_callback(txt)
+            message += txt
 
-        return text + self.added
+        return message
 
     def format_callback(self):
         def wrapper(func):

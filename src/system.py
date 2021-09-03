@@ -40,6 +40,12 @@ class regex:
 
 class states:
     class add_alias(s.StageGroup):
-        sticker = s.Stage(_cancel)
-        text = s.Stage(_cancel)
-        command = s.Stage(alias_commands + _cancel)
+        sticker = s.Stage()
+        text = s.Stage()
+        command = s.Stage(alias_commands)
+
+    class set_report_command(s.StageGroup):
+        pass
+
+    class set_report_count(s.StageGroup):
+        pass

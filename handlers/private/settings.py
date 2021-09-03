@@ -19,6 +19,7 @@ s = buttons.private.settings
 alias_data = CallbackData("delete_alias", "key")
 lang_data = CallbackData("change_lang", "lang")
 statistic_data = CallbackData("statistic", "mode")
+set_report_delta = CallbackData("set_report_delta", "delta")
 
 
 @dp.message_handler(u.write_action, f.message.is_private, commands=["settings"])
@@ -123,3 +124,13 @@ def format_callback(t: str):
     with MessageData.data() as data:
         target: p.Union[Chat, User] = data.chat or data.user
     return t.format(mode=str(text.statistic_modes[target.statistic_mode]))
+
+
+@s.chat.set_report_count(f.message.is_private)
+async def edit_lang(clb: t.CallbackQuery):
+    pass
+
+
+@s.chat.set_report_command(f.message.is_private)
+async def edit_lang(clb: t.CallbackQuery):
+    pass

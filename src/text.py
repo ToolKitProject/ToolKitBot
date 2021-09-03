@@ -55,6 +55,9 @@ class private:
 
         statistic_mode_changed = _("Statistic mode changed on {mode}")
 
+        report_count = _("Send me max report count \n") + cancel
+        report_command = _("Send me max report command \n") + cancel
+
 
 class chat:
     _perm = _("┣ /ban /unban ⛔ \n" +

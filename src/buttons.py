@@ -50,7 +50,19 @@ class private:
         chat_list = Menu(_("Choose chat"), undo=True)
 
         class chat:
-            add_alias = Button(_("Add alias"), "add_alias")
+            add_alias = Button(
+                _("Add alias"), "add_alias"
+            )
+
+            set_report_command = Button(
+                _("Set report execute command"), "set_report_command"
+            )
+            set_report_count = Button(
+                _("Set max report count"), "set_report_count"
+            )
+            set_report_delta = Button(
+                _("Set expire time"), "set_report_delta"
+            )
 
             settings = Settings(_("Choose what you want to customize"), row_width=2, undo=True).add(
                 Property(_("Alias for sticker") + "\n" + _("Click to delete"), _("Alias for sticker"),
@@ -63,7 +75,13 @@ class private:
                     add_alias,
                     Elements("{k} → {v}", "delete_alias:{k}")
                 ),
-                _statistic_property
+                _statistic_property,
+                Property(_("Choose what you want to customize"), _("Reports"),
+                         "report", row_width=1).add(
+                             set_report_command,
+                             set_report_count,
+                             set_report_delta
+                )
 
             )
 

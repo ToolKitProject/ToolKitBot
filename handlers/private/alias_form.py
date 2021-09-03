@@ -22,19 +22,6 @@ async def start_text(clb: t.CallbackQuery):
     await states.add_alias.text.set()
 
 
-@dp.message_handler(f.message.is_private, commands=["cancel"], state=states.add_alias)
-async def cancel(msg: t.Message, state: FSMContext):
-    async with state.proxy() as data:
-        from_msg: t.Message = data["settings_message"]
-    with MessageData.data(from_msg) as data:
-        prop: Property = data.property
-        settings: SettingsType = data.settings
-
-    to_msg = await prop.menu(settings).send()
-    await MessageData.move(from_msg, to_msg)
-    await states.add_alias.finish()
-
-
 @dp.message_handler(f.message.is_private, content_types=[t.ContentType.STICKER], state=states.add_alias.sticker)
 async def sticker_form(msg: t.Message, state: FSMContext):
     async with state.proxy() as data:

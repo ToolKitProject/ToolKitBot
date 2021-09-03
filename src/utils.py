@@ -26,13 +26,12 @@ async def write_action(msg: t.Message):
 
 
 def get_value(_dict: p.Dict, key_history: p.List, default: p.Any = None):
-    value = default
     for k in key_history:
         if k in _dict:
-            value = _dict[k]
+            _dict = _dict[k]
         else:
             return default
-    return value
+    return _dict
 
 
 class NewInstance(BaseMiddleware):
