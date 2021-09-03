@@ -6,14 +6,14 @@ from datetime import datetime
 from aiogram import types as t
 
 from bot import client
-from libs import filters as f, utils as u
-from libs.classes.CommandParser import ParsedArgs
-from libs.classes.User import User
-from libs.objects import Database
-from libs.src import any, buttons, text
+from libs.commandParser import ParsedArgs
+from libs.user import User
+from src.objects import Database
+from src import buttons, text, filters as f, utils as u
+from src import other
 
 
-@any.parsers.purge(
+@other.parsers.purge(
     f.message.is_chat,
     f.bot.has_permission("can_delete_messages"),
     f.user.has_permission("can_delete_messages"),
@@ -39,7 +39,7 @@ async def purge(msg: t.Message, parsed: ParsedArgs):
     )
 
 
-@any.parsers.clear_history(
+@other.parsers.clear_history(
     f.message.is_chat,
     f.bot.has_permission("can_delete_messages"),
     f.user.has_permission("can_delete_messages"),

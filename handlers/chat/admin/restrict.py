@@ -6,14 +6,14 @@ from aiogram import types as t
 
 from bot import bot
 from handlers.chat.admin import purge
-from libs import filters as f, utils as u
-from libs.classes.CommandParser import ParsedArgs, dates
-from libs.classes.User import User
-from libs.objects import MessageData, Database
-from libs.src import any, text, buttons
+from libs.commandParser import ParsedArgs, dates
+from libs.user import User
+from src.objects import MessageData, Database
+from src import text, buttons, filters as f, utils as u
+from src import other
 
 
-@any.parsers.restrict(
+@other.parsers.restrict(
     f.message.is_chat,
     f.bot.has_permission("can_restrict_members"),
     f.user.has_permission("can_restrict_members"),
@@ -92,7 +92,7 @@ async def execute_action(parsed: ParsedArgs, chat_id: str, undo: bool = False):
 
             result = True
         except Exception as error:
-            txt = f"⚠ {user.link}\n" \
+            txt = f"⚠ {user.ping}\n" \
                   f"┗━{error.args[0]}"
             await bot.send_message(chat_id, txt)
             parsed.targets.remove(user)
@@ -145,7 +145,7 @@ async def get_text(parsed: ParsedArgs, executor: User) -> p.Tuple[str, t.InlineK
     elif type == "unmute":
         txt = adm.multi_unmute if multi else adm.unmute
 
-    users = " ".join([u.link for u in users])
+    users = ", ".join([u.ping for u in users])
 
     until = adm.forever
     if parsed.until:
@@ -157,7 +157,7 @@ async def get_text(parsed: ParsedArgs, executor: User) -> p.Tuple[str, t.InlineK
     txt = txt.format(
         user=users,
         reason=parsed.reason,
-        admin=executor.link,
+        admin=executor.ping,
         until=until
     )
 

@@ -2,12 +2,11 @@ import re
 
 from aiogram import types as t
 
-import handlers
 from bot import dp
-from libs import filters as f
-from libs.system import regex as r
-from libs.classes import Errors as e
-from libs.classes.Chat import Chat
+from src import filters as f
+from src.system import regex as r
+from libs import errors as e
+from libs.chat import Chat
 
 
 @dp.message_handler(f.message.is_chat, f.message.is_alias,

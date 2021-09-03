@@ -8,8 +8,8 @@ from datetime import datetime, timedelta
 from aiogram import types as t, filters as f
 
 from bot import dp
-from . import Errors as e
-from .User import User
+from . import errors as e
+from .user import User
 
 
 class dates:
@@ -144,7 +144,7 @@ class BaseArg(ABC):
 
 class Command:
     def __init__(self, commands: CommandType, name: str):
-        from libs.system import regex as r
+        from src.system import regex as r
         self.commands = commands
         self.name = name
 
@@ -262,7 +262,7 @@ class ReasonArg(BaseArg):
             required: bool = False,
             default: p.Optional[p.Any] = ""
     ):
-        from libs.system import regex as r
+        from src.system import regex as r
         self.regexp = re.compile(r.parse.reason)
         super().__init__(dest, name, required, default)
 
@@ -290,7 +290,7 @@ class UserArg(BaseArg):
             required: bool = True,
             default: p.Optional[p.Any] = []
     ):
-        from libs.system import regex as r
+        from src.system import regex as r
         self.regexp = re.compile(r.parse.user)
         super().__init__(dest, name, required, default)
 
@@ -331,7 +331,7 @@ class DateArg(BaseArg):
             required: bool = False,
             default: p.Optional[p.Any] = timedelta()
     ):
-        from libs.system import regex as r
+        from src.system import regex as r
         super().__init__(dest, name, required, default)
         self.regexp = re.compile(r.parse.date)
 
@@ -373,7 +373,7 @@ class TextArg(BaseArg):
             required: bool = False,
             default: p.Optional[p.Any] = ""
     ):
-        from libs.system import regex as r
+        from src.system import regex as r
         self.regexp = re.compile(r.parse.text)
         self.sep = sep
         super().__init__(dest, name, required, default)
@@ -404,7 +404,7 @@ class NumberArg(BaseArg):
             default: p.Optional[p.Any] = 0
     ):
 
-        from libs.system import regex as r
+        from src.system import regex as r
         self.min = minimal
         self.max = maximal
         self.contain = contain
@@ -478,7 +478,7 @@ class Flag(BaseArg):
             name: str,
             required: bool = False
     ):
-        from libs.system import regex as r
+        from src.system import regex as r
         assert len(small) == 1
         assert len(full) > 1
 
@@ -514,7 +514,7 @@ class ValueFlag(Flag):
             name: str,
             required: bool = False
     ):
-        from libs.system import regex as r
+        from src.system import regex as r
 
         super().__init__(small, full, dest, name, required)
         self.regexp = re.compile(r.parse.value_flag)

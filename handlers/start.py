@@ -1,15 +1,15 @@
 import typing as p
-from datetime import datetime, timedelta
+from datetime import datetime
 
 from bot import dp
 from aiogram import types as t
 
-from libs.classes.Chat import Chat
-from libs.classes.Errors import MyError, ERRORS, IGNORE, ForceError
-from libs.classes.User import User
-from libs.objects import Database
-from libs.src import any, text
-from libs.classes.CommandParser import ParsedArgs
+from libs.chat import Chat
+from libs.errors import MyError, ERRORS, IGNORE, ForceError
+from libs.user import User
+from src.objects import Database
+from src import other
+from libs.commandParser import ParsedArgs
 
 
 @dp.errors_handler()
@@ -29,7 +29,7 @@ async def errors(_, error: p.Union[MyError, Exception]):
     return True
 
 
-@any.parsers.test()
+@other.parsers.test()
 async def test_xd(msg: t.Message, parsed: ParsedArgs):
     td = datetime.now()
     fd = td - parsed.delta

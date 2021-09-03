@@ -5,9 +5,9 @@ from aiogram import types as t, filters as f, Bot
 from aiogram.types import ChatMemberStatus as s
 
 from bot import bot
-from libs.classes import Errors as e
-from libs.objects import Database
-from libs.system import regex as r
+from libs import errors as e
+from src.objects import Database
+from src.system import regex as r
 
 objType = p.Union[t.Message, t.CallbackQuery, t.ChatMemberUpdated]
 
@@ -61,7 +61,7 @@ class AliasFilter(f.BoundFilter):
         pass
 
     async def check(self, msg: objType) -> bool:
-        from libs.utils import get_value
+        from src.utils import get_value
         if not isinstance(msg, t.Message):
             raise TypeError()
         if await message.is_private.check(msg):

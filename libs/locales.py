@@ -1,5 +1,6 @@
 import json
 from collections import UserString
+from copy import deepcopy
 
 from aiogram import types as t
 import typing as p
@@ -29,7 +30,7 @@ class Text(UserString):
         self._added = []
         self._format_callback = None
 
-    def __add__(self, other: p.Union["Text"]):
+    def __add__(self, other: p.Union["Text"]) -> "Text":
         self._added.append(other)
         return self
 
@@ -63,8 +64,8 @@ class UserText:
     gettext: p.Callable[[str], str]
 
     def __init__(self):
-        from libs.objects import Database
-        from libs.utils import get_value
+        from src.objects import Database
+        from src.utils import get_value
 
         user = t.User.get_current()
 
@@ -75,19 +76,14 @@ class UserText:
         else:
             self.lang = lang
 
-        if self.lang not in os.listdir("libs/locales"):
+        if self.lang not in os.listdir("locales"):
             self.lang = None
 
         if self.lang:
-            tn = g.translation("ToolKit", "libs/locales", languages=[self.lang])
+            tn = g.translation("ToolKit", "locales", languages=[self.lang])
             self.gettext = tn.gettext
         else:
             self.gettext = g.gettext
-
-        from libs import src
-        self.text = src.text
-        self.buttons = src.buttons
-        self.any = src.any
 
     def __call__(self, message: str) -> str:
         return self.gettext(message)

@@ -2,19 +2,17 @@ from aiogram import types as t
 from aiogram.dispatcher.middlewares import BaseMiddleware
 
 import typing as p
-from libs import filters as f
-from libs import UserText
-from .objects import Database
-from .classes.Database import LogType as l
+from src import other, filters as f
+from src.objects import Database
+from libs.database import LogType as l
 from aiogram.types import ContentType as c
 
 
 async def get_help(msg: t.Message):
-    src = UserText()
     if await f.message.is_reply.check(msg):
         return True
     if not msg.get_args():
-        await msg.reply(src.any.command_list.get(msg.get_command(True).removeprefix("/")),
+        await msg.reply(other.command_list.get(msg.get_command(True).removeprefix("/")),
                         disable_web_page_preview=True)
         return False
     return True
@@ -59,8 +57,8 @@ class NewInstance(BaseMiddleware):
         super().__init__()
 
     async def on_process_update(self, upd: t.Update, *args):
-        from libs.classes.Chat import Chat
-        from libs.classes.User import User
+        from libs.chat import Chat
+        from libs.user import User
 
         msg = upd.message
         if msg:

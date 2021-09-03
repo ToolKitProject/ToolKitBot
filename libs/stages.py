@@ -3,8 +3,8 @@ import typing as p
 from aiogram import types as t, Dispatcher, Bot
 from aiogram.dispatcher.filters import state as s
 
-from . import Commands as c
-from libs import UserText
+from libs import commands as c
+from src import other, system
 
 
 class StageGroup(s.StatesGroup):
@@ -24,7 +24,6 @@ class StageGroup(s.StatesGroup):
 
     @classmethod
     async def finish(cls):
-        from libs import system
         dp = Dispatcher.get_current()
         chat = t.Chat.get_current()
 
@@ -57,8 +56,7 @@ class Stage(s.State):
     @property
     def commands(self) -> c.Group:
         chat = t.Chat.get_current()
-        src = UserText()
         commands = c.Chat(chat.id)
         for cmd in self._commands:
-            commands.add(src.any.command_list.get(cmd))
+            commands.add(other.command_list.get(cmd))
         return commands

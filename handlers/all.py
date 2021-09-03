@@ -2,29 +2,28 @@ import typing as p
 
 from aiogram import types as t
 
-from libs import filters as f
-from libs import src
-from libs.classes import Errors as e
-from libs.classes.Buttons import Menu
-from libs.classes.CommandParser import ParsedArgs
-from libs.objects import MessageData
-from libs.src import any
+import src
+from libs import errors as e
+from libs.buttons import Menu
+from libs.commandParser import ParsedArgs
+from src.objects import MessageData
+from src import other, filters as f
 
 
-@any.parsers.help()
+@other.parsers.help()
 async def help(msg: t.Message, parsed: ParsedArgs):  # help command
     cmd: str = parsed.cmd
     text = None
     if not cmd:  # if not search command
         if await f.message.is_chat.check(msg):  # if chat
             if await f.user.is_admin.check(msg):  # if member admin
-                text = str(any.command_list.get_group(t.BotCommandScopeAllChatAdministrators()))
+                text = str(other.command_list.get_group(t.BotCommandScopeAllChatAdministrators()))
             else:
-                text = str(any.command_list.get_group(t.BotCommandScopeAllGroupChats()))
+                text = str(other.command_list.get_group(t.BotCommandScopeAllGroupChats()))
         elif await f.message.is_private.check(msg):  # if private chat
-            text = str(any.command_list.get_group(t.BotCommandScopeAllPrivateChats()))
+            text = str(other.command_list.get_group(t.BotCommandScopeAllPrivateChats()))
     else:
-        command = any.command_list.get(cmd.removeprefix("/"))
+        command = other.command_list.get(cmd.removeprefix("/"))
         if not command:  # if command not found
             raise e.CommandNotFound()
         text = str(command)

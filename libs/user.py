@@ -4,14 +4,12 @@ from datetime import timedelta
 from aiogram import types as t, Bot
 from aiogram.utils.exceptions import MigrateToChat, ChatNotFound
 
-from libs import UserText
-from libs.classes import Database as d
-from libs.objects import Cache
-from libs.objects import Database
-from libs.utils import get_value
-from . import Errors as e
-from .Chat import Chat
-from .Database import userOBJ
+from libs import errors as e, database as d
+from libs.locales import UserText
+from src.objects import Cache
+from src.objects import Database
+from src.utils import get_value
+from .database import userOBJ, LogType as l
 
 
 class User:
@@ -93,8 +91,10 @@ class User:
         return get_value(self.settings, ["statistic", "mode"], 2)
 
     @Cache.register(timedelta(minutes=5))
-    async def get_owns(self) -> p.List[Chat]:
-        owns = []
+    async def get_owns(self):
+        from .chat import Chat
+
+        owns: p.List[Chat] = []
         for chat in self.owns:
             try:
                 owns.append(await Chat.create(chat.id))
@@ -124,3 +124,6 @@ class User:
     async def kick(self, chat_id: int):
         bot = Bot.get_current()
         await bot.unban_chat_member(chat_id, self.id, only_if_banned=False)
+
+    def get_reports(self, chat: t.Chat):
+        return len(Database.get_logs(chat_id=chat.id, target_id=self.id, type=l.REPORT))

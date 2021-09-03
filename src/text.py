@@ -106,6 +106,9 @@ class chat:
         multi_ban = _("Users {user} banned ⛔ \n") + reason + admin + until
         ban_poll = _("⛔ Ban - {user} ?")
 
+        report = reason + admin + _("Reports ‼️:\n")
+        report_sample = "   {user} {user_reports}/{max_reports}\n"
+
         options_poll = [_("✅ Yes"), _("⛔ No ")]
 
         forever = _("February 31, 1970")

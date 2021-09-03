@@ -1,10 +1,9 @@
 from datetime import timedelta
 
-from libs.classes import CommandParser as p
-from libs.classes import Commands as c
+from libs import commandParser as p, commands as c
 from libs.locales import Text as _
-from libs.src import text
-from libs.system import restrict_commands
+from src import text
+from src.system import restrict_commands
 
 
 class commands:
@@ -26,6 +25,7 @@ class commands:
         unmute = [users, reason, poll]
         purge = [count, reply]
         clear_history = [users, until]
+        report = [users, reason]
 
     hide = c.Hide().add(
         c.Command("cancel", _("◀ To cancel"),
@@ -54,6 +54,7 @@ class commands:
         c.Command("purge", _("🗑 Purge messages"), *_help_text.purge),
         c.Command("clear_history", _(
             "🔥 Delete messages sent by the user"), *_help_text.clear_history),
+        c.Command("report", _("‼️ Report user"), *_help_text.report)
     )
 
 
@@ -78,6 +79,7 @@ class parsers:
     )
 
     report = p.Command("report", _("Report command")).add(
+        p.ReasonArg(_("Reason"), default=text.chat.admin.reason_empty),
         p.UserArg(_("User"), dest="targets")
     )
 

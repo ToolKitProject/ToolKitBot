@@ -74,7 +74,7 @@ class _link_obj:
         return
 
     def set(self, name: str, value: p.Any):
-        from libs.objects import Database
+        from src.objects import Database
 
         if name in self.__dict__:
             self.__dict__[name] = value

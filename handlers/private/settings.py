@@ -7,14 +7,13 @@ from aiogram.utils.callback_data import CallbackData
 import handlers.all
 from bot import dp
 from handlers.private import alias_form
-from libs import filters as f, utils as u
-from libs.classes.Buttons import Submenu
-from libs.classes.Chat import Chat
-from libs.classes.Errors import EmptyOwns
-from libs.classes.Settings import Property, SettingsType
-from libs.classes.User import User
-from libs.objects import MessageData
-from libs.src import buttons, text
+from libs.buttons import Submenu
+from libs.chat import Chat
+from libs.errors import EmptyOwns
+from libs.settings import Property, SettingsType
+from libs.user import User
+from src.objects import MessageData
+from src import buttons, text, filters as f, utils as u
 
 s = buttons.private.settings
 alias_data = CallbackData("delete_alias", "key")

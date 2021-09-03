@@ -1,7 +1,7 @@
 import config
-from libs.classes.Message import MessageData
-from libs.classes.Database import Database
-from libs.classes.Cache import Cache
+from libs.message import MessageData
+from libs.database import Database
+from libs.cache import Cache
 
 MessageData = MessageData()
 Database = Database(config.sql_host, config.sql_user, config.sql_password, config.sql_database)

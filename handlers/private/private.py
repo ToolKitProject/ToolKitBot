@@ -1,10 +1,9 @@
 from aiogram import types as t
 
 from bot import dp
-from libs import filters as f
-from libs.classes.Chat import Chat
-from libs.classes import Errors as e
-from libs.src import text, buttons
+from libs.chat import Chat
+from libs import errors as e
+from src import text, buttons, filters as f
 
 
 @dp.message_handler(f.message.is_private, commands=["start"])

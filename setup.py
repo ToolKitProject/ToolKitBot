@@ -16,7 +16,7 @@ sep = "=" * term.columns
 venv = False
 default = 1
 sample_files = ["data/database.sample.db"]
-po_files = ["text.py", "buttons.py", "any.py"]
+po_files = ["text.py", "buttons.py", "other.py"]
 
 if os.name == "nt":
     print(f"Setup not supported on {platform.system()}")
@@ -230,7 +230,7 @@ def load_mysql():
 
 
 def compile_po_files():
-    path = "libs/locales/"
+    path = "locales/"
     locales = os.listdir(path)
     lc = "LC_MESSAGES/"
 
@@ -283,8 +283,8 @@ def install_dependencies():
 
 
 def generate_locales_files(new_locale: p.Optional[str] = None):
-    path = "libs/src/"
-    out_path = "libs/locales/"
+    path = "src/"
+    out_path = "locales/"
     locales = os.listdir(out_path)
 
     if not locales:
@@ -324,7 +324,7 @@ def generate_locales_files(new_locale: p.Optional[str] = None):
 
 
 def create_locales():
-    path = "libs/locales/"
+    path = "locales/"
     while True:
         print("Leave blank to exit")
         lc = _input("Name of locale (telegram format)")
@@ -346,7 +346,7 @@ def create_locales():
     _clear()
     print("""
 To create the locale, the following remains:
-    1 - Fill in .pot file (libs/locales/)
+    1 - Fill in .pot file (locales/)
     2 - Run "Compile po files"
         """)
     _enter()
@@ -354,7 +354,7 @@ To create the locale, the following remains:
 
 
 def delete_locales():
-    path = "libs/locales/"
+    path = "locales/"
     while True:
         _clear()
         print("Leave blank to exit")

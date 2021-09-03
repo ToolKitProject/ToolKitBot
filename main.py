@@ -5,8 +5,6 @@ import signal
 from aiogram import executor
 from aiogram import types as t
 from aiogram.dispatcher.dispatcher import Dispatcher
-from aiogram.dispatcher.middlewares import BaseMiddleware
-from aiogram.dispatcher.handler import CancelHandler
 from aiogram.utils import json as aiogram_json
 import json
 
@@ -32,10 +30,10 @@ else:
 
 from bot import dp, client
 import handlers
-from libs.objects import MessageData
-from libs import system, locales
-from libs.src import any
-from libs.utils import NewInstance, LogMiddleware
+from src.objects import MessageData
+from libs import locales
+from src import other, system
+from src.utils import NewInstance, LogMiddleware
 
 
 def close(signal: int, frame):
@@ -58,10 +56,10 @@ async def startup(dp: Dispatcher):
     if values.main:
         logging.warning("Init commands")
         try:
-            await any.command_list.set()
+            await other.command_list.set()
             for l in system.langs:
                 locales.lang = l
-                await any.command_list.set()
+                await other.command_list.set()
         except Exception as e:
             logging.error(f"Init command failed ({e})")
 

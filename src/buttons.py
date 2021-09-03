@@ -1,10 +1,8 @@
 import config
-from aiogram import Bot
-from aiogram import types as t
 from aiogram.types import InlineKeyboardMarkup as IM
-from libs import system
-from libs.classes.Buttons import Button, Menu, Submenu
-from libs.classes.Settings import Elements, Property, Settings
+from src import system
+from libs.buttons import Button, Menu, Submenu
+from libs.settings import Elements, Property, Settings
 from libs.locales import Text as _
 
 statistic_title = _("Off - Nothing will be saved (nothing) \n" +

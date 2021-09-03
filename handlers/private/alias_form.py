@@ -2,26 +2,23 @@ from aiogram import types as t
 from aiogram.dispatcher import FSMContext
 
 from bot import dp
-from libs import UserText
-from libs import filters as f
-from libs.classes import Errors as e
-from libs.classes.Buttons import Submenu
-from libs.classes.Chat import Chat
-from libs.classes.Settings import Property, SettingsType
-from libs.objects import MessageData
-from libs.system import alias_commands
-from libs.system import states
+from libs import errors as e
+from libs.buttons import Submenu
+from libs.chat import Chat
+from libs.settings import Property, SettingsType
+from src.objects import MessageData
+from src.system import alias_commands
+from src.system import states
+from src import text, filters as f
 
 
 async def start_sticker(clb: t.CallbackQuery):
-    src = UserText()
-    await clb.message.edit_text(src.text.private.settings.sticker)
+    await clb.message.edit_text(text.private.settings.sticker)
     await states.add_alias.sticker.set()
 
 
 async def start_text(clb: t.CallbackQuery):
-    src = UserText()
-    await clb.message.edit_text(src.text.private.settings.text)
+    await clb.message.edit_text(text.private.settings.text)
     await states.add_alias.text.set()
 
 
@@ -40,19 +37,17 @@ async def cancel(msg: t.Message, state: FSMContext):
 
 @dp.message_handler(f.message.is_private, content_types=[t.ContentType.STICKER], state=states.add_alias.sticker)
 async def sticker_form(msg: t.Message, state: FSMContext):
-    src = UserText()
     async with state.proxy() as data:
         data["key"] = msg.sticker.file_unique_id
-    await msg.answer(src.text.private.settings.command)
+    await msg.answer(text.private.settings.command)
     await states.add_alias.command.set()
 
 
 @dp.message_handler(f.message.is_private, content_types=[t.ContentType.TEXT], state=states.add_alias.text)
 async def text_form(msg: t.Message, state: FSMContext):
-    src = UserText()
     async with state.proxy() as data:
         data["key"] = msg.text
-    await msg.answer(src.text.private.settings.command)
+    await msg.answer(text.private.settings.command)
     await states.add_alias.command.set()
 
 

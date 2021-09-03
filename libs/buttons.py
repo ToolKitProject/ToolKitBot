@@ -23,7 +23,7 @@ class Menu(t.InlineKeyboardMarkup):
         return Menu(self.title, row_width=self.row_width, inline_keyboard=self.inline_keyboard, undo=self.undo)
 
     async def send(self, history: bool = True):
-        from libs import src
+        import src
         menu = self.copy
         if self.undo:
             menu.row(src.buttons.back)
@@ -34,7 +34,7 @@ class Menu(t.InlineKeyboardMarkup):
         return msg
 
     async def edit(self, history: bool = True):
-        from libs import src
+        import src
         menu = self.copy
         if self.undo:
             menu.row(src.buttons.back)
@@ -45,7 +45,7 @@ class Menu(t.InlineKeyboardMarkup):
         return msg
 
     async def save_storage(self, msg: t.Message, history: bool = True):
-        from libs.objects import MessageData
+        from src.objects import MessageData
         with MessageData.data(msg) as data:
             for key, value in self.storage.items():
                 data[key] = value
