@@ -6,7 +6,7 @@ from aiogram import types as t
 
 from bot import bot
 from handlers.chat.admin import purge
-from libs.commandParser import ParsedArgs, dates
+from libs.command_parser import ParsedArgs, dates
 from libs.user import User
 from src.objects import MessageData, Database
 from src import text, buttons, filters as f, utils as u
@@ -58,7 +58,7 @@ async def undo(clb: t.CallbackQuery):
 
 
 async def execute_action(parsed: ParsedArgs, chat_id: str, undo: bool = False):
-    type: str = parsed.command.text
+    type: str = parsed.command.alias_text
     users: p.List[User] = parsed.targets
     until: timedelta = parsed.until
 
@@ -69,7 +69,7 @@ async def execute_action(parsed: ParsedArgs, chat_id: str, undo: bool = False):
             type = type.removeprefix("un")
         else:
             type = f"un{type}"
-        parsed.command.text = type
+        parsed.command.alias_text = type
 
     for user in copy(users):
         try:

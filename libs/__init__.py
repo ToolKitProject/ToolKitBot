@@ -3,7 +3,7 @@ from . import cache
 from . import database
 from . import chat
 from . import buttons
-from . import commandParser
+from . import command_parser
 from . import commands
 from . import stages
 from . import errors

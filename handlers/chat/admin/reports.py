@@ -3,7 +3,7 @@ import typing as p
 from aiogram import types as t
 
 from libs.chat import Chat
-from libs.commandParser import ParsedArgs
+from libs.command_parser import ParsedArgs
 from libs.database import LogType as l
 from libs.user import User
 from src.objects import Database

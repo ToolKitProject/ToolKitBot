@@ -48,15 +48,16 @@ class private:
 
     class settings:
         chat_loading = _("🕒 Please wait,chats is loading")
-        sticker = _("1⃣ Send me sticker \n") + cancel
-        text = _("1⃣ Send me text \n") + cancel
 
-        command = _("2⃣ Send me command")
+        alias_sticker = _("1⃣ Send me sticker \n") + cancel
+        alias_text = _("1⃣ Send me text \n") + cancel
+        alias_command = _("2⃣ Send me command")
 
         statistic_mode_changed = _("Statistic mode changed on {mode}")
 
         report_count = _("Send me max report count \n") + cancel
         report_command = _("Send me max report command \n") + cancel
+        report_delta = _("Send me expire report time (1m,1w 3d) \n") + cancel
 
 
 class chat:

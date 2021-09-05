@@ -142,6 +142,10 @@ class BaseArg(ABC):
         pass
 
 
+class BaseParser(ABC):
+    pass
+
+
 class Command:
     def __init__(self, commands: CommandType, name: str):
         from src.system import regex as r

@@ -12,13 +12,19 @@ from src.system import states
 from src import text, filters as f
 
 
-async def start_sticker(clb: t.CallbackQuery):
-    await clb.message.edit_text(text.private.settings.sticker)
+async def start_sticker(clb: t.CallbackQuery, state: FSMContext):
+    async with state.proxy() as data:
+        data["_message"] = clb.message
+
+    await clb.message.edit_text(text.private.settings.alias_sticker)
     await states.add_alias.sticker.set()
 
 
-async def start_text(clb: t.CallbackQuery):
-    await clb.message.edit_text(text.private.settings.text)
+async def start_text(clb: t.CallbackQuery, state: FSMContext):
+    async with state.proxy() as data:
+        data["_message"] = clb.message
+
+    await clb.message.edit_text(text.private.settings.alias_text)
     await states.add_alias.text.set()
 
 
@@ -26,7 +32,7 @@ async def start_text(clb: t.CallbackQuery):
 async def sticker_form(msg: t.Message, state: FSMContext):
     async with state.proxy() as data:
         data["key"] = msg.sticker.file_unique_id
-    await msg.answer(text.private.settings.command)
+    await msg.answer(text.private.settings.alias_command)
     await states.add_alias.command.set()
 
 
@@ -34,14 +40,14 @@ async def sticker_form(msg: t.Message, state: FSMContext):
 async def text_form(msg: t.Message, state: FSMContext):
     async with state.proxy() as data:
         data["key"] = msg.text
-    await msg.answer(text.private.settings.command)
+    await msg.answer(text.private.settings.alias_command)
     await states.add_alias.command.set()
 
 
 @dp.message_handler(f.message.is_private, commands=alias_commands, state=states.add_alias.command)
 async def command_form(msg: t.Message, state: FSMContext):
     async with state.proxy() as data:
-        from_msg: t.Message = data["settings_message"]
+        from_msg: t.Message = data["_message"]
         key: str = data["key"]
         value: str = msg.text
     with MessageData.data(from_msg) as data:

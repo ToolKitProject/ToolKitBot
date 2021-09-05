@@ -9,7 +9,7 @@ from libs.errors import MyError, ERRORS, IGNORE, ForceError
 from libs.user import User
 from src.objects import Database
 from src import other
-from libs.commandParser import ParsedArgs
+from libs.command_parser import ParsedArgs
 
 
 @dp.errors_handler()

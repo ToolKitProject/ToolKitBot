@@ -7,7 +7,7 @@ import src
 from bot import dp
 from libs import errors as e
 from libs.buttons import Menu
-from libs.commandParser import ParsedArgs
+from libs.command_parser import ParsedArgs
 from libs.settings import Property, SettingsType
 from src.objects import MessageData
 from src import other, filters as f
@@ -67,7 +67,7 @@ async def back(clb: t.CallbackQuery):
 @dp.message_handler(f.message.is_private, commands=["cancel"], state="*")
 async def cancel(msg: t.Message, state: FSMContext):
     async with state.proxy() as data:
-        from_msg: t.Message = data["settings_message"]
+        from_msg: t.Message = data["_message"]
     with MessageData.data(from_msg) as data:
         prop: Property = data.property
         settings: SettingsType = data.settings

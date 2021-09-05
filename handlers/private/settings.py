@@ -6,7 +6,7 @@ from aiogram.utils.callback_data import CallbackData
 
 import handlers.all
 from bot import dp
-from handlers.private import alias_form
+from handlers.private import alias_form, report_form
 from libs.buttons import Submenu
 from libs.chat import Chat
 from libs.errors import EmptyOwns
@@ -59,15 +59,26 @@ async def chat_settings(clb: t.CallbackQuery):
 
 @s.chat.add_alias(f.message.is_private)
 async def add_alias(clb: t.CallbackQuery, state: FSMContext):
-    async with state.proxy() as data:
-        data["settings_message"] = clb.message
     with MessageData.data() as data:
         prop: Property = data.property
 
     if prop.key == "sticker_alias":
-        await alias_form.start_sticker(clb)
+        await alias_form.start_sticker(clb, state)
     elif prop.key == "text_alias":
-        await alias_form.start_text(clb)
+        await alias_form.start_text(clb, state)
+
+
+@s.chat.set_report_count(f.message.is_private)
+@s.chat.set_report_command(f.message.is_private)
+@s.chat.set_report_delta(f.message.is_private)
+async def start_report_form(clb: t.CallbackQuery, state: FSMContext):
+    type = clb.data
+    if type == "set_report_command":
+        await report_form.start_command(clb, state)
+    elif type == "set_report_count":
+        await report_form.start_count(clb, state)
+    elif type == "set_report_delta":
+        await report_form.start_delta(clb, state)
 
 
 @dp.callback_query_handler(f.message.is_private, alias_data.filter())
@@ -124,13 +135,3 @@ def format_callback(t: str):
     with MessageData.data() as data:
         target: p.Union[Chat, User] = data.chat or data.user
     return t.format(mode=str(text.statistic_modes[target.statistic_mode]))
-
-
-@s.chat.set_report_count(f.message.is_private)
-async def edit_lang(clb: t.CallbackQuery):
-    pass
-
-
-@s.chat.set_report_command(f.message.is_private)
-async def edit_lang(clb: t.CallbackQuery):
-    pass

@@ -45,7 +45,10 @@ class states:
         command = s.Stage(alias_commands)
 
     class set_report_command(s.StageGroup):
-        pass
+        command = s.Stage(alias_commands)
 
     class set_report_count(s.StageGroup):
-        pass
+        count = s.Stage()
+
+    class set_report_delta(s.StageGroup):
+        delta = s.Stage()

@@ -6,7 +6,7 @@ from datetime import datetime
 from aiogram import types as t
 
 from bot import client
-from libs.commandParser import ParsedArgs
+from libs.command_parser import ParsedArgs
 from libs.user import User
 from src.objects import Database
 from src import buttons, text, filters as f, utils as u
