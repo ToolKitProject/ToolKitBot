@@ -6,9 +6,9 @@ from libs.chat import Chat
 from libs.command_parser import ParsedArgs
 from libs.database import LogType as l
 from libs.user import User
-from src.objects import Database
-from src import text, filters as f, utils as u
-from src import other
+from src.instances import Database
+from src import filters as f, utils as u
+from locales import other, text
 
 
 @other.parsers.report(

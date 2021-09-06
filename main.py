@@ -29,10 +29,10 @@ else:
     config.token = config.test_token
 
 from bot import dp, client
-import handlers
-from src.objects import MessageData
+from src.instances import MessageData
 from libs import locales
-from src import other, system
+from src import system
+from locales import other
 from src.utils import NewInstance, LogMiddleware
 
 

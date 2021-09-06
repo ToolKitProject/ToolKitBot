@@ -59,7 +59,7 @@ class UserText:
     gettext: p.Callable[[str], str]
 
     def __init__(self):
-        from src.objects import Database
+        from src.instances import Database
         from src.utils import get_value
 
         user = t.User.get_current()

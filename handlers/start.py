@@ -7,8 +7,8 @@ from aiogram import types as t
 from libs.chat import Chat
 from libs.errors import MyError, ERRORS, IGNORE, ForceError
 from libs.user import User
-from src.objects import Database
-from src import other
+from src.instances import Database
+from locales import other
 from libs.command_parser import ParsedArgs
 
 

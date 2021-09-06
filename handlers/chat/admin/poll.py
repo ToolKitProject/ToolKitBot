@@ -4,8 +4,9 @@ from bot import bot
 from libs import errors as e
 from libs.command_parser import ParsedArgs
 from libs.user import User
-from src.objects import MessageData
-from src import buttons as b, filters as f
+from src.instances import MessageData
+from src import filters as f
+from locales import buttons as b
 from .restrict import get_text, execute_action
 
 

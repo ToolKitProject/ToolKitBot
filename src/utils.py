@@ -2,8 +2,9 @@ from aiogram import types as t
 from aiogram.dispatcher.middlewares import BaseMiddleware
 
 import typing as p
-from src import other, filters as f
-from src.objects import Database
+from src import filters as f
+from locales import other
+from src.instances import Database
 from libs.database import LogType as l
 from aiogram.types import ContentType as c
 

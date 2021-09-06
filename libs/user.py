@@ -6,8 +6,8 @@ from aiogram.utils.exceptions import MigrateToChat, ChatNotFound
 
 from libs import errors as e, database as d
 from libs.locales import UserText
-from src.objects import Cache
-from src.objects import Database
+from src.instances import Cache
+from src.instances import Database
 from src.utils import get_value
 from .database import userOBJ, LogType as l
 

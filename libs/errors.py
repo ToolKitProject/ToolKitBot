@@ -5,7 +5,8 @@ from aiogram import types as t
 from asyncio import sleep
 import logging
 from traceback import format_exc
-from src import text, filters as f
+from src import filters as f
+from locales import text
 
 
 class MyError(Exception):
@@ -38,7 +39,7 @@ class MyError(Exception):
             return member.from_user
 
     async def answer(self):
-        from src.buttons import delete_this
+        from locales.buttons import delete_this
         upd = t.Update.get_current()
         rm = None
         if self.delete and await f.message.is_chat.check(upd.message or upd.callback_query or upd.chat_member):

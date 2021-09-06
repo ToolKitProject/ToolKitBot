@@ -2,8 +2,9 @@ from bot import dp, bot
 from aiogram import types as t
 
 from libs.chat import Chat
-from src.objects import Database
-from src import text, buttons, filters as f
+from src.instances import Database
+from src import filters as f
+from locales import text, buttons
 
 
 @dp.my_chat_member_handler(f.user.add_member, f.message.is_chat)

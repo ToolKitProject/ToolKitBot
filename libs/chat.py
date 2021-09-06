@@ -3,7 +3,7 @@ from datetime import timedelta
 
 from aiogram import types as t, Bot
 
-from src.objects import Database, Cache
+from src.instances import Database, Cache
 from .database import chatOBJ
 from src.utils import get_value
 

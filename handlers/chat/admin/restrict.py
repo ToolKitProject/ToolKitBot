@@ -6,11 +6,12 @@ from aiogram import types as t
 
 from bot import bot
 from handlers.chat.admin import purge
-from libs.command_parser import ParsedArgs, dates
+from libs.command_parser import ParsedArgs
+from src.parsers import dates
 from libs.user import User
-from src.objects import MessageData, Database
-from src import text, buttons, filters as f, utils as u
-from src import other
+from src.instances import MessageData, Database
+from src import filters as f, utils as u
+from locales import other, text, buttons
 
 
 @other.parsers.restrict(

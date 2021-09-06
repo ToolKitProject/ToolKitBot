@@ -6,8 +6,8 @@ from aiogram.types import ChatMemberStatus as s
 
 from bot import bot
 from libs import errors as e
-from src.objects import Database
-from src.system import regex as r
+from src.instances import Database
+from src.regex import regex as r
 
 objType = p.Union[t.Message, t.CallbackQuery, t.ChatMemberUpdated]
 

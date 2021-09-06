@@ -6,10 +6,11 @@ from libs import errors as e
 from libs.buttons import Submenu
 from libs.chat import Chat
 from libs.settings import Property, SettingsType
-from src.objects import MessageData
+from src.instances import MessageData
 from src.system import alias_commands
-from src.system import states
-from src import text, filters as f
+from src.states import states
+from src import filters as f
+from locales import text
 
 
 async def start_sticker(clb: t.CallbackQuery, state: FSMContext):

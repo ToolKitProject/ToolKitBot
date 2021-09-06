@@ -12,8 +12,9 @@ from libs.chat import Chat
 from libs.errors import EmptyOwns
 from libs.settings import Property, SettingsType
 from libs.user import User
-from src.objects import MessageData
-from src import buttons, text, filters as f, utils as u
+from src.instances import MessageData
+from src import filters as f, utils as u
+from locales import text, buttons
 
 s = buttons.private.settings
 alias_data = CallbackData("delete_alias", "key")

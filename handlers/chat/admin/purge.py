@@ -8,9 +8,9 @@ from aiogram import types as t
 from bot import client
 from libs.command_parser import ParsedArgs
 from libs.user import User
-from src.objects import Database
-from src import buttons, text, filters as f, utils as u
-from src import other
+from src.instances import Database
+from src import filters as f, utils as u
+from locales import other, text, buttons
 
 
 @other.parsers.purge(

@@ -4,7 +4,8 @@ from aiogram import types as t, Dispatcher, Bot
 from aiogram.dispatcher.filters import state as s
 
 from libs import commands as c
-from src import other, system
+from src import system
+from locales import other
 
 
 class StageGroup(s.StatesGroup):

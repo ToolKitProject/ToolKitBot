@@ -3,15 +3,15 @@ import typing as p
 from aiogram import types as t
 from aiogram.dispatcher import FSMContext
 
-import src
 from bot import dp
 from libs import errors as e
 from libs.buttons import Menu
 from libs.command_parser import ParsedArgs
 from libs.settings import Property, SettingsType
-from src.objects import MessageData
-from src import other, filters as f
-from src.system import states
+from src.instances import MessageData
+from src import filters as f
+from locales import other
+from src.states import states
 
 
 @other.parsers.help()
@@ -34,7 +34,7 @@ async def help(msg: t.Message, parsed: ParsedArgs):  # help command
     await msg.answer(text, disable_web_page_preview=True)
 
 
-@src.buttons.delete_this(state="*")
+@locales.buttons.delete_this(state="*")
 async def delete_this(clb: t.CallbackQuery):
     """
     *delete_this* button handler
@@ -42,7 +42,7 @@ async def delete_this(clb: t.CallbackQuery):
     await MessageData.delete(clb.message, False)
 
 
-@src.buttons.back(state="*")
+@locales.buttons.back(state="*")
 async def back(clb: t.CallbackQuery):
     """
     *back* button handler

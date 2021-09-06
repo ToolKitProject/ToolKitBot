@@ -23,10 +23,9 @@ class Menu(t.InlineKeyboardMarkup):
         return Menu(self.title, row_width=self.row_width, inline_keyboard=self.inline_keyboard, undo=self.undo)
 
     async def send(self, history: bool = True):
-        import src
         menu = self.copy
         if self.undo:
-            menu.row(src.buttons.back)
+            menu.row(locales.buttons.back)
 
         msg = t.Message.get_current() or t.CallbackQuery.get_current().message
         msg = await msg.answer(self.title, reply_markup=menu)
@@ -34,10 +33,9 @@ class Menu(t.InlineKeyboardMarkup):
         return msg
 
     async def edit(self, history: bool = True):
-        import src
         menu = self.copy
         if self.undo:
-            menu.row(src.buttons.back)
+            menu.row(locales.buttons.back)
 
         msg = t.Message.get_current() or t.CallbackQuery.get_current().message
         await msg.edit_text(self.title, reply_markup=menu)
@@ -45,7 +43,7 @@ class Menu(t.InlineKeyboardMarkup):
         return msg
 
     async def save_storage(self, msg: t.Message, history: bool = True):
-        from src.objects import MessageData
+        from src.instances import MessageData
         with MessageData.data(msg) as data:
             for key, value in self.storage.items():
                 data[key] = value

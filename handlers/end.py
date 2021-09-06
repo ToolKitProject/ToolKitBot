@@ -4,7 +4,7 @@ from aiogram import types as t
 
 from bot import dp
 from src import filters as f
-from src.system import regex as r
+from src.regex import regex as r
 from libs import errors as e
 from libs.chat import Chat
 

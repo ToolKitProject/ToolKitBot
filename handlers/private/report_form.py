@@ -1,8 +1,8 @@
 from aiogram import types as t
 from aiogram.dispatcher import FSMContext
 
-from src import text
-from src.system import states
+from locales import text
+from src.states import states
 
 
 async def start_command(clb: t.CallbackQuery, state: FSMContext):

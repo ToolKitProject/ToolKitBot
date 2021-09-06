@@ -1,8 +1,9 @@
 from datetime import timedelta
 
-from libs import command_parser as p, commands as c
+import src.parsers as p
+from libs import commands as c
 from libs.locales import Text as _
-from src import text
+from locales import text
 from src.system import restrict_commands
 
 
