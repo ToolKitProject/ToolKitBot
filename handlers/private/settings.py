@@ -126,8 +126,8 @@ async def statistic_change(clb: t.CallbackQuery, callback_data: p.Dict[str, str]
     else:
         target.userOBJ.settings = target.settings
 
-    await menu.edit(False)
     await clb.answer(text.private.settings.statistic_mode_changed)
+    await menu.edit(False)
 
 
 @buttons.statistic_title.format_callback()

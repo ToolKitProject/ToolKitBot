@@ -23,9 +23,11 @@ class Menu(t.InlineKeyboardMarkup):
         return Menu(self.title, row_width=self.row_width, inline_keyboard=self.inline_keyboard, undo=self.undo)
 
     async def send(self, history: bool = True):
+        from locales import buttons
+
         menu = self.copy
         if self.undo:
-            menu.row(locales.buttons.back)
+            menu.row(buttons.back)
 
         msg = t.Message.get_current() or t.CallbackQuery.get_current().message
         msg = await msg.answer(self.title, reply_markup=menu)
@@ -33,9 +35,11 @@ class Menu(t.InlineKeyboardMarkup):
         return msg
 
     async def edit(self, history: bool = True):
+        from locales import buttons
+
         menu = self.copy
         if self.undo:
-            menu.row(locales.buttons.back)
+            menu.row(buttons.back)
 
         msg = t.Message.get_current() or t.CallbackQuery.get_current().message
         await msg.edit_text(self.title, reply_markup=menu)

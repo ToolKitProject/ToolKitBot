@@ -7,8 +7,8 @@ from libs.buttons import Submenu
 from libs.chat import Chat
 from libs.settings import Property, SettingsType
 from src.instances import MessageData
-from src.system import alias_commands
-from src.states import states
+from src.commands import alias_commands
+from src import states
 from src import filters as f
 from locales import text
 

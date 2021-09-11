@@ -67,7 +67,7 @@ class UserText:
         self.lang = None
         if user:  # if user found
             userOBJ = Database.get_user(user.id)
-            self.lang = get_value(userOBJ.settings, "lang", user.language_code)
+            self.lang = get_value(userOBJ.settings, ["lang"], user.language_code)
         else:
             self.lang = lang
 

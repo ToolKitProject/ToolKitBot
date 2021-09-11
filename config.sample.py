@@ -1,5 +1,11 @@
 from aiogram.types import User
 
+# (./locales)
+langs = {
+    "ru": "🇷🇺 Русский",
+    # "pl": "🇵🇱 Polski"
+}  # DO NOT ADD ENGLISH
+
 token = ""
 main_token = "{main_token}"  # main bot token (-m --main)
 test_token = "{test_token}"  # test bot token (-t --test)

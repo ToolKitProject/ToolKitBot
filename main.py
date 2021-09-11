@@ -14,11 +14,15 @@ parser = optparse.OptionParser(conflict_handler="resolve")
 parser.add_option('-t', '--test',
                   action="store_true",
                   dest='test',
-                  help='test token')
+                  help='Start with test token')
 parser.add_option('-m', '--main',
                   action="store_true",
                   dest='main',
-                  help='main token')
+                  help='Start with main token')
+parser.add_option('-i', '--init-commands',
+                  action="store_true",
+                  dest='commands',
+                  help='Re init bot commands')
 values, args = parser.parse_args()
 
 if values.test:
@@ -29,11 +33,17 @@ else:
     config.token = config.test_token
 
 from bot import dp, client
-from src.instances import MessageData
-from libs import locales
-from src import system
-from locales import other
-from src.utils import NewInstance, LogMiddleware
+import libs
+import src
+import locales
+import handlers
+
+other = locales.other
+MessageData = src.instances.MessageData
+langs = config.langs
+locales = libs.locales
+NewInstance = src.utils.NewInstance
+LogMiddleware = src.utils.LogMiddleware
 
 
 def close(signal: int, frame):
@@ -53,11 +63,11 @@ async def startup(dp: Dispatcher):
     logging.warning("Start client")
     await client.start()
 
-    if values.main:
+    if values.main or values.commands:
         logging.warning("Init commands")
         try:
             await other.command_list.set()
-            for l in system.langs:
+            for l in langs:
                 locales.lang = l
                 await other.command_list.set()
         except Exception as e:

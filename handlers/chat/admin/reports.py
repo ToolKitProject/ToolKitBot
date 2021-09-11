@@ -28,12 +28,12 @@ async def report(msg: t.Message, parsed: ParsedArgs):
     )
 
     for user in users:
+        Database.add_log(chat.id, msg.from_user.id, user.id, l.REPORT, msg.date)
+        
         txt += text.chat.admin.report_sample.format(
             user=user.ping,
             user_reports=user.get_reports(chat),
             max_reports=chat.max_reports
         )
-
-        Database.add_log(chat.id, msg.from_user.id, user.id, l.REPORT, msg.date)
 
     await msg.answer(txt)

@@ -17,7 +17,7 @@ async def start(msg: t.Message):
         if type == "chatsettings":
             await chat_settings(msg, int(other[0]))
     else:
-        await msg.answer(text.private.start_text)
+        await msg.answer(text.private.start_text, disable_web_page_preview=True)
 
 
 async def chat_settings(msg: t.Message, chat_id: int):

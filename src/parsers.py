@@ -51,7 +51,7 @@ class dates:
 
 class Command(BaseParser):
     def __init__(self, commands: p.Union[p.List[str], str], name: str):
-        from src.regex import regex as r
+        from . import regex as r
         self.commands = commands
         self.name = name
 
@@ -170,7 +170,7 @@ class ReasonArg(BaseArg):
             required: bool = False,
             default: p.Optional[p.Any] = ""
     ):
-        from src.regex import regex as r
+        from . import regex as r
         self.regexp = re.compile(r.parse.reason)
         super().__init__(dest, name, required, default)
 
@@ -198,7 +198,7 @@ class UserArg(BaseArg):
             required: bool = True,
             default: p.Optional[p.Any] = []
     ):
-        from src.regex import regex as r
+        from . import regex as r
         self.regexp = re.compile(r.parse.user)
         super().__init__(dest, name, required, default)
 
@@ -239,7 +239,7 @@ class DateArg(BaseArg):
             required: bool = False,
             default: p.Optional[p.Any] = timedelta()
     ):
-        from src.regex import regex as r
+        from . import regex as r
         super().__init__(dest, name, required, default)
         self.regexp = re.compile(r.parse.date)
 
@@ -281,7 +281,7 @@ class TextArg(BaseArg):
             required: bool = False,
             default: p.Optional[p.Any] = ""
     ):
-        from src.regex import regex as r
+        from . import regex as r
         self.regexp = re.compile(r.parse.text)
         self.sep = sep
         super().__init__(dest, name, required, default)
@@ -312,7 +312,7 @@ class NumberArg(BaseArg):
             default: p.Optional[p.Any] = 0
     ):
 
-        from src.regex import regex as r
+        from . import regex as r
         self.min = minimal
         self.max = maximal
         self.contain = contain
@@ -386,7 +386,7 @@ class Flag(BaseArg):
             name: str,
             required: bool = False
     ):
-        from src.regex import regex as r
+        from . import regex as r
         assert len(small) == 1
         assert len(full) > 1
 
@@ -422,7 +422,7 @@ class ValueFlag(Flag):
             name: str,
             required: bool = False
     ):
-        from src.regex import regex as r
+        from . import regex as r
 
         super().__init__(small, full, dest, name, required)
         self.regexp = re.compile(r.parse.value_flag)

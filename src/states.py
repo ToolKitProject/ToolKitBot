@@ -1,5 +1,5 @@
 from libs import stages as s
-from src.system import alias_commands
+from src.commands import alias_commands
 
 
 class add_alias(s.StageGroup):

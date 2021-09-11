@@ -4,7 +4,7 @@ import src.parsers as p
 from libs import commands as c
 from libs.locales import Text as _
 from locales import text
-from src.system import restrict_commands
+from src.commands import restrict_commands
 
 
 class commands:

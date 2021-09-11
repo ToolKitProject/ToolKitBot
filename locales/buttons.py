@@ -1,12 +1,11 @@
 import config
 from aiogram.types import InlineKeyboardMarkup as IM
-from src import system
+from config import langs
 from libs.buttons import Button, Menu, Submenu
 from libs.settings import Elements, Property, Settings
 from libs.locales import Text as _
 
-statistic_title = _("Off - Nothing will be saved (nothing) \n" +
-                    "Date only - Date of message will be saved (date) \n" +
+statistic_title = _("Date only - Date of message will be saved (date) \n" +
                     "Full - Text and data of message will be saved (text and data) \n" +
                     "Current: {mode}")
 _statistic_property = Property(
@@ -14,9 +13,8 @@ _statistic_property = Property(
     _("Statistic settings"),
     "statistic", row_width=3
 ).add(
-    Button(_("Off"), "statistic:0"),
-    Button(_("Date only"), "statistic:1"),
-    Button(_("Full"), "statistic:2")
+    Button(_("Date only"), "statistic:0"),
+    Button(_("Full"), "statistic:1")
 )
 
 
@@ -78,9 +76,9 @@ class private:
                 _statistic_property,
                 Property(_("Choose what you want to customize"), _("Reports"),
                          "report", row_width=1).add(
-                             set_report_command,
-                             set_report_count,
-                             set_report_delta
+                    set_report_command,
+                    set_report_count,
+                    set_report_delta
                 )
 
             )
@@ -96,7 +94,7 @@ class private:
         class private:
             change_lang = Submenu(_("Choose language"), _("Change language"), "change_lang", row_width=4).add(
                 *[Button(t, f"change_lang:{d}")
-                  for d, t in system.langs.items()],
+                  for d, t in langs.items()],
                 Button("🇬🇧 English", "change_lang:other")
             )
 

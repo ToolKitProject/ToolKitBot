@@ -9,7 +9,7 @@ from libs.locales import UserText
 from src.instances import Cache
 from src.instances import Database
 from src.utils import get_value
-from .database import userOBJ, LogType as l
+from libs.database import userOBJ, LogType as l
 
 
 class User:
@@ -88,11 +88,11 @@ class User:
 
     @property
     def statistic_mode(self) -> int:
-        return get_value(self.settings, ["statistic", "mode"], 2)
+        return get_value(self.settings, ["statistic", "mode"], 1)
 
     @Cache.register(timedelta(minutes=5))
     async def get_owns(self):
-        from .chat import Chat
+        from libs.chat import Chat
 
         owns: p.List[Chat] = []
         for chat in self.owns:

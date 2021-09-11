@@ -7,7 +7,9 @@ import typing as p
 
 updates = [
     "alter table Users drop column reports",
-    "alter table Chats change owner owner_id bigint not null"
+    "alter table Chats change owner owner_id bigint not null",
+    "delete from Messages where date=null"
+    "alter table Messages modify date datetime not null"
 ]
 
 term = shutil.get_terminal_size()

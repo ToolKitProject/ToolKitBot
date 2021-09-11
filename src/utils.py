@@ -2,14 +2,15 @@ from aiogram import types as t
 from aiogram.dispatcher.middlewares import BaseMiddleware
 
 import typing as p
-from src import filters as f
-from locales import other
-from src.instances import Database
+from . import filters as f
+from .instances import Database
 from libs.database import LogType as l
 from aiogram.types import ContentType as c
 
 
 async def get_help(msg: t.Message):
+    from locales import other
+
     if await f.message.is_reply.check(msg):
         return True
     if not msg.get_args():
@@ -74,14 +75,11 @@ class NewInstance(BaseMiddleware):
                 if user.statistic_mode < mode:
                     mode = user.statistic_mode
 
-                if mode == 2:
+                if mode >= 1:
                     Database.add_message(msg.from_user.id, msg.chat.id, msg.message_id, msg.text, msg.content_type,
                                          msg.date)
-                elif mode == 1:
-                    Database.add_message(msg.from_user.id, msg.chat.id, msg.message_id, type=msg.content_type,
-                                         date=msg.date)
                 elif mode == 0:
-                    Database.add_message(msg.from_user.id, msg.chat.id, msg.message_id)
+                    Database.add_message(msg.from_user.id, msg.chat.id, msg.message_id, date=msg.date)
 
 
 class LogMiddleware(BaseMiddleware):

@@ -3,9 +3,8 @@ from libs.locales import Text as _
 cancel = _("/cancel - to cancel")
 
 statistic_modes = {
-    0: _("Off"),
-    1: _("Date only"),
-    2: _("Full")
+    0: _("Date only"),
+    1: _("Full")
 }
 
 
@@ -38,13 +37,11 @@ class errors:
 
 
 class private:
-    start_text = _("Hi, I am a ToolKit bot and I am dedicated to everything you can imagine 😜 \n" +
-                   "What I can do 😊 \n" +
-                   "┣ Edit photo 🌅 \n" +
-                   "┣ Moderate groups ⚙️ \n" +
-                   "┣ Decrypt voice 🎤 \n" +
-                   "┣ Generate voice 🎙 \n" +
-                   "┗ Generate memes 😎")
+    start_text = _("What I can do\n" +
+                   "┗ Moderate groups ⚙️ \n" +
+                   "\n" +
+                   "GitHub - https://github.com/ToolKit-telegram \n" +
+                   "Creator - @igorechek06")
 
     class settings:
         chat_loading = _("🕒 Please wait,chats is loading")
@@ -68,8 +65,7 @@ class chat:
 
     start_text = _("Hello i am ToolKit bot \n" +
                    "What i can do this chat \n" +
-                   "┣ Moderate ⚙️ \n" +
-                   "┗ Decrypt voice messages 🎤 \n" +
+                   "┗ Moderate ⚙️ \n" +
                    " \n" +
                    "For administration commands to work, please grant these rights \n" +
                    "┣ Delete messages ⚠ \n" +

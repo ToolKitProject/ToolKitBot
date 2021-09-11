@@ -3,9 +3,8 @@ import typing as p
 from aiogram import types as t, Dispatcher, Bot
 from aiogram.dispatcher.filters import state as s
 
-from libs import commands as c
-from src import system
-from locales import other
+from . import commands as c
+from config import langs
 
 
 class StageGroup(s.StatesGroup):
@@ -30,7 +29,7 @@ class StageGroup(s.StatesGroup):
 
         if chat.type == t.ChatType.PRIVATE:
             await c.Chat(chat.id).delete("other")
-            for l in system.langs:
+            for l in langs:
                 await c.Chat(chat.id).delete(l)
 
         await dp.current_state().finish()
@@ -44,18 +43,20 @@ class Stage(s.State):
         super().__init__(state, group_name)
 
     async def set(self):
-        from src import system
+        from config import langs
         chat = t.Chat.get_current()
 
         if chat.type == t.ChatType.PRIVATE:
             await self.commands.set("other")
-            for l in system.langs:
+            for l in langs:
                 await self.commands.set(l)
 
         await super().set()
 
     @property
     def commands(self) -> c.Group:
+        from locales import other
+
         chat = t.Chat.get_current()
         commands = c.Chat(chat.id)
         for cmd in self._commands:

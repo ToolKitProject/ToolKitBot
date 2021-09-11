@@ -193,7 +193,7 @@ class Database:
         )
 
     def add_user(self, id: int) -> userOBJ:
-        self.update(f"INSERT INTO Users VALUES ({id},{JSON_DEFAULT!r},{JSON_DEFAULT!r},{JSON_DEFAULT!r})")
+        self.update(f"INSERT INTO Users VALUES ({id},{JSON_DEFAULT!r},{JSON_DEFAULT!r})")
         return self.get_user(id)
 
     def add_chat(self, id: int, owner_id: int) -> chatOBJ:
@@ -314,7 +314,7 @@ class Database:
             else:
                 sql += f"date > {fd} AND date < {td}"
 
-        return self.get(sql, size=1000)
+        return list(sum(self.get(sql, size=1000), ()))
 
     def get_all_messages(self) -> p.List[messageOBJ]:
         return self._create_list_of_objects(self.get("SELECT * FROM Messages"), messageOBJ)

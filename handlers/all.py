@@ -10,8 +10,8 @@ from libs.command_parser import ParsedArgs
 from libs.settings import Property, SettingsType
 from src.instances import MessageData
 from src import filters as f
-from locales import other
-from src.states import states
+from locales import other, buttons
+from src import states
 
 
 @other.parsers.help()
@@ -34,7 +34,7 @@ async def help(msg: t.Message, parsed: ParsedArgs):  # help command
     await msg.answer(text, disable_web_page_preview=True)
 
 
-@locales.buttons.delete_this(state="*")
+@buttons.delete_this(state="*")
 async def delete_this(clb: t.CallbackQuery):
     """
     *delete_this* button handler
@@ -42,7 +42,7 @@ async def delete_this(clb: t.CallbackQuery):
     await MessageData.delete(clb.message, False)
 
 
-@locales.buttons.back(state="*")
+@buttons.back(state="*")
 async def back(clb: t.CallbackQuery):
     """
     *back* button handler

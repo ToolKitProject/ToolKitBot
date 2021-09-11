@@ -4,7 +4,7 @@ from datetime import timedelta
 from aiogram import types as t, Bot
 
 from src.instances import Database, Cache
-from .database import chatOBJ
+from libs.database import chatOBJ
 from src.utils import get_value
 
 
@@ -38,7 +38,7 @@ class Chat:
     @classmethod
     @Cache.register(timedelta(minutes=10))
     async def create(cls, auth: p.Union[int, str, t.Chat]) -> "Chat":
-        from .user import User
+        from libs.user import User
         bot = Bot.get_current()
 
         if isinstance(auth, t.Chat):
@@ -81,7 +81,7 @@ class Chat:
 
     @property
     def statistic_mode(self) -> int:
-        return get_value(self.settings, ["statistic", "mode"], 2)
+        return get_value(self.settings, ["statistic", "mode"], 1)
 
     @property
     def max_reports(self) -> int:
