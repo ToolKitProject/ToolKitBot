@@ -69,7 +69,7 @@ class Stage(s.State):
         return func
 
     async def set(self):
-        from config import langs
+        from locales_config import langs
         chat = t.Chat.get_current()
 
         msg = t.Message.get_current()
