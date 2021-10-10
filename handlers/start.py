@@ -1,15 +1,15 @@
 import typing as p
 from datetime import datetime
 
-from bot import dp
 from aiogram import types as t
 
+from bot import dp
 from libs.chat import Chat
+from libs.command_parser import ParsedArgs
 from libs.errors import MyError, ERRORS, IGNORE, ForceError
 from libs.user import User
-from src.instances import Database
 from locales import other
-from libs.command_parser import ParsedArgs
+from src.instances import Database
 
 
 @dp.errors_handler()
@@ -31,14 +31,8 @@ async def errors(_, error: p.Union[MyError, Exception]):
 
 @other.parsers.test()
 async def test_xd(msg: t.Message, parsed: ParsedArgs):
-    td = datetime.now()
-    fd = td - parsed.delta
-    logs = Database.get_logs_by_date(fd, td)
-    txt = "id - Чат Исполнитель Цель Тип Время\n"
-    for log in logs:
-        chat = await Chat.create(log.chat_id)
-        target = await User.create(log.target_id)
-        executor = await User.create(log.executor_id)
+    a = t.InlineKeyboardMarkup().add(
+        t.InlineKeyboardButton("any text", callback_data="z" * 64)
+    )
 
-        txt += f"{log.log_id} - {chat.link} {executor.link} {target.link} {log.type} {log.date.isoformat(' ')}\n"
-    await msg.answer(txt)
+    await msg.answer("any text", reply_markup=a)

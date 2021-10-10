@@ -1,4 +1,5 @@
 restrict_commands = ["ban", "unban", "kick", "mute", "unmute"]
+set_report_commands = ["ban", "kick", "mute"]
 clear_commands = ["clear_history", "purge"]
-alias_commands = [*restrict_commands, *clear_commands]
+alias_commands = [*restrict_commands, *clear_commands, "report"]
 _cancel = ["cancel"]

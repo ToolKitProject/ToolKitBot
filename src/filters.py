@@ -6,8 +6,8 @@ from aiogram.types import ChatMemberStatus as s
 
 from bot import bot
 from libs import errors as e
-from .instances import Database
 from . import regex as r
+from .instances import MessageData
 
 objType = p.Union[t.Message, t.CallbackQuery, t.ChatMemberUpdated]
 
@@ -61,21 +61,15 @@ class AliasFilter(f.BoundFilter):
         pass
 
     async def check(self, msg: objType) -> bool:
-        from src.utils import get_value
+        from src.utils import get_aliases, get_alias_text
+
         if not isinstance(msg, t.Message):
             raise TypeError()
         if await message.is_private.check(msg):
             return False
-        chat = Database.get_chat(msg.chat.id)
 
-        aliases = []
-        text = None
-        if msg.sticker:
-            aliases = list(get_value(chat.settings, ["sticker_alias"], {}).keys())
-            text = msg.sticker.file_unique_id
-        elif msg.text:
-            aliases = list(get_value(chat.settings, ["text_alias"], {}).keys())
-            text = msg.text
+        aliases = get_aliases(msg)
+        text = get_alias_text(msg)
 
         for alias in aliases:
             pattern = re.compile(r.alias(alias), re.IGNORECASE)

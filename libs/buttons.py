@@ -22,26 +22,26 @@ class Menu(t.InlineKeyboardMarkup):
     def __deepcopy__(self, *args, **kwargs):
         return Menu(self.title, row_width=self.row_width, inline_keyboard=self.inline_keyboard, undo=self.undo)
 
-    async def send(self, history: bool = True):
+    async def send(self, history: bool = True, msg: t.Message = None):
         from locales import buttons
 
         menu = self.copy
         if self.undo:
             menu.row(buttons.back)
 
-        msg = t.Message.get_current() or t.CallbackQuery.get_current().message
+        msg = msg or t.Message.get_current() or t.CallbackQuery.get_current().message
         msg = await msg.answer(self.title, reply_markup=menu)
         await self.save_storage(msg, history)
         return msg
 
-    async def edit(self, history: bool = True):
+    async def edit(self, history: bool = True, msg: t.Message = None):
         from locales import buttons
 
         menu = self.copy
         if self.undo:
             menu.row(buttons.back)
 
-        msg = t.Message.get_current() or t.CallbackQuery.get_current().message
+        msg = msg or t.Message.get_current() or t.CallbackQuery.get_current().message
         await msg.edit_text(self.title, reply_markup=menu)
         await self.save_storage(msg, history)
         return msg
@@ -83,11 +83,11 @@ class Button(t.InlineKeyboardButton):
 
     def __call__(self, *filters, state=None):
         def wrapper(func):
-            return self.set_handler(*filters, func=func, state=state)
+            return self.set_action(*filters, func=func, state=state)
 
         return wrapper
 
-    def set_handler(self, *filters, func, state=None):
+    def set_action(self, *filters, func, state=None):
         if not self.callback_data:
             raise TypeError("This button has no callback_data")
 
@@ -113,7 +113,7 @@ class Submenu(Button):
     def __init__(self, title: str, text: str, callback_data: str,
                  row_width: int = 3, inline_keyboard=None, undo: bool = True, hide: bool = False, state=None):
         super().__init__(text=text, callback_data=callback_data)
-        self.set_handler(self._filter, func=self.__handler, state=state)
+        self.set_action(self._filter, func=self.__handler, state=state)
 
         self.__menu = Menu(title=title, row_width=row_width, inline_keyboard=inline_keyboard, undo=undo, hide=hide)
         self.storage = self.__menu.storage
@@ -131,11 +131,11 @@ class Submenu(Button):
         self.__menu.update(menu)
         return self
 
-    async def edit(self, save: bool = True):
-        return await self.__menu.edit(save)
+    async def edit(self, history: bool = True, msg: t.Message = None):
+        return await self.__menu.edit(history=history, msg=msg)
 
-    async def send(self):
-        return await self.__menu.send()
+    async def send(self, history: bool = True, msg: t.Message = None):
+        return await self.__menu.send(history=history, msg=msg)
 
     async def __handler(self, clb: t.CallbackQuery):
         await self.__menu.edit()

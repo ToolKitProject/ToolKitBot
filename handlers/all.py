@@ -2,16 +2,17 @@ import typing as p
 
 from aiogram import types as t
 from aiogram.dispatcher import FSMContext
+from aiogram.dispatcher.handler import CancelHandler
 
 from bot import dp
 from libs import errors as e
-from libs.buttons import Menu
+from libs.buttons import Menu, Submenu
 from libs.command_parser import ParsedArgs
 from libs.settings import Property, SettingsType
 from src.instances import MessageData
 from src import filters as f
 from locales import other, buttons
-from src import states
+from src import stages
 
 
 @other.parsers.help()
@@ -66,12 +67,16 @@ async def back(clb: t.CallbackQuery):
 
 @dp.message_handler(f.message.is_private, commands=["cancel"], state="*")
 async def cancel(msg: t.Message, state: FSMContext):
+    if await state.get_state() is None:
+        raise e.CommandNotFound()
+
     async with state.proxy() as data:
         from_msg: t.Message = data["_message"]
     with MessageData.data(from_msg) as data:
+        menu: Submenu = data.menu
         prop: Property = data.property
         settings: SettingsType = data.settings
 
-    to_msg = await prop.menu(settings).send()
+    to_msg = await menu.update(prop.menu(settings)).send()
     await MessageData.move(from_msg, to_msg)
-    await states.add_alias.finish()
+    await stages.add_alias.finish()

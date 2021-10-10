@@ -9,8 +9,11 @@ statistic_modes = {
 
 
 class errors:
-    class restrict:
-        pass
+    class operation_error:
+        CantRestrictChatOwner = _("Can't restrict chat owner")
+        UserIsAnAdministratorOfTheChat = _(
+            "User is an administrator of the chat")
+        CantRestrictSelf = _("Can't restrict self")
 
     class argument_error:
         ArgumentError = _("⚠ Invalid argument")
@@ -18,8 +21,8 @@ class errors:
         incorrect = _("Argument <b>{arg_name}</b> incorrect")
         required = _("Argument <b>{arg_name}</b> required")
 
-    class alias_type_error:
-        AliasTypeError = _("⚠ Wrong type")
+    class form_type_error:
+        FormTypeError = _("⚠ Wrong type")
 
         command_not_supported = _("Command not supported")
         sticker_supported = _("Only sticker supported")
@@ -46,15 +49,18 @@ class private:
     class settings:
         chat_loading = _("🕒 Please wait,chats is loading")
 
-        alias_sticker = _("1⃣ Send me sticker \n") + cancel
-        alias_text = _("1⃣ Send me text \n") + cancel
-        alias_command = _("2⃣ Send me command")
+        alias_sticker = _("Send me sticker \n") + cancel
+        alias_text = _("Send me text \n") + cancel
+        alias_command = _("Send me command")
 
         statistic_mode_changed = _("Statistic mode changed on {mode}")
 
-        report_count = _("Send me max report count \n") + cancel
-        report_command = _("Send me max report command \n") + cancel
-        report_delta = _("Send me expire report time (1m,1w 3d) \n") + cancel
+        report_command = _(
+            "Send me report command \nCurrent - {command} \n") + cancel
+        report_count = _(
+            "Send me max report count (3 - 20) \nCurrent - {count} \n") + cancel
+        report_delta = _(
+            "Send me expire report time (from '1d' to '1y') \nCurrent - {delta} days \n") + cancel
 
 
 class chat:
@@ -108,6 +114,7 @@ class chat:
 
         report = reason + admin + _("Reports ‼️:\n")
         report_sample = "   {user} {user_reports}/{max_reports}\n"
+        report_reason = _("Auto (/report)")
 
         options_poll = [_("✅ Yes"), _("⛔ No ")]
 

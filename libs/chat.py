@@ -81,8 +81,20 @@ class Chat:
 
     @property
     def statistic_mode(self) -> int:
-        return get_value(self.settings, ["statistic", "mode"], 1)
+        return get_value(self.settings, ["statistic", "mode"], default=1)
 
     @property
-    def max_reports(self) -> int:
-        return get_value(self.settings, ["report", "max_reports"], default=3)
+    def report_command(self) -> str:
+        return get_value(self.settings, ["report", "command"], default="/ban")
+
+    @property
+    def report_count(self) -> int:
+        return get_value(self.settings, ["report", "count"], default=3)
+
+    @property
+    def report_delta(self) -> timedelta:
+        return timedelta(seconds=get_value(
+            self.settings,
+            ["report", "delta"],
+            default=timedelta(days=365).total_seconds()
+        ))

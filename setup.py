@@ -8,8 +8,24 @@ import typing as p
 updates = [
     "alter table Users drop column reports",
     "alter table Chats change owner owner_id bigint not null",
-    "delete from Messages where date=null"
-    "alter table Messages modify date datetime not null"
+
+    "delete from Messages where date=null",
+    "alter table Messages modify date datetime not null",
+    "alter table Messages add reply_message_id BIGINT null after message_id",
+    "alter table Messages drop foreign key Messages_Chats_id_fk",
+    "alter table Messages add constraint Messages_Chats_id_fk foreign key (chat_id) references Chats (id) on delete cascade",
+    "alter table Messages drop foreign key Messages_Users_id_fk",
+    "alter table Messages add constraint Messages_Users_id_fk foreign key (user_id) references Users (id) on delete cascade",
+
+    "alter table Logs drop foreign key Logs_Chats_id_fk",
+    "alter table Logs add constraint Logs_Chats_id_fk foreign key (chat_id) references Chats (id) on delete cascade",
+    "alter table Logs drop foreign key Logs_Users_id_fk",
+    "alter table Logs add constraint Logs_Users_id_fk foreign key (executor_id) references Users (id) on delete cascade",
+    "alter table Logs drop foreign key Logs_Users_id_fk_2",
+    "alter table Logs add constraint Logs_Users_id_fk_2 foreign key (target_id) references Users (id) on delete cascade",
+
+    "alter table Chats drop foreign key Chats_Users_id_fk;",
+    "alter table Chats add constraint Chats_Users_id_fk foreign key (owner_id) references Users (id) on delete cascade;"
 ]
 
 term = shutil.get_terminal_size()
@@ -232,7 +248,7 @@ def load_mysql():
 
 
 def compile_po_files():
-    path = "locales/"
+    path = "i38n/"
     locales = os.listdir(path)
     lc = "LC_MESSAGES/"
 
@@ -285,8 +301,8 @@ def install_dependencies():
 
 
 def generate_locales_files(new_locale: p.Optional[str] = None):
-    path = "src/"
-    out_path = "locales/"
+    path = "locales/"
+    out_path = "i38n/"
     locales = os.listdir(out_path)
 
     if not locales:
@@ -326,7 +342,7 @@ def generate_locales_files(new_locale: p.Optional[str] = None):
 
 
 def create_locales():
-    path = "locales/"
+    path = "i38n/"
     while True:
         print("Leave blank to exit")
         lc = _input("Name of locale (telegram format)")
@@ -348,7 +364,7 @@ def create_locales():
     _clear()
     print("""
 To create the locale, the following remains:
-    1 - Fill in .pot file (locales/)
+    1 - Fill in .pot file (i38n/)
     2 - Run "Compile po files"
         """)
     _enter()
@@ -356,7 +372,7 @@ To create the locale, the following remains:
 
 
 def delete_locales():
-    path = "locales/"
+    path = "i38n/"
     while True:
         _clear()
         print("Leave blank to exit")

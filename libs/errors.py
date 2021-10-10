@@ -149,37 +149,37 @@ class EmptyOwns(MyError):
         self.alert = True
 
 
-class AliasTypeError(MyError):
+class FormTypeError(MyError):
     def __init__(self):
         super().__init__()
-        self.text = self._text.errors.alias_type_error.AliasTypeError
+        self.text = self._text.errors.form_type_error.FormTypeError
         self.auto_delete = 5
         self.delete = True
         self.alert = True
 
-    class AliasCommandNotSupported(MyError):
+    class FormCommandNotSupported(MyError):
         def __init__(self):
             super().__init__()
-            self.text = f"{self._text.errors.alias_type_error.AliasTypeError}\n" \
-                        f"┗━{self._text.errors.alias_type_error.command_not_supported}"
+            self.text = f"{self._text.errors.form_type_error.FormTypeError}\n" \
+                        f"┗━{self._text.errors.form_type_error.command_not_supported}"
             self.auto_delete = False
             self.delete = False
             self.alert = False
 
-    class AliasStickerSupported(MyError):
+    class FormStickerSupported(MyError):
         def __init__(self):
             super().__init__()
-            self.text = f"{self._text.errors.alias_type_error.AliasTypeError}\n" \
-                        f"┗━{self._text.errors.alias_type_error.sticker_supported}"
+            self.text = f"{self._text.errors.form_type_error.FormTypeError}\n" \
+                        f"┗━{self._text.errors.form_type_error.sticker_supported}"
             self.auto_delete = False
             self.delete = False
             self.alert = False
 
-    class AliasTextSupported(MyError):
+    class FormTextSupported(MyError):
         def __init__(self):
             super().__init__()
-            self.text = f"{self._text.errors.alias_type_error.AliasTypeError}\n" \
-                        f"┗━{self._text.errors.alias_type_error.text_supported}"
+            self.text = f"{self._text.errors.form_type_error.FormTypeError}\n" \
+                        f"┗━{self._text.errors.form_type_error.text_supported}"
             self.auto_delete = False
             self.delete = False
             self.alert = False
@@ -230,6 +230,36 @@ class PollCheck(MyError):
         self.alert = True
 
 
+class CantRestrictChatOwner(MyError):
+    def __init__(self, user_link: str):
+        super().__init__()
+        self.text = f"⚠ {user_link}\n" \
+                    f"┗━{self._text.errors.operation_error.CantRestrictChatOwner}"
+        self.auto_delete = False
+        self.delete = False
+        self.alert = False
+
+
+class UserIsAnAdministratorOfTheChat(MyError):
+    def __init__(self, user_link: str):
+        super().__init__()
+        self.text = f"⚠ {user_link}\n" \
+                    f"┗━{self._text.errors.operation_error.UserIsAnAdministratorOfTheChat}"
+        self.auto_delete = False
+        self.delete = False
+        self.alert = False
+
+
+class CantRestrictSelf(MyError):
+    def __init__(self, user_link: str):
+        super().__init__()
+        self.text = f"⚠ {user_link}\n" \
+                    f"┗━{self._text.errors.operation_error.CantRestrictSelf}"
+        self.auto_delete = False
+        self.delete = False
+        self.alert = False
+
+
 ERRORS = [
     ForceError,
     CommandNotFound,
@@ -239,10 +269,10 @@ ERRORS = [
     ArgumentError,
     HasNotPermission,
     EmptyOwns,
-    AliasTypeError,
-    AliasTypeError.AliasStickerSupported,
-    AliasTypeError.AliasTextSupported,
-    AliasTypeError.AliasCommandNotSupported,
+    FormTypeError,
+    FormTypeError.FormStickerSupported,
+    FormTypeError.FormTextSupported,
+    FormTypeError.FormCommandNotSupported,
     AlreadyExists,
     NotReply,
     BotHasNotPermission,
@@ -256,4 +286,5 @@ IGNORE = [
     ex.TimeoutWarning,
     ex.NetworkError,
     asyncio.TimeoutError,
+    ex.RetryAfter
 ]

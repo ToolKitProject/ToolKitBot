@@ -1,5 +1,5 @@
 def alias(alias: str):
-    return f"^{alias}\\b"
+    return f"^{alias}( |$)"
 
 
 class parse:

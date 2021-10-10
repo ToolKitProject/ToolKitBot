@@ -2,6 +2,9 @@ import typing as p
 from abc import ABC, abstractmethod
 from aiogram import types as t
 
+from bot import dp
+from . import errors as e
+
 
 class ParsedArgs:
     def __init__(self, **kwargs: str):
@@ -69,10 +72,15 @@ class ParsedArgs:
 
 
 class ParseObj:
-    def __init__(self, msg: t.Message):
-        self.text = msg.text
-        self.entities = msg.entities
-        self.reply_user = msg.reply_to_message.from_user if msg.reply_to_message else None
+    def __init__(self, text: str, entities: p.List[t.MessageEntity], reply_user: t.User):
+        self.text = text
+        self.entities = entities
+        self.reply_user = reply_user
+
+    def find(self, regexp: p.Pattern):
+        matches = regexp.finditer(self.text)
+        self.text = regexp.sub("", self.text)
+        return list(matches)
 
 
 class BaseArg(ABC):
@@ -91,5 +99,98 @@ class BaseArg(ABC):
         pass
 
 
-class BaseParser(ABC):
-    pass
+class BaseParser:
+    args: p.List[BaseArg]
+
+    def __init__(self):
+        self.args = []
+
+    def __call__(self, *filters, state=None):
+        def wrapper(func):
+            return self.set_action(*filters, func=func, state=state)
+
+        return wrapper
+
+    def add(self, *args: BaseArg):
+        self.args += list(args)
+        return self
+
+    async def parse_message(self, msg: t.Message, chek: bool = True):
+        ru = msg.reply_to_message.from_user if msg.reply_to_message else None
+        return await self.parse(msg.text, msg.entities, ru, chek)
+
+    async def parse(self, text: str, entities: p.List[t.MessageEntity] = [], reply_user: t.User = None,
+                    check: bool = True):
+        items = ParsedArgs()
+        parseOBJ = ParseObj(text, entities, reply_user)
+        checkOBJ = ParseObj(text, entities, reply_user)
+
+        if check:
+            await self.check(text, entities, reply_user)
+
+        for arg in self.args:
+            if await arg.check(checkOBJ):
+                try:
+                    item = await arg.parse(parseOBJ)
+                except Exception:
+                    raise e.ArgumentError.ArgumentIncorrect(arg.name)
+            else:
+                item = arg.default
+
+            items.add(arg.dest, item)
+        return items
+
+    async def check(self, text: str, entities: p.List[t.MessageEntity] = [], reply_user: t.User = None,
+                    err: bool = True):
+        obj = ParseObj(text, entities, reply_user)
+
+        for arg in self.args:
+            if arg.required:
+                if not await arg.check(obj):
+                    if err:
+                        raise e.ArgumentError.ArgumentRequired(arg.name)
+                    else:
+                        return False
+        return True
+
+    async def check_all(self, text: str, entities: p.List[t.MessageEntity] = [], reply_user: t.User = None,
+                        err: bool = False):
+        obj = ParseObj(text, entities, reply_user)
+        for arg in self.args:
+            if not await arg.check(obj):
+                if err:
+                    raise e.ArgumentError.ArgumentRequired(arg.name)
+                else:
+                    return False
+        return True
+
+    async def check_types(self, text: str, entities: p.List[t.MessageEntity] = [], reply_user: t.User = None,
+                          err: bool = False, *types: str):
+        obj = ParseObj(text, entities, reply_user)
+        for arg in self.args:
+            if arg.dest in types:
+                if not await arg.check(obj):
+                    if err:
+                        raise e.ArgumentError.ArgumentRequired(arg.name)
+                    else:
+                        return False
+        return True
+
+    def set_action(self, *filters, func: p.Callable[[t.Message, ParsedArgs], p.Any], state=None):
+        async def pre_handler(msg: t.Message):
+            parsed = await self.parse_message(msg)
+            await func(msg, parsed)
+
+        filters = list(filters)
+        filters.insert(0, self.filter)
+
+        dp.register_message_handler(
+            pre_handler,
+            *filters,
+            state=state
+        )
+        return pre_handler
+
+    @abstractmethod
+    async def filter(self, msg: t.Message):
+        pass

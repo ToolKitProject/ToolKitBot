@@ -60,6 +60,8 @@ async def shutdown(dp: Dispatcher):
 
 async def startup(dp: Dispatcher):
     config.bot = await dp.bot.get_me()
+    src.instances.Database.get_user(config.bot.id)
+
     logging.warning("Start client")
     await client.start()
 

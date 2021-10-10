@@ -1,51 +1,35 @@
+import typing as p
+
 from aiogram import types as t
 from aiogram.dispatcher import FSMContext
 
-from bot import dp
+import handlers
 from libs import errors as e
-from libs.buttons import Submenu
 from libs.chat import Chat
-from libs.settings import Property, SettingsType
-from src.instances import MessageData
-from src.commands import alias_commands
-from src import states
+from libs.settings import SettingsType
+from libs.user import User
 from src import filters as f
-from locales import text
+from src import stages
+from src.commands import alias_commands
+from src.instances import MessageData
+from src.utils import save_target_settings
 
 
-async def start_sticker(clb: t.CallbackQuery, state: FSMContext):
-    async with state.proxy() as data:
-        data["_message"] = clb.message
-
-    await clb.message.edit_text(text.private.settings.alias_sticker)
-    await states.add_alias.sticker.set()
-
-
-async def start_text(clb: t.CallbackQuery, state: FSMContext):
-    async with state.proxy() as data:
-        data["_message"] = clb.message
-
-    await clb.message.edit_text(text.private.settings.alias_text)
-    await states.add_alias.text.set()
-
-
-@dp.message_handler(f.message.is_private, content_types=[t.ContentType.STICKER], state=states.add_alias.sticker)
+@stages.add_alias.sticker(f.message.is_private, content_types=[t.ContentType.STICKER])
 async def sticker_form(msg: t.Message, state: FSMContext):
     async with state.proxy() as data:
         data["key"] = msg.sticker.file_unique_id
-    await msg.answer(text.private.settings.alias_command)
-    await states.add_alias.command.set()
+    await stages.add_alias.command.set()
 
 
-@dp.message_handler(f.message.is_private, content_types=[t.ContentType.TEXT], state=states.add_alias.text)
+@stages.add_alias.text(f.message.is_private, content_types=[t.ContentType.TEXT])
 async def text_form(msg: t.Message, state: FSMContext):
     async with state.proxy() as data:
         data["key"] = msg.text
-    await msg.answer(text.private.settings.alias_command)
-    await states.add_alias.command.set()
+    await stages.add_alias.command.set()
 
 
-@dp.message_handler(f.message.is_private, commands=alias_commands, state=states.add_alias.command)
+@stages.add_alias.command(f.message.is_private, commands=alias_commands)
 async def command_form(msg: t.Message, state: FSMContext):
     async with state.proxy() as data:
         from_msg: t.Message = data["_message"]
@@ -53,29 +37,24 @@ async def command_form(msg: t.Message, state: FSMContext):
         value: str = msg.text
     with MessageData.data(from_msg) as data:
         settings: SettingsType = data.settings
-        prop: Property = data.property
-        menu: Submenu = data.menu
-        chat: Chat = data.chat
+        target: p.Union[Chat, User] = data.target
 
     settings[key] = value
-    chat.chatOBJ.settings = chat.settings
+    save_target_settings(target)
 
-    menu.update(prop.menu(settings))
-    to_msg = await menu.send()
-    await MessageData.move(from_msg, to_msg)
-    await states.add_alias.finish()
+    await handlers.all.cancel(msg, state)
 
 
-@dp.message_handler(f.message.is_private, content_types=t.ContentType.ANY, state=states.add_alias.text)
+@stages.add_alias.text(f.message.is_private, content_types=t.ContentType.ANY)
 async def text_supported_error(msg: t.Message):
-    raise e.AliasTypeError.AliasTextSupported()
+    raise e.FormTypeError.FormTextSupported()
 
 
-@dp.message_handler(f.message.is_private, content_types=t.ContentType.ANY, state=states.add_alias.sticker)
+@stages.add_alias.sticker(f.message.is_private, content_types=t.ContentType.ANY)
 async def sticker_supported_error(msg: t.Message):
-    raise e.AliasTypeError.AliasStickerSupported()
+    raise e.FormTypeError.FormStickerSupported()
 
 
-@dp.message_handler(f.message.is_private, content_types=t.ContentType.ANY, state=states.add_alias.command)
+@stages.add_alias.command(f.message.is_private, content_types=t.ContentType.ANY)
 async def sticker_supported_error(msg: t.Message):
-    raise e.AliasTypeError.AliasCommandNotSupported()
+    raise e.FormTypeError.FormCommandNotSupported()

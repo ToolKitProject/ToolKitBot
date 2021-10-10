@@ -1,9 +1,12 @@
 import typing as p
-from datetime import timedelta
+from datetime import timedelta, datetime
+from smtpd import program
 
+import pyrogram
 from aiogram import types as t, Bot
 from aiogram.utils.exceptions import MigrateToChat, ChatNotFound
 
+from bot import client
 from libs import errors as e, database as d
 from libs.locales import UserText
 from src.instances import Cache
@@ -28,7 +31,6 @@ class User:
     userOBJ: userOBJ
     settings: p.Dict
     permission: p.Dict
-    owns: p.List[d.chatOBJ]
 
     MUTE = t.ChatPermissions(can_send_messages=False)
     UNMUTE = t.ChatPermissions(*[True] * 8)
@@ -47,7 +49,6 @@ class User:
 
         self.settings = self.userOBJ.settings
         self.permission = self.userOBJ.permission
-        self.owns = Database.get_owns(self.id)
 
     @classmethod
     @Cache.register(timedelta(minutes=10))
@@ -90,7 +91,10 @@ class User:
     def statistic_mode(self) -> int:
         return get_value(self.settings, ["statistic", "mode"], 1)
 
-    @Cache.register(timedelta(minutes=5))
+    @property
+    def owns(self) -> p.List[d.chatOBJ]:
+        return Database.get_chats(owner_id=self.id)
+
     async def get_owns(self):
         from libs.chat import Chat
 
@@ -98,9 +102,8 @@ class User:
         for chat in self.owns:
             try:
                 owns.append(await Chat.create(chat.id))
-            except (MigrateToChat, ChatNotFound):
-                Database.delete_chat(chat.id)
             except Exception as ex:
+                Database.delete_chat(chat.id)
                 await e.ForceError(f"⚠ {ex.args[0]}").answer()
 
         return owns
@@ -126,4 +129,12 @@ class User:
         await bot.unban_chat_member(chat_id, self.id, only_if_banned=False)
 
     def get_reports(self, chat: t.Chat):
-        return len(Database.get_logs(chat_id=chat.id, target_id=self.id, type=l.REPORT))
+        from libs.chat import Chat
+        chat: Chat
+
+        return len(Database.get_logs(
+            chat_id=chat.id,
+            target_id=self.id,
+            type=l.REPORT,
+            delta=chat.report_delta
+        ))

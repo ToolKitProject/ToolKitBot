@@ -1,4 +1,5 @@
 import typing as p
+from datetime import timedelta
 
 from aiogram import types as t
 from aiogram.dispatcher import FSMContext
@@ -6,18 +7,18 @@ from aiogram.utils.callback_data import CallbackData
 
 import handlers.all
 from bot import dp
-from handlers.private import alias_form, report_form
 from libs.buttons import Submenu
 from libs.chat import Chat
 from libs.errors import EmptyOwns
 from libs.settings import Property, SettingsType
 from libs.user import User
 from src.instances import MessageData
-from src import filters as f, utils as u
+from src import filters as f, utils as u, stages
 from locales import text, buttons
+from src.utils import save_target_settings, get_key_by_id
 
 s = buttons.private.settings
-alias_data = CallbackData("delete_alias", "key")
+alias_data = CallbackData("delete_alias", "id")
 lang_data = CallbackData("change_lang", "lang")
 statistic_data = CallbackData("statistic", "mode")
 set_report_delta = CallbackData("set_report_delta", "delta")
@@ -32,7 +33,7 @@ async def settings_cmd(msg: t.Message):
 async def private_settings(clb: t.CallbackQuery):
     user = await User.create(clb.from_user)
     with MessageData.data() as data:
-        data.user = user
+        data.target = user
     await buttons.private.settings.private.settings.menu(user.settings).edit()
 
 
@@ -52,64 +53,66 @@ async def chat_settings(clb: t.CallbackQuery):
     for chat in chats:
         s = chat.settings
         settings = buttons.private.settings.chat.settings.menu(s, text=chat.title, callback_data=chat.id)
-        settings.storage["chat"] = chat
-        settings.storage["test"] = s
-        menu.add(settings, )
+        settings.storage["target"] = chat
+        menu.add(settings)
     await menu.edit()
 
 
-@s.chat.add_alias(f.message.is_private)
+@buttons.add_alias(f.message.is_private)
 async def add_alias(clb: t.CallbackQuery, state: FSMContext):
     with MessageData.data() as data:
         prop: Property = data.property
 
     if prop.key == "sticker_alias":
-        await alias_form.start_sticker(clb, state)
+        await stages.add_alias.sticker.set()
     elif prop.key == "text_alias":
-        await alias_form.start_text(clb, state)
+        await stages.add_alias.text.set()
 
 
-@s.chat.set_report_count(f.message.is_private)
-@s.chat.set_report_command(f.message.is_private)
-@s.chat.set_report_delta(f.message.is_private)
-async def start_report_form(clb: t.CallbackQuery, state: FSMContext):
+@buttons.set_report_count(f.message.is_private)
+@buttons.set_report_command(f.message.is_private)
+@buttons.set_report_delta(f.message.is_private)
+async def start_report_form(clb: t.CallbackQuery):
     type = clb.data
     if type == "set_report_command":
-        await report_form.start_command(clb, state)
+        await stages.set_report_command.command.set()
     elif type == "set_report_count":
-        await report_form.start_count(clb, state)
+        await stages.set_report_count.count.set()
     elif type == "set_report_delta":
-        await report_form.start_delta(clb, state)
+        await stages.set_report_delta.delta.set()
 
 
 @dp.callback_query_handler(f.message.is_private, alias_data.filter())
 async def delete_alias(clb: t.CallbackQuery, callback_data: p.Dict[str, str]):
     with MessageData.data() as data:
-        data.key = callback_data["key"]
-    await buttons.private.settings.chat.delete.edit()
+        data.key = get_key_by_id(data.settings, callback_data["id"])
+    await buttons.delete.edit()
 
 
-@s.chat.delete_yes(f.message.is_private)
+@buttons.delete_yes(f.message.is_private)
 async def delete_yes(clb: t.CallbackQuery):
     with MessageData.data() as data:
         settings: SettingsType = data.settings
-        chat: Chat = data.chat
+        target: p.Union[Chat, User] = data.target
         prop: Property = data.property
         menu: Submenu = data.menu
         key = data.key
+
     settings.pop(key)
     menu.update(prop.menu(settings))
     await menu.edit(False)
-    chat.chatOBJ.settings = chat.settings
+
+    save_target_settings(target)
 
 
 @dp.callback_query_handler(f.message.is_private, lang_data.filter())
 async def edit_lang(clb: t.CallbackQuery, callback_data: p.Dict[str, str]):
     with MessageData.data() as data:
         settings: SettingsType = data.settings
-        user: User = data.user
+        target: p.Union[Chat, User] = data.target
+
     settings["lang"] = callback_data["lang"]
-    user.userOBJ.settings = user.settings
+    save_target_settings(target)
     await handlers.all.back(clb)
 
 
@@ -117,14 +120,11 @@ async def edit_lang(clb: t.CallbackQuery, callback_data: p.Dict[str, str]):
 async def statistic_change(clb: t.CallbackQuery, callback_data: p.Dict[str, str]):
     with MessageData.data() as data:
         settings: SettingsType = data.settings
-        target: p.Union[Chat, User] = data.chat or data.user
+        target: p.Union[Chat, User] = data.target
         menu: Submenu = data.menu
 
     settings["mode"] = int(callback_data["mode"])
-    if isinstance(target, Chat):
-        target.chatOBJ.settings = target.settings
-    else:
-        target.userOBJ.settings = target.settings
+    save_target_settings(target)
 
     await clb.answer(text.private.settings.statistic_mode_changed)
     await menu.edit(False)
@@ -132,7 +132,28 @@ async def statistic_change(clb: t.CallbackQuery, callback_data: p.Dict[str, str]
 
 @buttons.statistic_title.format_callback()
 @text.private.settings.statistic_mode_changed.format_callback()
-def format_callback(t: str):
+def format_callback(txt: str):
     with MessageData.data() as data:
-        target: p.Union[Chat, User] = data.chat or data.user
-    return t.format(mode=str(text.statistic_modes[target.statistic_mode]))
+        target: p.Union[Chat, User] = data.target
+    return txt.format(mode=str(text.statistic_modes[target.statistic_mode]))
+
+
+@text.private.settings.report_command.format_callback()
+def format_report_command(txt: str):
+    with MessageData.data() as data:
+        target: Chat = data.target
+    return txt.format(command=target.report_command)
+
+
+@text.private.settings.report_count.format_callback()
+def format_report_count(txt: str):
+    with MessageData.data() as data:
+        target: Chat = data.target
+    return txt.format(count=target.report_count)
+
+
+@text.private.settings.report_delta.format_callback()
+def format_report_delta(txt: str):
+    with MessageData.data() as data:
+        target: Chat = data.target
+    return txt.format(delta=target.report_delta.days)

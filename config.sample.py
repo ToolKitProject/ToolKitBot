@@ -1,6 +1,6 @@
 from aiogram.types import User
 
-# (./locales)
+# (./i38n)
 langs = {
     "ru": "🇷🇺 Русский",
     # "pl": "🇵🇱 Polski"

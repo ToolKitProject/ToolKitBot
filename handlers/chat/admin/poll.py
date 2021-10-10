@@ -1,45 +1,33 @@
 from aiogram import types as t
 
-from bot import bot
-from libs import errors as e
+from handlers.chat.admin.restrict import process_restrict, command_text
 from libs.command_parser import ParsedArgs
 from libs.user import User
-from src.instances import MessageData
+from locales import buttons
 from src import filters as f
-from locales import buttons as b
-from .restrict import get_text, execute_action
+from libs import errors as e
+from src.instances import MessageData
 
 
-@b.chat.admin.check_poll(
+@buttons.chat.admin.check_poll(
     f.message.is_chat,
     f.user.has_permission("can_restrict_members")
 )
-async def check_poll(clb: t.CallbackQuery):
+async def check_poll_now(clb: t.CallbackQuery):
     poll = clb.message.poll
     executor = await User.create(clb.from_user)
+    parsed: ParsedArgs = MessageData.data().parsed
+
     if poll.total_voter_count < 2:
         raise e.PollCheck()
 
-    yes = poll.options[0]
-    no = poll.options[1]
+    yes = poll.options[0].voter_count
+    no = poll.options[1].voter_count
 
-    if yes.voter_count > no.voter_count:
-        with MessageData.data() as data:
-            parsed: ParsedArgs = data.parsed
-            if await execute_action(parsed, clb.message.chat.id):
-                text, rm = await get_text(parsed, executor)  # Get text
-                to_msg = await clb.message.reply(text, reply_markup=rm)  # Send text
-                await MessageData.move(clb.message, to_msg)
+    if yes > no:
+        await process_restrict(parsed)
+        txt, rm = command_text(parsed, executor)
+        to_msg = await clb.message.reply(txt, reply_markup=rm)
+        await MessageData.move(clb.message, to_msg)
     else:
-        await MessageData.delete(clb.message, True)
-
-    await bot.stop_poll(clb.message.chat.id, clb.message.message_id)
-
-
-@b.chat.admin.cancel_poll(
-    f.message.is_chat,
-    f.user.has_permission("can_restrict_members")
-)
-async def cancel_poll(clb: t.CallbackQuery):
-    await MessageData.delete(clb.message, True)
-    await bot.stop_poll(clb.message.chat.id, clb.message.message_id)
+        await MessageData.delete(clb.message)

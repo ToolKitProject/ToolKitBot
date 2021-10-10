@@ -40,11 +40,12 @@ class Text(UserString):
 
         for msg in self.messages:
             txt = src(msg)
-            if self._format_callback:
-                txt = self._format_callback(txt)
             message += txt
 
-        return message
+        if self._format_callback:
+            return self._format_callback(message)
+        else:
+            return message
 
     def format_callback(self):
         def wrapper(func):
@@ -71,11 +72,11 @@ class UserText:
         else:
             self.lang = lang
 
-        if self.lang not in os.listdir("locales"):
+        if self.lang not in os.listdir("i38n"):
             self.lang = None
 
         if self.lang:
-            tn = g.translation("ToolKit", "locales", languages=[self.lang])
+            tn = g.translation("ToolKit", "i38n", languages=[self.lang])
             self.gettext = tn.gettext
         else:
             self.gettext = g.gettext
