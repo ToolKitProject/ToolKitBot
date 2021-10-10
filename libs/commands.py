@@ -1,17 +1,16 @@
 import typing as p
-
 from aiogram import types as t, Bot
 
 from libs.locales import Text, UserText
 
 
 class Commands:
-    groups: p.List["Group"]
+    groups: list["Group"]
 
     def __init__(self):
         self.groups = []
 
-    def __iter__(self) -> p.Iterator["Group"]:
+    def __iter__(self) -> p.Iterable["Group"]:
         return iter(self.groups)
 
     def __format__(self, format_spec: str) -> str:
@@ -47,7 +46,7 @@ class Commands:
             if cmd:
                 return cmd
 
-    def get_group(self, scope: p.Optional[t.BotCommandScope] = None):
+    def get_group(self, scope: t.BotCommandScope | None = None):
         for group in self:
             if scope == group.scope:
                 return group
@@ -68,15 +67,15 @@ class Commands:
 
 
 class Group:
-    scope: p.Optional[t.BotCommand]
-    commands: p.List["Command"]
+    scope: t.BotCommand | None
+    commands: list["Command"]
 
-    def __init__(self, scope: p.Optional[t.BotCommand] = None):
+    def __init__(self, scope: t.BotCommand | None = None):
         self.scope = scope
 
         self.commands = []
 
-    def __iter__(self) -> p.Iterator["Command"]:
+    def __iter__(self) -> p.Iterable["Command"]:
         return iter(self.commands)
 
     def __bool__(self):
@@ -110,7 +109,7 @@ class Group:
         return await bot.delete_my_commands(self.scope, lang)
 
     @property
-    def bot_commands(self) -> p.List[t.BotCommand]:
+    def bot_commands(self) -> list[t.BotCommand]:
         return [c.bot_command for c in self]
 
 
@@ -164,7 +163,7 @@ class Member(Group):
 class Command:
     command: str
     description: str
-    _help: p.List[Text]
+    _help: list[Text]
     sep: str
 
     def __init__(self, command: str, description: str, *help: str, sep: str = "\n"):

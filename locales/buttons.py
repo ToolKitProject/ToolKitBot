@@ -1,9 +1,10 @@
-import config
 from aiogram.types import InlineKeyboardMarkup as IM
-from locales_config import langs
+
+import config
 from libs.buttons import Button, Menu, Submenu
-from libs.settings import Elements, Property, Settings
 from libs.locales import Text as _
+from libs.settings import Elements, Property, Settings
+from locales_config import langs
 
 statistic_title = _("Date only - Date of message will be saved (date) \n" +
                     "Full - Text and data of message will be saved (text and data) \n" +

@@ -50,7 +50,7 @@ class dates:
 
 
 class CommandParser(BaseParser):
-    def __init__(self, commands: p.Union[p.List[str], str], name: str):
+    def __init__(self, commands: list[str] | str, name: str):
         super().__init__()
         self.commands = commands
         self.add(CommandArg(name))
@@ -70,11 +70,11 @@ class TextParser(BaseParser):
 class ReArg(BaseArg):
     def __init__(
             self,
-            regexp: p.Union[re.Pattern, str],
+            regexp: re.Pattern | str,
             name: str,
             dest: str,
             required: bool = True,
-            default: p.Optional[p.Any] = None
+            default: p.Any | None = None
     ):
         self.regexp = regexp if isinstance(regexp, re.Pattern) else re.compile(regexp)
         super().__init__(dest, name, required=required, default=default)
@@ -116,7 +116,7 @@ class ReasonArg(BaseArg):
             name: str,
             dest: str = "reason",
             required: bool = False,
-            default: p.Optional[p.Any] = ""
+            default: p.Any | None = ""
     ):
         from . import regex as r
         self.regexp = re.compile(r.parse.reason)
@@ -139,7 +139,7 @@ class UserArg(BaseArg):
             name: str,
             dest: str = "users",
             required: bool = True,
-            default: p.Optional[p.Any] = []
+            default: p.Any | None = []
     ):
         from . import regex as r
         self.regexp = re.compile(r.parse.user)
@@ -179,7 +179,7 @@ class DateArg(BaseArg):
             minimum: timedelta = None,
             maximum: timedelta = None,
             required: bool = False,
-            default: p.Optional[p.Any] = timedelta()
+            default: p.Any | None = timedelta()
     ):
         from . import regex as r
         super().__init__(dest, name, required, default)
@@ -227,7 +227,7 @@ class TextArg(BaseArg):
             dest: str = "text",
             sep: str = " ",
             required: bool = False,
-            default: p.Optional[p.Any] = ""
+            default: p.Any | None = ""
     ):
         from . import regex as r
         self.regexp = re.compile(r.parse.text)
@@ -247,13 +247,13 @@ class TextArg(BaseArg):
 class NumberArg(BaseArg):
     def __init__(
             self, name: str,
-            minimal: p.Optional[int] = None,
-            maximal: p.Optional[int] = None,
+            minimal: int | None = None,
+            maximal: int | None = None,
             contain: bool = True,
             dest: str = "number",
-            func: p.Callable[[p.List[int]], int] = sum,
+            func: p.Callable[[list[int]], int] = sum,
             required: bool = False,
-            default: p.Optional[p.Any] = 0
+            default: p.Any | None = 0
     ):
 
         from . import regex as r
@@ -294,7 +294,7 @@ class NumberArg(BaseArg):
 
 class FlagArg(BaseArg):
     def __init__(self, dest: str = "flags"):
-        self.flags: p.List[Flag] = []
+        self.flags: list[Flag] = []
         super().__init__(dest, None, True, None)
 
     def add(self, *flags: BaseArg):
@@ -362,7 +362,7 @@ class ValueFlag(Flag):
             name: str,
             required: bool = False,
             default: p.Optional[None] = None,
-            func: p.Optional[p.Callable[[str], p.Any]] = None
+            func: p.Callable[[str], p.Any] | None = None
     ):
         from . import regex as r
 

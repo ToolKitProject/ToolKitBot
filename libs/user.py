@@ -1,18 +1,13 @@
-import typing as p
-from datetime import timedelta, datetime
-from smtpd import program
+from datetime import timedelta
 
-import pyrogram
 from aiogram import types as t, Bot
-from aiogram.utils.exceptions import MigrateToChat, ChatNotFound
 
-from bot import client
 from libs import errors as e, database as d
+from libs.database import userOBJ, LogType as l
 from libs.locales import UserText
 from src.instances import Cache
 from src.instances import Database
 from src.utils import get_value
-from libs.database import userOBJ, LogType as l
 
 
 class User:
@@ -29,8 +24,8 @@ class User:
     src: UserText
 
     userOBJ: userOBJ
-    settings: p.Dict
-    permission: p.Dict
+    settings: dict
+    permission: dict
 
     MUTE = t.ChatPermissions(can_send_messages=False)
     UNMUTE = t.ChatPermissions(*[True] * 8)
@@ -52,7 +47,7 @@ class User:
 
     @classmethod
     @Cache.register(timedelta(minutes=10))
-    async def create(cls, auth: p.Union[str, int, t.User]) -> "User":
+    async def create(cls, auth: str | int | t.User) -> "User":
         from bot import client
 
         if isinstance(auth, t.User):
@@ -92,13 +87,13 @@ class User:
         return get_value(self.settings, ["statistic", "mode"], 1)
 
     @property
-    def owns(self) -> p.List[d.chatOBJ]:
+    def owns(self) -> list[d.chatOBJ]:
         return Database.get_chats(owner_id=self.id)
 
     async def get_owns(self):
         from libs.chat import Chat
 
-        owns: p.List[Chat] = []
+        owns: list[Chat] = []
         for chat in self.owns:
             try:
                 owns.append(await Chat.create(chat.id))

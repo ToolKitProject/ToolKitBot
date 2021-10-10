@@ -1,5 +1,4 @@
 import logging
-import typing as p
 from asyncio import sleep
 from datetime import timedelta
 
@@ -7,7 +6,7 @@ from aiogram import types as t
 
 from bot import client
 from libs.command_parser import ParsedArgs
-from libs.user import User 
+from libs.user import User
 from locales import other, text, buttons
 from src import filters as f
 from src import utils as u
@@ -45,7 +44,7 @@ async def purge(msg: t.Message, parsed: ParsedArgs):
     u.get_help
 )
 async def clear_history(msg: t.Message, parsed: ParsedArgs):
-    parsed.targets: p.List[User]
+    parsed.targets: list[User]
     parsed.time: timedelta
     messages = []
 
@@ -66,7 +65,7 @@ async def clear_history(msg: t.Message, parsed: ParsedArgs):
         )
 
 
-async def process_purge(message_ids: p.List[int]):
+async def process_purge(message_ids: list[User]):
     if not message_ids:
         return
     chat_id = t.Chat.get_current().id

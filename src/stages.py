@@ -1,6 +1,6 @@
 from libs import stages as s
-from src.commands import alias_commands, set_report_commands
 from locales import text as t
+from src.commands import alias_commands, set_report_commands
 
 
 class add_alias(s.StageGroup):

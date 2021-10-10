@@ -1,5 +1,3 @@
-import typing as p
-
 from aiogram import types as t
 
 from handlers.chat.admin.restrict import process_restrict, command_text
@@ -21,7 +19,7 @@ from src.instances import Database
 )
 async def report(msg: t.Message, parsed: ParsedArgs):
     chat = await Chat.create(msg.chat)
-    parsed.targets: p.List[User]
+    parsed.targets: list[User]
     executor = await User.create(msg.from_user)
 
     txt = text.chat.admin.report.format(

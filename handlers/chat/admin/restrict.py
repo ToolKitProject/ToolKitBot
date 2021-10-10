@@ -1,11 +1,9 @@
-import typing as p
-from datetime import timedelta, datetime
+from datetime import timedelta
 
 from aiogram import types as t
 
 from handlers.chat.admin.purge import process_purge
 from libs.command_parser import ParsedArgs
-from libs.database import LogType
 from libs.user import User
 from locales import other, text, buttons
 from src import filters as f
@@ -135,7 +133,7 @@ def command_text(parsed: ParsedArgs, executor: User):
 
 
 async def process_restrict(parsed: ParsedArgs):
-    parsed.targets: p.List[User]
+    parsed.targets: list[User]
     chat_id = t.Chat.get_current().id
     type = parsed.command.text
 

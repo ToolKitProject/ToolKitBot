@@ -3,9 +3,9 @@ import re
 from aiogram import types as t
 
 from bot import dp
+from libs import errors as e
 from src import filters as f
 from src import regex as r
-from libs import errors as e
 from src.utils import get_aliases, get_alias_text
 
 

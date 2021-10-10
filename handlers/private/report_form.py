@@ -1,20 +1,18 @@
-import typing as p
-
 from aiogram import types as t
 from aiogram.dispatcher import FSMContext
 
 import handlers
 from bot import dp
+from libs import errors as e
 from libs.chat import Chat
 from libs.settings import SettingsType
 from libs.user import User
 from locales.other import parsers
 from main import MessageData
-from src import stages
 from src import filters as f
+from src import stages
 from src.commands import set_report_commands
 from src.utils import save_target_settings
-from libs import errors as e
 
 
 @stages.set_report_command.command(f.message.is_private, commands=set_report_commands)
@@ -23,7 +21,7 @@ async def report_command(msg: t.Message, state: FSMContext):
         from_msg: t.Message = data["_message"]
     with MessageData.data(from_msg) as data:
         settings: SettingsType = data.settings
-        target: p.Union[Chat, User] = data.target
+        target: Chat | User = data.target
 
     settings["command"] = f"/{msg.get_command(True)} {msg.get_args()}".strip()
     save_target_settings(target)
@@ -37,7 +35,7 @@ async def report_count(msg: t.Message, state: FSMContext):
         from_msg: t.Message = data["_message"]
     with MessageData.data(from_msg) as data:
         settings: SettingsType = data.settings
-        target: p.Union[Chat, User] = data.target
+        target: Chat | User = data.target
 
     parsed = await parsers.report_count.parse_message(msg)
     settings["count"] = parsed.count
@@ -52,7 +50,7 @@ async def report_delta(msg: t.Message, state: FSMContext):
         from_msg: t.Message = data["_message"]
     with MessageData.data(from_msg) as data:
         settings: SettingsType = data.settings
-        target: p.Union[Chat, User] = data.target
+        target: Chat | User = data.target
 
     parsed = await parsers.report_delta.parse_message(msg)
     settings["delta"] = int(parsed.delta.total_seconds())

@@ -1,11 +1,11 @@
 from aiogram import types as t
 
 from handlers.chat.admin.restrict import process_restrict, command_text
+from libs import errors as e
 from libs.command_parser import ParsedArgs
 from libs.user import User
 from locales import buttons
 from src import filters as f
-from libs import errors as e
 from src.instances import MessageData
 
 

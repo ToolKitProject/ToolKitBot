@@ -61,8 +61,8 @@ class Data:
 
 
 class MessageData:
-    storage: p.Dict[int, p.Dict[int, Data]]
-    poll_storage: p.Dict[str, t.Message]
+    storage: dict[int, dict[int, Data]]
+    poll_storage: dict[str, t.Message]
 
     def __init__(self):
         self.storage = {}
@@ -97,7 +97,7 @@ class MessageData:
     def get(self, msg: t.Message) -> Data:
         return self.storage[msg.chat.id][msg.message_id]
 
-    def remove(self, msg: t.Message) -> p.Optional[Data]:
+    def remove(self, msg: t.Message) -> Data | None:
         try:
             data = self.storage[msg.chat.id].pop(msg.message_id)
             if not self.storage[msg.chat.id]:

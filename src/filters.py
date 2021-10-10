@@ -1,5 +1,4 @@
 import re
-import typing as p
 
 from aiogram import types as t, filters as f, Bot
 from aiogram.types import ChatMemberStatus as s
@@ -7,9 +6,8 @@ from aiogram.types import ChatMemberStatus as s
 from bot import bot
 from libs import errors as e
 from . import regex as r
-from .instances import MessageData
 
-objType = p.Union[t.Message, t.CallbackQuery, t.ChatMemberUpdated]
+objType = t.Message | t.CallbackQuery | t.ChatMemberUpdated
 
 
 class _helper:
@@ -90,7 +88,7 @@ class bot:
     is_admin = AdminFilter(user_id=bot.id)
 
     @staticmethod
-    def has_permission(permissions: p.List[str]):
+    def has_permission(permissions: list[str]):
         permissions = permissions
 
         async def filter(obj: objType):
@@ -108,7 +106,7 @@ class user:
     is_admin = AdminFilter(err=True)
 
     @staticmethod
-    def has_permission(permissions: p.List[str]):
+    def has_permission(permissions: list[str]):
         permissions = permissions
 
         async def filter(obj: objType):

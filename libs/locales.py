@@ -1,11 +1,11 @@
+import gettext as g
 import json
+import os
+import typing as p
 from collections import UserString
 from copy import deepcopy
 
 from aiogram import types as t
-import typing as p
-import gettext as g
-import os
 
 lang = None
 
@@ -21,14 +21,14 @@ class TextEncoder(json.JSONEncoder):
 
 # noinspection PyMissingConstructor
 class Text(UserString):
-    messages: p.List[str]
+    messages: list[str]
     _format_callback: p.Callable[[str], str]
 
     def __init__(self, message: str):
         self.messages = [message]
         self._format_callback = None
 
-    def __add__(self, other: p.Union["Text"]) -> "Text":
+    def __add__(self, other: "Text") -> "Text":
         new = deepcopy(self)
         new.messages.append(other)
         return new

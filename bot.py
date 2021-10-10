@@ -1,8 +1,8 @@
 import logging
 
 from aiogram import Bot, Dispatcher, types as t
-from pyrogram import Client
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
+from pyrogram import Client
 
 import config
 

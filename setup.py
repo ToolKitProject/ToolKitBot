@@ -18,7 +18,7 @@ if os.name == "nt":
     exit()
 
 
-def _opt_selector(options: p.Dict[str, p.Any], default: p.Optional[int] = None, pmt: str = "") -> p.Tuple[int, p.Any]:
+def _opt_selector(options: dict[str, p.Callable], default: int | None = None, pmt: str = "") -> tuple[int, p.Any]:
     _options = {}
     print("Choose variant")
     print(sep)
@@ -271,13 +271,13 @@ def install_dependencies():
         f"{sep}",
         sep="\n"
     )
-    _cmd("pip install -U -r dependencies", False)
+    _cmd("pip install -U -r dependencies", True)
     print(f"{sep}\nSuccessfully installed")
     _enter()
     return True
 
 
-def generate_locales_files(new_locale: p.Optional[str] = None):
+def generate_locales_files(new_locale: str | None = None):
     path = "locales/"
     out_path = "i38n/"
     locales = os.listdir(out_path)

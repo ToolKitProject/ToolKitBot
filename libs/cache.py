@@ -50,16 +50,16 @@ def key_gen(args, kwargs) -> str:
 
 
 class Cache:
-    _cache: p.Dict[str, "CacheGroup"]
+    _cache: dict[str, "CacheGroup"]
 
     def __init__(self):
         self._cache = {}
 
     def register(self,
-                 expires_delta: p.Optional[timedelta] = None,
-                 expires_count: p.Optional[int] = None,
+                 expires_delta: timedelta | None = None,
+                 expires_count: int | None = None,
                  group_name: str = None):
-        def wrapper(obj: p.Union[p.Type, p.Callable]):
+        def wrapper(obj: p.Type | p.Callable):
             name = group_name or obj.__name__
             group = self.add(name, expires_delta, expires_count)
 
@@ -72,8 +72,8 @@ class Cache:
 
     def add(self,
             group_name: str,
-            expires_delta: p.Optional[timedelta] = None,
-            expires_count: p.Optional[int] = None) -> "CacheGroup":
+            expires_delta: timedelta | None = None,
+            expires_count: int | None = None) -> "CacheGroup":
         group = CacheGroup(expires_delta, expires_count)
         self._cache[group_name] = group
         return group
@@ -83,7 +83,7 @@ class Cache:
             return self._cache[group_name]
         return
 
-    def expire(self, group_name: p.Optional[str] = None, hash: p.Optional[int] = None):
+    def expire(self, group_name: str | None = None, hash: int | None = None):
         if group_name:
             self._cache[group_name].expire(hash)
         else:
@@ -92,7 +92,7 @@ class Cache:
 
 
 class CacheGroup:
-    _cache: p.Dict[int, "CachedObject"]
+    _cache: dict[int, "CachedObject"]
 
     expires_delta: timedelta
     expires_count: int
@@ -112,7 +112,7 @@ class CacheGroup:
         if hash in self._cache:
             return self._cache[hash].cache
 
-    def expire(self, hash: p.Optional[int] = None):
+    def expire(self, hash: int | None = None):
         if hash:
             self._cache[hash].expire()
         else:
@@ -125,13 +125,13 @@ class CachedObject:
     _get_count: int
     _expired: bool
 
-    expires_date: p.Optional[timedelta]
-    expires_count: p.Optional[int]
+    expires_date: timedelta | None
+    expires_count: int | None
 
     def __init__(self,
                  cache: p.Any,
-                 expires_delta: p.Optional[timedelta] = None,
-                 expires_count: p.Optional[int] = None):
+                 expires_delta: timedelta | None = None,
+                 expires_count: int | None = None):
         self._cache = cache
         self._get_count = 0
         self._expired = False
@@ -142,7 +142,7 @@ class CachedObject:
     def get(self):
         return self.cache
 
-    def extend(self, extend_delta: p.Optional[timedelta] = None, extend_count: p.Optional[int] = None):
+    def extend(self, extend_delta: timedelta | None = None, extend_count: int | None = None):
         if extend_delta and self.expires_date:
             self.expires_date += extend_delta
         if extend_count and self.expires_count:
@@ -162,7 +162,7 @@ class CachedObject:
         return expired
 
     @property
-    def cache(self) -> p.Optional[p.Any]:
+    def cache(self) -> p.Any | None:
         if not self.expired:
             self._get_count += 1
             return self._cache

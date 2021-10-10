@@ -1,6 +1,3 @@
-import typing as p
-from datetime import timedelta
-
 from aiogram import types as t
 from aiogram.dispatcher import FSMContext
 from aiogram.utils.callback_data import CallbackData
@@ -12,9 +9,9 @@ from libs.chat import Chat
 from libs.errors import EmptyOwns
 from libs.settings import Property, SettingsType
 from libs.user import User
-from src.instances import MessageData
-from src import filters as f, utils as u, stages
 from locales import text, buttons
+from src import filters as f, utils as u, stages
+from src.instances import MessageData
 from src.utils import save_target_settings, get_key_by_id
 
 s = buttons.private.settings
@@ -83,7 +80,7 @@ async def start_report_form(clb: t.CallbackQuery):
 
 
 @dp.callback_query_handler(f.message.is_private, alias_data.filter())
-async def delete_alias(clb: t.CallbackQuery, callback_data: p.Dict[str, str]):
+async def delete_alias(clb: t.CallbackQuery, callback_data: dict[str, str]):
     with MessageData.data() as data:
         data.key = get_key_by_id(data.settings, callback_data["id"])
     await buttons.delete.edit()
@@ -93,7 +90,7 @@ async def delete_alias(clb: t.CallbackQuery, callback_data: p.Dict[str, str]):
 async def delete_yes(clb: t.CallbackQuery):
     with MessageData.data() as data:
         settings: SettingsType = data.settings
-        target: p.Union[Chat, User] = data.target
+        target: Chat | User = data.target
         prop: Property = data.property
         menu: Submenu = data.menu
         key = data.key
@@ -106,10 +103,10 @@ async def delete_yes(clb: t.CallbackQuery):
 
 
 @dp.callback_query_handler(f.message.is_private, lang_data.filter())
-async def edit_lang(clb: t.CallbackQuery, callback_data: p.Dict[str, str]):
+async def edit_lang(clb: t.CallbackQuery, callback_data: dict[str, str]):
     with MessageData.data() as data:
         settings: SettingsType = data.settings
-        target: p.Union[Chat, User] = data.target
+        target: Chat | User = data.target
 
     settings["lang"] = callback_data["lang"]
     save_target_settings(target)
@@ -117,10 +114,10 @@ async def edit_lang(clb: t.CallbackQuery, callback_data: p.Dict[str, str]):
 
 
 @dp.callback_query_handler(f.message.is_private, statistic_data.filter())
-async def statistic_change(clb: t.CallbackQuery, callback_data: p.Dict[str, str]):
+async def statistic_change(clb: t.CallbackQuery, callback_data: dict[str, str]):
     with MessageData.data() as data:
         settings: SettingsType = data.settings
-        target: p.Union[Chat, User] = data.target
+        target: Chat | User = data.target
         menu: Submenu = data.menu
 
     settings["mode"] = int(callback_data["mode"])
@@ -134,7 +131,7 @@ async def statistic_change(clb: t.CallbackQuery, callback_data: p.Dict[str, str]
 @text.private.settings.statistic_mode_changed.format_callback()
 def format_callback(txt: str):
     with MessageData.data() as data:
-        target: p.Union[Chat, User] = data.target
+        target: Chat | User = data.target
     return txt.format(mode=str(text.statistic_modes[target.statistic_mode]))
 
 

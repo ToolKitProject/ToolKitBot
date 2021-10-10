@@ -2,12 +2,9 @@ import logging
 import typing as p
 from copy import copy
 from datetime import datetime, timedelta
-from time import time
 
 from aiogram.utils.json import loads, dumps
 from pymysql import connect
-
-import config
 
 JSON_DEFAULT = {}
 
@@ -99,7 +96,7 @@ def format_insert(table: str, **values):
     return f"INSERT INTO {table}({col}) VALUES ({val})"
 
 
-def objects(l: p.List[p.Tuple], o: p.Type) -> p.List[object]:
+def objects(l: list[tuple], o: p.Type) -> list[object]:
     return [o(*i) for i in l]
 
 
@@ -139,7 +136,7 @@ class _link_obj:
     _init: bool = False
 
     _table: str
-    _links: p.List[str]
+    _links: list[str]
 
     def __init__(self, table: str, *links: str):
         self._table = table
@@ -201,8 +198,8 @@ class _link_obj:
 
 class userOBJ(_link_obj):
     id: int
-    settings: p.Dict
-    permission: p.Dict
+    settings: dict
+    permission: dict
 
     def __init__(self, id: int, settings: str, permission: str):
         self.id = id
@@ -214,8 +211,8 @@ class userOBJ(_link_obj):
 
 class chatOBJ(_link_obj):
     id: int
-    settings: p.Dict
-    owner_id: p.Dict
+    settings: dict
+    owner_id: dict
 
     def __init__(self, id: str, settings: str, owner_id: int):
         self.id = id
@@ -229,8 +226,8 @@ class messageOBJ(_link_obj):
     user_id: int
     chat_id: int
     message_id: str
-    reply_message_id: p.Optional[int]
-    message: p.Optional[str]
+    reply_message_id: int | None
+    message: str | None
     type: str
     data: str
 
@@ -238,8 +235,8 @@ class messageOBJ(_link_obj):
                  user_id: int,
                  chat_id: int,
                  message_id: int,
-                 reply_message_id: p.Optional[int],
-                 message: p.Optional[str],
+                 reply_message_id: int | None,
+                 message: str | None,
                  type: str,
                  date: datetime):
         self.user_id = user_id
@@ -318,10 +315,10 @@ class Database:
                     user_id: int,
                     chat_id: int,
                     message_id: int,
-                    reply_message_id: p.Optional[int] = None,
-                    message: p.Optional[str] = None,
-                    type: p.Optional[str] = None,
-                    date: p.Optional[datetime] = None) -> messageOBJ:
+                    reply_message_id: int | None = None,
+                    message: str | None = None,
+                    type: str | None = None,
+                    date: datetime | None = None) -> messageOBJ:
         self.update(
             format_insert(
                 "Messages",
@@ -368,7 +365,7 @@ class Database:
 
         return userOBJ(*result)
 
-    def get_chat(self, id: id, owner_id: p.Optional[int] = None) -> chatOBJ:
+    def get_chat(self, id: id, owner_id: int | None = None) -> chatOBJ:
         result = self.get(
             format_select(
                 "Chats",
@@ -384,13 +381,13 @@ class Database:
         return chatOBJ(*result)
 
     def get_message(self,
-                    user_id: p.Optional[int] = None,
-                    chat_id: p.Optional[int] = None,
-                    message_id: p.Optional[int] = None,
-                    reply_message_id: p.Optional[int] = None,
-                    message: p.Optional[str] = None,
-                    type: p.Optional[str] = None,
-                    delta: p.Optional[timedelta] = None) -> messageOBJ:
+                    user_id: int | None = None,
+                    chat_id: int | None = None,
+                    message_id: int | None = None,
+                    reply_message_id: int | None = None,
+                    message: str | None = None,
+                    type: str | None = None,
+                    delta: timedelta | None = None) -> messageOBJ:
         if message_id is None:
             raise ValueError("message_id is required")
         if chat_id is None:
@@ -413,11 +410,11 @@ class Database:
 
     def get_log(self,
                 log_id: int,
-                chat_id: p.Optional[int] = None,
-                executor_id: p.Optional[int] = None,
-                target_id: p.Optional[int] = None,
-                type: p.Optional[str] = None,
-                delta: p.Optional[timedelta] = None) -> logOBJ:
+                chat_id: int | None = None,
+                executor_id: int | None = None,
+                target_id: int | None = None,
+                type: str | None = None,
+                delta: timedelta | None = None) -> logOBJ:
         result = self.get(
             format_select(
                 "Logs",
@@ -434,9 +431,9 @@ class Database:
 
     # MANY GETTER
     def get_users(self,
-                  id: p.Optional[int] = None,
-                  settings: p.Optional[dict] = None,
-                  permissions: p.Optional[dict] = None) -> p.List[userOBJ]:
+                  id: int | None = None,
+                  settings: dict | None = None,
+                  permissions: dict | None = None) -> list[userOBJ]:
         result = self.get(
             format_select(
                 "Users",
@@ -449,9 +446,9 @@ class Database:
         return objects(result, userOBJ)
 
     def get_chats(self,
-                  id: p.Optional[int] = None,
-                  settings: p.Optional[dict] = None,
-                  owner_id: p.Optional[int] = None) -> p.List[chatOBJ]:
+                  id: int | None = None,
+                  settings: dict | None = None,
+                  owner_id: int | None = None) -> list[chatOBJ]:
         result = self.get(
             format_select(
                 "Chats",
@@ -464,13 +461,13 @@ class Database:
         return objects(result, chatOBJ)
 
     def get_messages(self,
-                     user_id: p.Optional[int] = None,
-                     chat_id: p.Optional[int] = None,
-                     message_id: p.Optional[int] = None,
-                     reply_message_id: p.Optional[int] = None,
-                     message: p.Optional[str] = None,
-                     type: p.Optional[str] = None,
-                     delta: p.Optional[timedelta] = None) -> p.List[messageOBJ]:
+                     user_id: int | None = None,
+                     chat_id: int | None = None,
+                     message_id: int | None = None,
+                     reply_message_id: int | None = None,
+                     message: str | None = None,
+                     type: str | None = None,
+                     delta: timedelta | None = None) -> list[messageOBJ]:
         result = self.get(
             format_select(
                 "Messages",
@@ -487,12 +484,12 @@ class Database:
         return objects(result, messageOBJ)
 
     def get_logs(self,
-                 log_id: p.Optional[int] = None,
-                 chat_id: p.Optional[int] = None,
-                 executor_id: p.Optional[int] = None,
-                 target_id: p.Optional[int] = None,
-                 type: p.Optional[str] = None,
-                 delta: p.Optional[timedelta] = None) -> p.List[logOBJ]:
+                 log_id: int | None = None,
+                 chat_id: int | None = None,
+                 executor_id: int | None = None,
+                 target_id: int | None = None,
+                 type: str | None = None,
+                 delta: timedelta | None = None) -> list[logOBJ]:
         result = self.get(
             format_select(
                 "Logs",
@@ -508,23 +505,23 @@ class Database:
         return objects(result, logOBJ)
 
     # ALL GETTER
-    def get_all_users(self, size: p.Optional[int] = None) -> p.List[userOBJ]:
+    def get_all_users(self, size: int | None = None) -> list[userOBJ]:
         return objects(self.get("SELECT * FROM Users", size=size), userOBJ)
 
-    def get_all_chats(self, size: p.Optional[int] = None) -> p.List[chatOBJ]:
+    def get_all_chats(self, size: int | None = None) -> list[chatOBJ]:
         return objects(self.get("SELECT * FROM Chats", size=size), chatOBJ)
 
-    def get_all_messages(self, size: p.Optional[int] = None) -> p.List[messageOBJ]:
+    def get_all_messages(self, size: int | None = None) -> list[messageOBJ]:
         return objects(self.get("SELECT * FROM Messages", size=size), messageOBJ)
 
-    def get_all_logs(self, size: p.Optional[int] = None) -> p.List[logOBJ]:
+    def get_all_logs(self, size: int | None = None) -> list[logOBJ]:
         return objects(self.get("SELECT * FROM Logs", size=size), logOBJ)
 
     # DELETER
     def delete_users(self,
-                     id: p.Optional[int] = None,
-                     settings: p.Optional[dict] = None,
-                     permissions: p.Optional[dict] = None):
+                     id: int | None = None,
+                     settings: dict | None = None,
+                     permissions: dict | None = None):
         self.update(
             format_delete(
                 "Users",
@@ -535,9 +532,9 @@ class Database:
         )
 
     def delete_chats(self,
-                     id: p.Optional[int] = None,
-                     settings: p.Optional[dict] = None,
-                     owner_id: p.Optional[int] = None):
+                     id: int | None = None,
+                     settings: dict | None = None,
+                     owner_id: int | None = None):
         self.update(
             format_delete(
                 "Chats",
@@ -548,13 +545,13 @@ class Database:
         )
 
     def delete_messages(self,
-                        user_id: p.Optional[int] = None,
-                        chat_id: p.Optional[int] = None,
-                        message_id: p.Optional[int] = None,
-                        reply_message_id: p.Optional[int] = None,
-                        message: p.Optional[str] = None,
-                        type: p.Optional[str] = None,
-                        delta: p.Optional[timedelta] = None):
+                        user_id: int | None = None,
+                        chat_id: int | None = None,
+                        message_id: int | None = None,
+                        reply_message_id: int | None = None,
+                        message: str | None = None,
+                        type: str | None = None,
+                        delta: timedelta | None = None):
         self.update(
             format_delete(
                 "Messages",
@@ -569,12 +566,12 @@ class Database:
         )
 
     def delete_logs(self,
-                    log_id: p.Optional[int] = None,
-                    chat_id: p.Optional[int] = None,
-                    executor_id: p.Optional[int] = None,
-                    target_id: p.Optional[int] = None,
-                    type: p.Optional[str] = None,
-                    delta: p.Optional[timedelta] = None):
+                    log_id: int | None = None,
+                    chat_id: int | None = None,
+                    executor_id: int | None = None,
+                    target_id: int | None = None,
+                    type: str | None = None,
+                    delta: timedelta | None = None):
         self.update(
             format_delete(
                 "Logs",
@@ -601,7 +598,7 @@ class Database:
         return logOBJ(*self.get("SELECT * FROM Logs ORDER BY log_id DESC LIMIT 1", True))
 
     # LOW LEVEL GETTER
-    def get(self, sql: str, one: bool = False, size: int = None) -> p.Union[p.List[p.Tuple], p.Tuple]:
+    def get(self, sql: str, one: bool = False, size: int = None) -> list[tuple] | tuple:
         logging.debug(f"Getting from database:\n    {sql}")
         with self.connect.cursor() as cursor:
             cursor.execute(sql)

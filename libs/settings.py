@@ -21,9 +21,9 @@ class Settings:
 
     def menu(self,
              settings: "SettingsType",
-             text: p.Optional[str] = None,
-             callback_data: p.Optional[str] = None) -> p.Union[Menu, Submenu]:
-        buttons: p.List[Button, Submenu] = []
+             text: str | None = None,
+             callback_data: str | None = None) -> Menu | Submenu:
+        buttons: list[Button, Submenu] = []
         if text and callback_data:
             menu = Submenu(self.title, text, str(callback_data) + "@" + str(uuid.uuid4())[0:8], self.row_width,
                            undo=self.undo)
@@ -87,9 +87,9 @@ class Elements:
         self.callback_data_format = callback_data_format
         self.text_format = text_format
 
-    def buttons(self, settings: "SettingsType") -> p.List[Button]:
+    def buttons(self, settings: "SettingsType") -> list[Button]:
         num = 0
-        buttons: p.List[Button] = []
+        buttons: list[Button] = []
         for key in settings:
             if isinstance(settings, list):
                 value = key
@@ -117,16 +117,6 @@ class Elements:
         return buttons
 
 
-SettingsType = p.Union[
-    p.Dict[str, p.Any],
-    p.List[p.Any],
-    p.Any
-]
+SettingsType = dict[str, p.Any] | list[p.Any] | p.Any
 
-ParameterType = p.List[
-    p.Union[
-        Property,
-        Elements,
-        Button
-    ]
-]
+ParameterType = list[Property | Elements | Button]

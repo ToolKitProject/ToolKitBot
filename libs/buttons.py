@@ -1,7 +1,8 @@
-from copy import deepcopy
 import typing as p
+from copy import deepcopy
 
 from aiogram import types as t
+
 from bot import dp
 
 
@@ -9,7 +10,7 @@ class Menu(t.InlineKeyboardMarkup):
     title: str
     undo: bool
     hide: bool
-    storage: p.Dict[str, p.Any]
+    storage: dict[str, p.Any]
 
     def __init__(self, title: str, row_width: int = 3, inline_keyboard=None, undo: bool = False, hide: bool = False):
         super().__init__(row_width=row_width, inline_keyboard=inline_keyboard)
@@ -49,6 +50,8 @@ class Menu(t.InlineKeyboardMarkup):
     async def save_storage(self, msg: t.Message, history: bool = True):
         from src.instances import MessageData
         with MessageData.data(msg) as data:
+            data.history: list[Menu]
+
             for key, value in self.storage.items():
                 data[key] = value
                 if not self.hide:
@@ -110,6 +113,9 @@ class Button(t.InlineKeyboardButton):
 
 
 class Submenu(Button):
+    __menu: Menu
+    storage: dict[str, p.Any]
+
     def __init__(self, title: str, text: str, callback_data: str,
                  row_width: int = 3, inline_keyboard=None, undo: bool = True, hide: bool = False, state=None):
         super().__init__(text=text, callback_data=callback_data)

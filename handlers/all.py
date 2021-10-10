@@ -1,18 +1,15 @@
-import typing as p
-
 from aiogram import types as t
 from aiogram.dispatcher import FSMContext
-from aiogram.dispatcher.handler import CancelHandler
 
 from bot import dp
 from libs import errors as e
 from libs.buttons import Menu, Submenu
 from libs.command_parser import ParsedArgs
 from libs.settings import Property, SettingsType
-from src.instances import MessageData
-from src import filters as f
 from locales import other, buttons
+from src import filters as f
 from src import stages
+from src.instances import MessageData
 
 
 @other.parsers.help()
@@ -50,7 +47,7 @@ async def back(clb: t.CallbackQuery):
     """
     try:
         with MessageData.data() as data:
-            history: p.List[Menu] = data.history
+            history: list[Menu] = data.history
             while True:
                 history.pop(-1)
                 try:

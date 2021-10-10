@@ -1,11 +1,11 @@
 import typing as p
 
-from aiogram import types as t, Dispatcher, Bot
+from aiogram import types as t, Dispatcher
 from aiogram.dispatcher.filters import state as s
 
 from bot import dp
-from . import commands as c
 from locales_config import langs
+from . import commands as c
 
 
 class StageGroup(s.StatesGroup):
@@ -41,14 +41,14 @@ class StageGroup(s.StatesGroup):
 
 
 class Stage(s.State):
-    _commands: p.List[str]
-    text: p.Optional[str]
+    _commands: list[str]
+    text: str | None
 
     def __init__(self,
-                 commands: p.List[str] = [],
-                 text: p.Optional[str] = None,
-                 state: p.Optional[str] = None,
-                 group_name: p.Optional[str] = None):
+                 commands: str | None = [],
+                 text: str | None = None,
+                 state: str | None = None,
+                 group_name: str | None = None):
         self._commands = ["cancel"] + commands
         self.text = text
         super().__init__(state, group_name)

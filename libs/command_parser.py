@@ -1,5 +1,6 @@
 import typing as p
 from abc import ABC, abstractmethod
+
 from aiogram import types as t
 
 from bot import dp
@@ -34,35 +35,19 @@ class ParsedArgs:
     def __bool__(self):
         return bool(len(self))
 
-    def get(self, name):
-        """
-
-        @rtype: p.Optional[ParsedArgs]
-        """
+    def get(self, name) -> p.Optional["ParsedArgs"]:
         return self.__dict__[name] if name in self.__dict__ else None
 
-    def items(self):
-        """
-
-        @rtype: p.ItemsView[str, ParsedArgs]
-        """
+    def items(self) -> p.ItemsView[str, "ParsedArgs"]:
         return self.__dict__.items()
 
-    def keys(self):
-        """
-
-        @rtype: p.KeysView[str]
-        """
+    def keys(self) -> p.KeysView[str]:
         return self.__dict__.keys()
 
-    def values(self):
-        """
-
-        @rtype: p.ValuesView[ParsedArgs]
-        """
+    def values(self) -> p.ValuesView["ParsedArgs"]:
         return self.__dict__.values()
 
-    def expand(self, items: p.Dict[str, p.Any]):
+    def expand(self, items: dict[str, p.Any]):
         for key, value in items.items():
             self.add(key, value)
 
@@ -72,7 +57,7 @@ class ParsedArgs:
 
 
 class ParseObj:
-    def __init__(self, text: str, entities: p.List[t.MessageEntity], reply_user: t.User):
+    def __init__(self, text: str, entities: dict[t.MessageEntity], reply_user: t.User):
         self.text = text
         self.entities = entities
         self.reply_user = reply_user
@@ -84,7 +69,7 @@ class ParseObj:
 
 
 class BaseArg(ABC):
-    def __init__(self, dest: str, name: str, required: bool, default: p.Optional[p.Any] = None):
+    def __init__(self, dest: str, name: str, required: bool, default: p.Any | None = None):
         self.dest = dest
         self.name = name
         self.required = required
@@ -100,7 +85,7 @@ class BaseArg(ABC):
 
 
 class BaseParser:
-    args: p.List[BaseArg]
+    args: list[BaseArg]
 
     def __init__(self):
         self.args = []
@@ -119,7 +104,7 @@ class BaseParser:
         ru = msg.reply_to_message.from_user if msg.reply_to_message else None
         return await self.parse(msg.text, msg.entities, ru, chek)
 
-    async def parse(self, text: str, entities: p.List[t.MessageEntity] = [], reply_user: t.User = None,
+    async def parse(self, text: str, entities: list[t.MessageEntity] = [], reply_user: t.User = None,
                     check: bool = True):
         items = ParsedArgs()
         parseOBJ = ParseObj(text, entities, reply_user)
@@ -140,7 +125,7 @@ class BaseParser:
             items.add(arg.dest, item)
         return items
 
-    async def check(self, text: str, entities: p.List[t.MessageEntity] = [], reply_user: t.User = None,
+    async def check(self, text: str, entities: list[t.MessageEntity] = [], reply_user: t.User = None,
                     err: bool = True):
         obj = ParseObj(text, entities, reply_user)
 
@@ -153,7 +138,7 @@ class BaseParser:
                         return False
         return True
 
-    async def check_all(self, text: str, entities: p.List[t.MessageEntity] = [], reply_user: t.User = None,
+    async def check_all(self, text: str, entities: list[t.MessageEntity] = [], reply_user: t.User = None,
                         err: bool = False):
         obj = ParseObj(text, entities, reply_user)
         for arg in self.args:
@@ -164,7 +149,7 @@ class BaseParser:
                     return False
         return True
 
-    async def check_types(self, text: str, entities: p.List[t.MessageEntity] = [], reply_user: t.User = None,
+    async def check_types(self, text: str, entities: list[t.MessageEntity] = [], reply_user: t.User = None,
                           err: bool = False, *types: str):
         obj = ParseObj(text, entities, reply_user)
         for arg in self.args:

@@ -1,16 +1,14 @@
+import typing as p
 from copy import copy
-from datetime import timedelta
 
 from aiogram import types as t
 from aiogram.dispatcher.middlewares import BaseMiddleware
-
-import typing as p
+from aiogram.types import ContentType as c
 
 from bot import bot
+from libs.database import LogType as l
 from . import filters as f
 from .instances import Database
-from libs.database import LogType as l
-from aiogram.types import ContentType as c
 
 
 async def get_help(msg: t.Message):
@@ -81,7 +79,7 @@ def get_key_by_id(_dict: dict, id: int) -> p.Any:
     return list(_dict.keys())[int(id)]
 
 
-def break_list_by_step(_list: p.List, step: int) -> p.List[p.List]:
+def break_list_by_step(_list: list, step: int) -> list[list]:
     result = []
 
     for i in range((len(_list) // step) + 1):
@@ -90,11 +88,11 @@ def break_list_by_step(_list: p.List, step: int) -> p.List[p.List]:
     return result
 
 
-async def raise_permissions_errors(users: p.List[t.User], admins: p.List[t.ChatMember]):
+async def raise_permissions_errors(users: list[t.User], admins: list[t.ChatMember]):
     from libs import errors as e
     from libs.user import User
 
-    users: p.List[User]
+    users: list[User]
     err = None
 
     for u1 in copy(users):

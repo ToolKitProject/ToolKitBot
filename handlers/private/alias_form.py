@@ -1,5 +1,3 @@
-import typing as p
-
 from aiogram import types as t
 from aiogram.dispatcher import FSMContext
 
@@ -37,7 +35,7 @@ async def command_form(msg: t.Message, state: FSMContext):
         value: str = msg.text
     with MessageData.data(from_msg) as data:
         settings: SettingsType = data.settings
-        target: p.Union[Chat, User] = data.target
+        target: Chat | User = data.target
 
     settings[key] = value
     save_target_settings(target)
