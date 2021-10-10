@@ -9,6 +9,7 @@ from aiogram.utils import json as aiogram_json
 import json
 
 import config
+import locales_config
 
 parser = optparse.OptionParser(conflict_handler="resolve")
 parser.add_option('-t', '--test',
@@ -40,7 +41,7 @@ import handlers
 
 other = locales.other
 MessageData = src.instances.MessageData
-langs = locales.langs
+langs = locales_config.langs
 locales = libs.locales
 NewInstance = src.utils.NewInstance
 LogMiddleware = src.utils.LogMiddleware
