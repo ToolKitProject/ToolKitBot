@@ -97,6 +97,13 @@ async def raise_permissions_errors(users: p.List[t.User], admins: p.List[t.ChatM
     users: p.List[User]
     err = None
 
+    for u1 in copy(users):
+        for u2 in copy(users):
+            if u1 is u2:
+                continue
+            if u1.id == u2.id:
+                users.remove(u1)
+
     for user in copy(users):
         for admin in admins:
             if user.id == bot.id:
