@@ -5,7 +5,7 @@ from aiogram.dispatcher.filters import state as s
 
 from bot import dp
 from . import commands as c
-from config import langs
+from locales import langs
 
 
 class StageGroup(s.StatesGroup):

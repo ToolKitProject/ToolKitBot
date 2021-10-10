@@ -40,7 +40,7 @@ import handlers
 
 other = locales.other
 MessageData = src.instances.MessageData
-langs = config.langs
+langs = locales.langs
 locales = libs.locales
 NewInstance = src.utils.NewInstance
 LogMiddleware = src.utils.LogMiddleware

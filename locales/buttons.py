@@ -1,6 +1,6 @@
 import config
 from aiogram.types import InlineKeyboardMarkup as IM
-from config import langs
+from locales import langs
 from libs.buttons import Button, Menu, Submenu
 from libs.settings import Elements, Property, Settings
 from libs.locales import Text as _
