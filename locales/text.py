@@ -3,15 +3,17 @@ from libs.locales import Text as _
 cancel = _("/cancel - to cancel")
 
 statistic_modes = {
-    0: _("Off"),
-    1: _("Date only"),
-    2: _("Full")
+    0: _("Date only"),
+    1: _("Full")
 }
 
 
 class errors:
-    class restrict:
-        pass
+    class operation_error:
+        CantRestrictChatOwner = _("Can't restrict chat owner")
+        UserIsAnAdministratorOfTheChat = _(
+            "User is an administrator of the chat")
+        CantRestrictSelf = _("Can't restrict self")
 
     class argument_error:
         ArgumentError = _("⚠ Invalid argument")
@@ -19,8 +21,8 @@ class errors:
         incorrect = _("Argument <b>{arg_name}</b> incorrect")
         required = _("Argument <b>{arg_name}</b> required")
 
-    class alias_type_error:
-        AliasTypeError = _("⚠ Wrong type")
+    class form_type_error:
+        FormTypeError = _("⚠ Wrong type")
 
         command_not_supported = _("Command not supported")
         sticker_supported = _("Only sticker supported")
@@ -38,22 +40,27 @@ class errors:
 
 
 class private:
-    start_text = _("Hi, I am a ToolKit bot and I am dedicated to everything you can imagine 😜 \n" +
-                   "What I can do 😊 \n" +
-                   "┣ Edit photo 🌅 \n" +
-                   "┣ Moderate groups ⚙️ \n" +
-                   "┣ Decrypt voice 🎤 \n" +
-                   "┣ Generate voice 🎙 \n" +
-                   "┗ Generate memes 😎")
+    start_text = _("What I can do\n" +
+                   "┗ Moderate groups ⚙️ \n" +
+                   "\n" +
+                   "GitHub - https://github.com/ToolKit-telegram \n" +
+                   "Creator - @igorechek06")
 
     class settings:
         chat_loading = _("🕒 Please wait,chats is loading")
-        sticker = _("1⃣ Send me sticker \n") + cancel
-        text = _("1⃣ Send me text \n") + cancel
 
-        command = _("2⃣ Send me command")
+        alias_sticker = _("Send me sticker \n") + cancel
+        alias_text = _("Send me text \n") + cancel
+        alias_command = _("Send me command")
 
         statistic_mode_changed = _("Statistic mode changed on {mode}")
+
+        report_command = _(
+            "Send me report command \nCurrent - {command} \n") + cancel
+        report_count = _(
+            "Send me max report count (3 - 20) \nCurrent - {count} \n") + cancel
+        report_delta = _(
+            "Send me expire report time (from '1d' to '1y') \nCurrent - {delta} days \n") + cancel
 
 
 class chat:
@@ -64,8 +71,7 @@ class chat:
 
     start_text = _("Hello i am ToolKit bot \n" +
                    "What i can do this chat \n" +
-                   "┣ Moderate ⚙️ \n" +
-                   "┗ Decrypt voice messages 🎤 \n" +
+                   "┗ Moderate ⚙️ \n" +
                    " \n" +
                    "For administration commands to work, please grant these rights \n" +
                    "┣ Delete messages ⚠ \n" +
@@ -105,6 +111,10 @@ class chat:
         ban = _("User {user} banned ⛔ \n") + reason + admin + until
         multi_ban = _("Users {user} banned ⛔ \n") + reason + admin + until
         ban_poll = _("⛔ Ban - {user} ?")
+
+        report = reason + admin + _("Reports ‼️:\n")
+        report_sample = "   {user} {user_reports}/{max_reports}\n"
+        report_reason = _("Auto (/report)")
 
         options_poll = [_("✅ Yes"), _("⛔ No ")]
 

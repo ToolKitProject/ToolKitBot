@@ -1,3 +1,11 @@
+from aiogram.types import User
+
+# (./i38n)
+langs = {
+    "ru": "🇷🇺 Русский",
+    # "pl": "🇵🇱 Polski"
+}  # DO NOT ADD ENGLISH
+
 token = ""
 main_token = "{main_token}"  # main bot token (-m --main)
 test_token = "{test_token}"  # test bot token (-t --test)
@@ -9,3 +17,5 @@ sql_host = "{sql_host}"
 sql_user = "{sql_user}"  # MySQL user
 sql_password = "{sql_password}"  # MySQL password from user
 sql_database = "{sql_database}"  # MySQL database name
+
+bot: User

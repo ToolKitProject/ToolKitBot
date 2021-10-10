@@ -3,87 +3,103 @@
 # This file is distributed under the same license as the PACKAGE package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
-#, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: PACKAGE VERSION\n"
+"Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-08-26 22:17+0900\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: LANGUAGE <LL@li.org>\n"
-"Language: \n"
+"POT-Creation-Date: 2021-10-10 11:22+0900\n"
+"PO-Revision-Date: 2021-10-10 11:45+0900\n"
+"Language: ru\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"X-Generator: Poedit 3.0\n"
 
-#: libs/src/text.py:4 libs/src/text.py:3
+#: libs/src/text.py:4 libs/src/text.py:3 locales/text.py:3
 msgid "/cancel - to cancel"
 msgstr "/cancel - для отмены"
 
 #: libs/src/text.py:12 libs/src/text.py:18 libs/src/text.py:17
+#: locales/text.py:19
 msgid "⚠ Invalid argument"
 msgstr "⚠ Неверный аргумент"
 
 #: libs/src/text.py:14 libs/src/text.py:20 libs/src/text.py:19
+#: locales/text.py:21
 #, python-brace-format
 msgid "Argument <b>{arg_name}</b> incorrect"
 msgstr "Аргумент <b>{arg_name}</b> неверен"
 
 #: libs/src/text.py:15 libs/src/text.py:21 libs/src/text.py:20
+#: locales/text.py:22
 #, python-brace-format
 msgid "Argument <b>{arg_name}</b> required"
 msgstr "Аргумент <b>{arg_name}</b> обязателен"
 
 #: libs/src/text.py:18 libs/src/text.py:24 libs/src/text.py:23
+#: locales/text.py:25
 msgid "⚠ Wrong type"
 msgstr "⚠ Неверный тип"
 
 #: libs/src/text.py:20 libs/src/text.py:26 libs/src/text.py:25
+#: locales/text.py:27
 msgid "Command not supported"
 msgstr "Команда не поддерживается"
 
 #: libs/src/text.py:21 libs/src/text.py:27 libs/src/text.py:26
+#: locales/text.py:28
 msgid "Only sticker supported"
 msgstr "Поддерживаются только стикеры"
 
 #: libs/src/text.py:22 libs/src/text.py:28 libs/src/text.py:27
+#: locales/text.py:29
 msgid "Only text supported"
 msgstr "Поддерживается только текст"
 
 #: libs/src/text.py:24 libs/src/text.py:30 libs/src/text.py:29
+#: locales/text.py:31
 msgid "⚠ Command not found"
 msgstr "⚠ Команда не найдена"
 
 #: libs/src/text.py:25 libs/src/text.py:31 libs/src/text.py:30
+#: locales/text.py:32
 msgid "⚠ User not found"
 msgstr "⚠ Пользователь не найден"
 
 #: libs/src/text.py:26 libs/src/text.py:32 libs/src/text.py:31
+#: locales/text.py:33
 msgid "⚠ You don't have the permission"
 msgstr "⚠ У вас недостаточно прав"
 
 #: libs/src/text.py:27 libs/src/text.py:33 libs/src/text.py:32
+#: locales/text.py:34
 msgid "⚠ You do not own chats"
 msgstr "⚠ Ты не владеешь чатами"
 
 #: libs/src/text.py:28 libs/src/text.py:34 libs/src/text.py:33
+#: locales/text.py:35
 msgid "⚠ Already exists"
 msgstr "⚠ Уже существует"
 
 #: libs/src/text.py:29 libs/src/text.py:35 libs/src/text.py:34
+#: locales/text.py:36
 msgid "⚠ Not replied"
 msgstr "⚠ Нет ответа"
 
 #: libs/src/text.py:30 libs/src/text.py:36 libs/src/text.py:35
+#: locales/text.py:37
 msgid "⚠ The bot has no or not enough rights"
 msgstr "⚠ У бота нет прав или их не достаточно"
 
 #: libs/src/text.py:31 libs/src/text.py:37 libs/src/text.py:36
+#: locales/text.py:38
 msgid "⚠ Back error"
 msgstr "⚠ Ошибка возврата"
 
 #: libs/src/text.py:32 libs/src/text.py:38 libs/src/text.py:37
+#: locales/text.py:39
 msgid "⚠ Not enough votes"
 msgstr "⚠ Недостаточно голосов"
 
@@ -106,6 +122,7 @@ msgstr ""
 "┗ Генерировать мемы 😎"
 
 #: libs/src/text.py:45 libs/src/text.py:51 libs/src/text.py:50
+#: locales/text.py:50
 msgid "🕒 Please wait,chats is loading"
 msgstr "🕒 Подождите, чаты загружаются"
 
@@ -122,6 +139,7 @@ msgid "2⃣ Send me command"
 msgstr "2⃣ Пришли мне команду"
 
 #: libs/src/text.py:53 libs/src/text.py:61 libs/src/text.py:60
+#: locales/text.py:67
 msgid ""
 "┣ /ban /unban ⛔ \n"
 "┣ /mute /unmute 🔇 \n"
@@ -157,6 +175,7 @@ msgstr ""
 "┗ Банить пользователей ⛔"
 
 #: libs/src/text.py:67 libs/src/text.py:75 libs/src/text.py:74
+#: locales/text.py:80
 msgid ""
 "The bot now <b>has</b> administrator rights \n"
 "Now you <b>can</b> use commands like \n"
@@ -165,6 +184,7 @@ msgstr ""
 "Теперь вы <b>можете</b> использовать такие команды, как \n"
 
 #: libs/src/text.py:70 libs/src/text.py:78 libs/src/text.py:77
+#: locales/text.py:83
 msgid ""
 "The bot now <b>hasn't</b> administrator rights \n"
 "Now you <b>can't</b> use commands like \n"
@@ -173,125 +193,129 @@ msgstr ""
 "Теперь вы <b>НЕ можете</b> использовать такие команды, как \n"
 
 #: libs/src/text.py:74 libs/src/text.py:82 libs/src/text.py:81
+#: locales/text.py:87
 msgid "✅ Commands fixed"
 msgstr "✅ Команды исправлены"
 
 #: libs/src/text.py:77 libs/src/text.py:85 libs/src/text.py:84
+#: locales/text.py:90
 #, python-brace-format
 msgid "Reason ❓ - <code>{reason}</code> \n"
 msgstr "Причина ❓ - <code>{reason}</code> \n"
 
 #: libs/src/text.py:78 libs/src/text.py:86 libs/src/text.py:85
+#: locales/text.py:91
 #, python-brace-format
 msgid "Moderator 👤 - <i>{admin}</i> \n"
 msgstr "Администратор 👤 - <i>{admin}</i> \n"
 
 #: libs/src/text.py:79 libs/src/text.py:87 libs/src/text.py:86
+#: locales/text.py:92
 #, python-brace-format
 msgid "Until ⌛ - <b>{until}</b> \n"
 msgstr "До ⌛ - <b>{until}</b> \n"
 
-#: libs/src/text.py:81 libs/src/text.py:89
+#: libs/src/text.py:81 libs/src/text.py:89 locales/text.py:95
 #, python-brace-format
 msgid "User {user} unmuted 🔈 \n"
 msgstr "Пользователь {user} размучен 🔈 \n"
 
-#: libs/src/text.py:82 libs/src/text.py:90
+#: libs/src/text.py:82 libs/src/text.py:90 locales/text.py:96
 #, python-brace-format
 msgid "Users {user} unmuted 🔈 \n"
 msgstr "Пользователи {user} размучены 🔈 \n"
 
-#: libs/src/text.py:83 libs/src/text.py:91
+#: libs/src/text.py:83 libs/src/text.py:91 locales/text.py:97
 #, python-brace-format
 msgid "🔈 Unmute - {user} ?"
 msgstr "🔈 Размутить - {user} ?"
 
-#: libs/src/text.py:85 libs/src/text.py:93
+#: libs/src/text.py:85 libs/src/text.py:93 locales/text.py:99
 #, python-brace-format
 msgid "User {user} muted 🔇 \n"
 msgstr "Пользователь {user} змучен 🔇 \n"
 
-#: libs/src/text.py:86 libs/src/text.py:94
+#: libs/src/text.py:86 libs/src/text.py:94 locales/text.py:100
 #, python-brace-format
 msgid "Users {user} muted 🔇 \n"
 msgstr "Пользователи {user} замучены 🔇 \n"
 
-#: libs/src/text.py:87 libs/src/text.py:95
+#: libs/src/text.py:87 libs/src/text.py:95 locales/text.py:101
 #, python-brace-format
 msgid "🔇 Mute - {user} ?"
 msgstr "🔇 Замутить - {user} ?"
 
-#: libs/src/text.py:89 libs/src/text.py:97
+#: libs/src/text.py:89 libs/src/text.py:97 locales/text.py:103
 #, python-brace-format
 msgid "User {user} kicked out ⚠ \n"
 msgstr "Пользователь {user} исключён ⚠ \n"
 
-#: libs/src/text.py:90 libs/src/text.py:98
+#: libs/src/text.py:90 libs/src/text.py:98 locales/text.py:104
 #, python-brace-format
 msgid "Users {user} kicked out ⚠ \n"
 msgstr "Пользователи {user} исключёны ⚠ \n"
 
-#: libs/src/text.py:91 libs/src/text.py:99
+#: libs/src/text.py:91 libs/src/text.py:99 locales/text.py:105
 #, python-brace-format
 msgid "⚠ Kick out - {user} ?"
 msgstr "⚠ Исключить - {user} ?"
 
-#: libs/src/text.py:93 libs/src/text.py:101
+#: libs/src/text.py:93 libs/src/text.py:101 locales/text.py:107
 #, python-brace-format
 msgid "User {user} unbanned ✅ \n"
 msgstr "Пользователь {user} разблокирован ✅ \n"
 
-#: libs/src/text.py:94 libs/src/text.py:102
+#: libs/src/text.py:94 libs/src/text.py:102 locales/text.py:108
 #, python-brace-format
 msgid "Users {user} unbanned ✅ \n"
 msgstr "Пользователи {user} разблокированы ✅ \n"
 
-#: libs/src/text.py:95 libs/src/text.py:103
+#: libs/src/text.py:95 libs/src/text.py:103 locales/text.py:109
 #, python-brace-format
 msgid "✅ Unban - {user} ?"
 msgstr "✅ Разблокировать - {user} ?"
 
-#: libs/src/text.py:97 libs/src/text.py:105
+#: libs/src/text.py:97 libs/src/text.py:105 locales/text.py:111
 #, python-brace-format
 msgid "User {user} banned ⛔ \n"
 msgstr "Пользователь {user} заблокирован ⛔ \n"
 
-#: libs/src/text.py:98 libs/src/text.py:106
+#: libs/src/text.py:98 libs/src/text.py:106 locales/text.py:112
 #, python-brace-format
 msgid "Users {user} banned ⛔ \n"
 msgstr "Пользователи {user} заблокированы ⛔ \n"
 
-#: libs/src/text.py:99 libs/src/text.py:107
+#: libs/src/text.py:99 libs/src/text.py:107 locales/text.py:113
 #, python-brace-format
 msgid "⛔ Ban - {user} ?"
 msgstr "⛔ Заблокировать - {user} ?"
 
-#: libs/src/text.py:101 libs/src/text.py:109
+#: libs/src/text.py:101 libs/src/text.py:109 locales/text.py:119
 msgid "✅ Yes"
 msgstr "✅ Да"
 
-#: libs/src/text.py:101 libs/src/text.py:109
+#: libs/src/text.py:101 libs/src/text.py:109 locales/text.py:119
 msgid "⛔ No "
 msgstr "⛔ Нет "
 
-#: libs/src/text.py:103 libs/src/text.py:111
+#: libs/src/text.py:103 libs/src/text.py:111 locales/text.py:121
 msgid "February 31, 1970"
 msgstr "31 Февраля 1970 года"
 
-#: libs/src/text.py:104 libs/src/text.py:112
+#: libs/src/text.py:104 libs/src/text.py:112 locales/text.py:122
 msgid "Without any reasons"
 msgstr "Без причины"
 
-#: libs/src/text.py:106 libs/src/text.py:114
+#: libs/src/text.py:106 libs/src/text.py:114 locales/text.py:124
 #, python-brace-format
 msgid "🗑 Chat purged of {count} messages"
 msgstr "🗑 В чате удалено {count} сообщений"
 
-#: libs/src/buttons.py:11 libs/src/buttons.py:35
+#: libs/src/buttons.py:11 libs/src/buttons.py:35 locales/buttons.py:44
 msgid "↩ Undo"
 msgstr "↩ Отмена"
 
-#: libs/src/buttons.py:13 libs/src/buttons.py:37
+#: libs/src/buttons.py:13 libs/src/buttons.py:37 locales/buttons.py:46
 msgid "✅ Check poll"
 msgstr "✅ Проверить опрос"
 
@@ -299,79 +323,84 @@ msgstr "✅ Проверить опрос"
 msgid "⛔ Cancel poll"
 msgstr "⛔ Отменить опрос"
 
-#: libs/src/buttons.py:24 libs/src/buttons.py:48
+#: libs/src/buttons.py:24 libs/src/buttons.py:48 locales/buttons.py:55
 msgid "Chats"
 msgstr "Чаты"
 
-#: libs/src/buttons.py:25 libs/src/buttons.py:49
+#: libs/src/buttons.py:25 libs/src/buttons.py:49 locales/buttons.py:56
 msgid "Self"
 msgstr "Себя"
 
 #: libs/src/buttons.py:26 libs/src/buttons.py:36 libs/src/buttons.py:64
 #: libs/src/buttons.py:50 libs/src/buttons.py:60 libs/src/buttons.py:90
+#: locales/buttons.py:57 locales/buttons.py:65 locales/buttons.py:94
+#: locales/buttons.py:105
 msgid "Choose what you want to customize"
 msgstr "Выбери что хочешь настроить"
 
-#: libs/src/buttons.py:31 libs/src/buttons.py:55
+#: libs/src/buttons.py:31 libs/src/buttons.py:55 locales/buttons.py:62
 msgid "Choose chat"
 msgstr "Выбери чат"
 
-#: libs/src/buttons.py:34 libs/src/buttons.py:58
+#: libs/src/buttons.py:34 libs/src/buttons.py:58 locales/buttons.py:13
 msgid "Add alias"
 msgstr "Добавить сокращение"
 
-#: libs/src/buttons.py:37 libs/src/buttons.py:61
+#: libs/src/buttons.py:37 libs/src/buttons.py:61 locales/buttons.py:67
+#: locales/buttons.py:68 locales/buttons.py:110 locales/buttons.py:111
 msgid "Alias for sticker"
 msgstr "Сокращения по стикерам"
 
 #: libs/src/buttons.py:37 libs/src/buttons.py:42 libs/src/buttons.py:61
-#: libs/src/buttons.py:66
+#: libs/src/buttons.py:66 locales/buttons.py:67 locales/buttons.py:76
+#: locales/buttons.py:110 locales/buttons.py:119
 msgid "Click to delete"
 msgstr "Нажми, чтобы удалить"
 
-#: libs/src/buttons.py:42 libs/src/buttons.py:66
+#: libs/src/buttons.py:42 libs/src/buttons.py:66 locales/buttons.py:76
+#: locales/buttons.py:77 locales/buttons.py:119 locales/buttons.py:120
 msgid "Alias for text"
 msgstr "Сокращения по тексту"
 
-#: libs/src/buttons.py:49 libs/src/buttons.py:75
+#: libs/src/buttons.py:49 libs/src/buttons.py:75 locales/buttons.py:28
 msgid "Delete ?"
 msgstr "Удалить ?"
 
-#: libs/src/buttons.py:50 libs/src/buttons.py:76
+#: libs/src/buttons.py:50 libs/src/buttons.py:76 locales/buttons.py:29
 msgid "Yes 🗑"
 msgstr "Да 🗑"
 
-#: libs/src/buttons.py:51 libs/src/buttons.py:77
+#: libs/src/buttons.py:51 libs/src/buttons.py:77 locales/buttons.py:30
 msgid "No ↩"
 msgstr "Нет ↩"
 
-#: libs/src/buttons.py:58 libs/src/buttons.py:84
+#: libs/src/buttons.py:58 libs/src/buttons.py:84 locales/buttons.py:138
 msgid "Choose language"
 msgstr "Выберите язык"
 
-#: libs/src/buttons.py:58 libs/src/buttons.py:84
+#: libs/src/buttons.py:58 libs/src/buttons.py:84 locales/buttons.py:139
 msgid "Change language"
 msgstr "Изменить язык"
 
-#: libs/src/buttons.py:105 libs/src/buttons.py:96
+#: libs/src/buttons.py:105 libs/src/buttons.py:96 locales/buttons.py:150
 msgid "↩ Back"
 msgstr "↩ Назад"
 
-#: libs/src/buttons.py:106 libs/src/buttons.py:97
+#: libs/src/buttons.py:106 libs/src/buttons.py:97 locales/buttons.py:151
 msgid "🗑 Delete"
 msgstr "🗑 Удалить"
 
-#: libs/src/any.py:12 libs/src/any.py:15 libs/src/any.py:13
+#: libs/src/any.py:12 libs/src/any.py:15 libs/src/any.py:13 locales/other.py:24
 msgid ""
 "👥 Mentions (@username,<a href=\"t.me/username\">Jack Jackson</a> or reply)"
 msgstr ""
 "👥 Упоминания (@username,<a href=\"t.me/username\">Вася Пупкин</a> или ответ)"
 
-#: libs/src/any.py:13 libs/src/any.py:16 libs/src/any.py:14
+#: libs/src/any.py:13 libs/src/any.py:16 libs/src/any.py:14 locales/other.py:25
 msgid "⏳ Date[s|m|h|d|M|y] (1m 30s or 1M)"
 msgstr "⏳ Дата[s|m|h|d|M|y] (1m 30s или 1M)"
 
-#: libs/src/any.py:14 libs/src/any.py:17 libs/src/any.py:15
+#: libs/src/any.py:14 libs/src/any.py:17 libs/src/any.py:15 locales/other.py:26
 msgid "❔ \"Reason\" (Yes in the quote)"
 msgstr "❔ \"Причина\" (Да прям в кавычках)"
 
@@ -380,14 +409,16 @@ msgid "📈 Make a poll (-p --poll)"
 msgstr "📈 Сделать опрос (-p --poll)"
 
 #: libs/src/any.py:23 libs/src/any.py:26 libs/src/any.py:17 libs/src/any.py:19
+#: locales/other.py:34
 msgid "🔢 Count (2 - 1000)"
 msgstr "🔢 Количество (2 - 1000)"
 
 #: libs/src/any.py:24 libs/src/any.py:27 libs/src/any.py:18 libs/src/any.py:20
+#: locales/other.py:35
 msgid "⤴ Reply to delete above"
 msgstr "⤴ Ответьте для удаления выше"
 
-#: libs/src/any.py:30 libs/src/any.py:33 libs/src/any.py:32
+#: libs/src/any.py:30 libs/src/any.py:33 libs/src/any.py:32 locales/other.py:48
 msgid "Exit from form"
 msgstr "Выходит из формы"
 
@@ -399,78 +430,86 @@ msgstr "🔧 Исправить подсказки для команд"
 msgid "Fixes hints for commands"
 msgstr "Исправляет подсказки для команд"
 
-#: libs/src/any.py:36 libs/src/any.py:39 libs/src/any.py:38
+#: libs/src/any.py:36 libs/src/any.py:39 libs/src/any.py:38 locales/other.py:52
 msgid "🚑 Help for commands"
 msgstr "🚑 Помощь по команам"
 
-#: libs/src/any.py:37 libs/src/any.py:40 libs/src/any.py:39
+#: libs/src/any.py:37 libs/src/any.py:40 libs/src/any.py:39 locales/other.py:53
 msgid "Shows help (/help or /help ban)"
 msgstr "Показывает справку (/help или /help ban)"
 
-#: libs/src/any.py:41 libs/src/any.py:44 libs/src/any.py:43
+#: libs/src/any.py:41 libs/src/any.py:44 libs/src/any.py:43 locales/other.py:57
 msgid "⚙ Settings"
 msgstr "⚙ Настройки"
 
-#: libs/src/any.py:41 libs/src/any.py:44 libs/src/any.py:43
+#: libs/src/any.py:41 libs/src/any.py:44 libs/src/any.py:43 locales/other.py:57
 msgid "Shows settings"
 msgstr "Показывает настройки"
 
-#: libs/src/any.py:49 libs/src/any.py:52 libs/src/any.py:51
+#: libs/src/any.py:49 libs/src/any.py:52 libs/src/any.py:51 locales/other.py:65
 msgid "⛔ Block user"
 msgstr "⛔ Заблокировать пользователя"
 
-#: libs/src/any.py:50 libs/src/any.py:53 libs/src/any.py:52
+#: libs/src/any.py:50 libs/src/any.py:53 libs/src/any.py:52 locales/other.py:66
 msgid "✅ Unblock user"
 msgstr "✅ Разблокировать пользователя"
 
-#: libs/src/any.py:51 libs/src/any.py:54 libs/src/any.py:53
+#: libs/src/any.py:51 libs/src/any.py:54 libs/src/any.py:53 locales/other.py:67
 msgid "⚠ Kick user"
 msgstr "⚠ Исключить пользователя"
 
-#: libs/src/any.py:52 libs/src/any.py:55 libs/src/any.py:54
+#: libs/src/any.py:52 libs/src/any.py:55 libs/src/any.py:54 locales/other.py:68
 msgid "🔇 Mute user"
 msgstr "🔇 Замутить пользователя"
 
-#: libs/src/any.py:53 libs/src/any.py:56 libs/src/any.py:55
+#: libs/src/any.py:53 libs/src/any.py:56 libs/src/any.py:55 locales/other.py:69
 msgid "🔈 Unmute user"
 msgstr "🔈 Размутить пользователя"
 
-#: libs/src/any.py:54 libs/src/any.py:57 libs/src/any.py:56
+#: libs/src/any.py:54 libs/src/any.py:57 libs/src/any.py:56 locales/other.py:70
 msgid "🗑 Purge messages"
 msgstr "🗑 Удалить сообщения"
 
 #: libs/src/any.py:59 libs/src/any.py:62 libs/src/any.py:64 libs/src/any.py:67
+#: locales/other.py:101
 msgid "Help command"
 msgstr "Команда справки"
 
 #: libs/src/any.py:60 libs/src/any.py:63 libs/src/any.py:65 libs/src/any.py:68
+#: locales/other.py:102
 msgid "Command"
 msgstr "Команда"
 
 #: libs/src/any.py:63 libs/src/any.py:66 libs/src/any.py:68 libs/src/any.py:71
+#: locales/other.py:105
 msgid "Admin command"
 msgstr "Админ команда"
 
 #: libs/src/any.py:64 libs/src/any.py:67 libs/src/any.py:69 libs/src/any.py:72
+#: locales/other.py:106 locales/other.py:126
 msgid "Reason"
 msgstr "Причина"
 
 #: libs/src/any.py:65 libs/src/any.py:68 libs/src/any.py:76 libs/src/any.py:61
 #: libs/src/any.py:70 libs/src/any.py:84 libs/src/any.py:64 libs/src/any.py:73
-#: libs/src/any.py:88
+#: libs/src/any.py:88 locales/other.py:98 locales/other.py:107
+#: locales/other.py:132
 msgid "Date"
 msgstr "Срок"
 
 #: libs/src/any.py:66 libs/src/any.py:69 libs/src/any.py:80 libs/src/any.py:71
 #: libs/src/any.py:79 libs/src/any.py:83 libs/src/any.py:74 libs/src/any.py:87
+#: locales/other.py:108 locales/other.py:127 locales/other.py:131
 msgid "User"
 msgstr "Пользователь"
 
 #: libs/src/any.py:72 libs/src/any.py:83 libs/src/any.py:87 libs/src/any.py:91
+#: locales/other.py:135
 msgid "Purge command"
 msgstr "Команда очищения"
 
 #: libs/src/any.py:73 libs/src/any.py:84 libs/src/any.py:88 libs/src/any.py:92
+#: locales/other.py:136
 msgid "Message count"
 msgstr "Количество сообщений"
 
@@ -479,14 +518,16 @@ msgid "Off"
 msgstr "Выкл"
 
 #: libs/src/text.py:8 libs/src/buttons.py:20 libs/src/text.py:7
+#: locales/text.py:6 locales/buttons.py:90 locales/buttons.py:133
 msgid "Date only"
 msgstr "Только время"
 
 #: libs/src/text.py:9 libs/src/buttons.py:21 libs/src/text.py:8
+#: locales/text.py:7 locales/buttons.py:91 locales/buttons.py:134
 msgid "Full"
 msgstr "Полностью"
 
-#: libs/src/text.py:57 libs/src/text.py:56
+#: libs/src/text.py:57 libs/src/text.py:56 locales/text.py:56
 #, python-brace-format
 msgid "Statistic mode changed on {mode}"
 msgstr "Режим статистики изменён на {mode}"
@@ -504,38 +545,191 @@ msgstr ""
 "Полностью - Время и текст будет сохранено (время и текст) \n"
 "Текущее: {mode}"
 
-#: libs/src/buttons.py:16
+#: libs/src/buttons.py:16 locales/buttons.py:87 locales/buttons.py:130
 msgid "Statistic settings"
 msgstr "Настройки статистики"
 
-#: libs/src/buttons.py:30
+#: libs/src/buttons.py:30 locales/buttons.py:40
 msgid "Chat settings (owner only)"
 msgstr "Настройки чата (для создателя)"
 
 #: libs/src/any.py:71 libs/src/any.py:73 libs/src/any.py:76
+#: locales/other.py:110
 msgid "Poll flag"
 msgstr "Флаг опроса"
 
 #: libs/src/any.py:79 libs/src/any.py:78 libs/src/any.py:82
+#: locales/other.py:125
 msgid "Report command"
 msgstr "Репорт команда"
 
-#: libs/src/text.py:87
+#: libs/src/text.py:87 locales/text.py:93
 msgid "🔥 Messages was be purged \n"
 msgstr "🔥 Сообщения были удалены \n"
 
-#: libs/src/any.py:29 libs/src/any.py:31
+#: libs/src/any.py:29 libs/src/any.py:31 locales/other.py:47
 msgid "◀ To cancel"
 msgstr "◀️ Для отмены"
 
-#: libs/src/any.py:55 libs/src/any.py:58 libs/src/any.py:18
+#: libs/src/any.py:55 libs/src/any.py:58 libs/src/any.py:18 locales/other.py:33
+#: locales/other.py:72
 msgid "🔥 Delete messages sent by the user"
 msgstr "🔥 Удалить сообщения отправленные пользователем"
 
-#: libs/src/any.py:74 libs/src/any.py:78
+#: libs/src/any.py:74 libs/src/any.py:78 locales/other.py:116
 msgid "Clear history flag"
 msgstr "Флаг очищения истории"
 
-#: libs/src/any.py:82 libs/src/any.py:86
+#: libs/src/any.py:82 libs/src/any.py:86 locales/other.py:130
 msgid "Clear history command"
 msgstr "Команда очищения истории"
+
+#: locales/text.py:13
+msgid "Can't restrict chat owner"
+msgstr "Невозможно ограничить владельца чата"
+
+#: locales/text.py:15
+msgid "User is an administrator of the chat"
+msgstr "Пользователь является администратором чата"
+
+#: locales/text.py:16
+msgid "Can't restrict self"
+msgstr "Невозможно ограничить себя"
+
+#: locales/text.py:43
+msgid ""
+"What I can do\n"
+"┗ Moderate groups ⚙️ \n"
+"\n"
+"GitHub - https://github.com/ToolKit-telegram \n"
+"Creator - @igorechek06"
+msgstr ""
+"Что я могу делать\n"
+"┗ Администрировать чаты ⚙️ \n"
+"\n"
+"GitHub - https://github.com/ToolKit-telegram \n"
+"Создатель - @igorechek06"
+
+#: locales/text.py:52
+msgid "Send me sticker \n"
+msgstr "Отправь мне стикер \n"
+
+#: locales/text.py:53
+msgid "Send me text \n"
+msgstr "Отправь мне текст \n"
+
+#: locales/text.py:54
+msgid "Send me command"
+msgstr "Отправь мне команду"
+
+#: locales/text.py:59
+#, python-brace-format
+msgid ""
+"Send me report command \n"
+"Current - {command} \n"
+msgstr ""
+"Отправь мне репорт команду \n"
+"Текущая - {command} \n"
+
+#: locales/text.py:61
+#, python-brace-format
+msgid ""
+"Send me max report count (3 - 20) \n"
+"Current - {count} \n"
+msgstr ""
+"Отправить мне максимальное количество репортов \n"
+"Текущее - {count} \n"
+
+#: locales/text.py:63
+#, python-brace-format
+msgid ""
+"Send me expire report time (from '1d' to '1y') \n"
+"Current - {delta} days \n"
+msgstr ""
+"Отправь мне срок истечения репорта (от '1d' до '1y') \n"
+"Текущий - {delta} дней \n"
+
+#: locales/text.py:72
+msgid ""
+"Hello i am ToolKit bot \n"
+"What i can do this chat \n"
+"┗ Moderate ⚙️ \n"
+" \n"
+"For administration commands to work, please grant these rights \n"
+"┣ Delete messages ⚠ \n"
+"┣ Invite links 🔗 \n"
+"┗ Ban user ⛔"
+msgstr ""
+"Привет я ToolKit бот \n"
+"Вот что я могу в этом чате \n"
+"┗ Администрировать ⚙️ \n"
+" \n"
+"Чтобы админ команды работали, прошу выдайте мне следующие права \n"
+"┣ Удаление сообщений ⚠ \n"
+"┣ Пригласительные ссылки 🔗 \n"
+"┗ Блокировка участников ⛔"
+
+#: locales/text.py:115
+msgid "Reports ‼️:\n"
+msgstr "Репорты ‼️:\n"
+
+#: locales/text.py:117
+msgid "Auto (/report)"
+msgstr "Автоматически (/report)"
+
+#: locales/buttons.py:8
+#, python-brace-format
+msgid ""
+"Date only - Date of message will be saved (date) \n"
+"Full - Text and data of message will be saved (text and data) \n"
+"Current: {mode}"
+msgstr ""
+"Только дата - будет сохранена дата сообщения (дата) \n"
+"Полный - Текст и данные сообщения будут сохранены (текст и данные) \n"
+"Текущее: {mode}"
+
+#: locales/buttons.py:17
+msgid "Set report execute command"
+msgstr "Изменить репорт команду"
+
+#: locales/buttons.py:21
+msgid "Set max report count"
+msgstr "Изменить макс. количество репортов"
+
+#: locales/buttons.py:25
+msgid "Set expire time"
+msgstr "Изменить время истечения репорта"
+
+#: locales/buttons.py:94
+msgid "Reports"
+msgstr "Репорты"
+
+#: locales/other.py:28
+msgid ""
+"📈 Make a poll (-p --poll) \n"
+"🎭 Make poll anonymous (-a --anonym) \n"
+"⌚ Set poll expire time (-e=600 --expire:65) (1 - 10 min)"
+msgstr ""
+"📈 Создать опрос (-p --poll) \n"
+"🎭 Сделать опрос анонимным (-a --anonym) \n"
+"⌚ Установить время работы опроса (-e=600 --expire:65) (1 - 10 min)"
+
+#: locales/other.py:73
+msgid "‼️ Report user"
+msgstr "‼️ Зарепортить пользователя"
+
+#: locales/other.py:80
+msgid "Report count"
+msgstr "Количество репортов"
+
+#: locales/other.py:89
+msgid "Report delta"
+msgstr "Время репорта"
+
+#: locales/other.py:113
+msgid "Anonym poll flag"
+msgstr "Флаг анонимного опроса"
+
+#: locales/other.py:119
+msgid "Poll expire flag"
+msgstr "Флаг истечения опроса"

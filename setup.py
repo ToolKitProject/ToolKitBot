@@ -5,12 +5,28 @@ import sys
 import traceback
 import typing as p
 
-sql = """alter table Messages
-	add message_id BIGINT not null after chat_id;
+updates = [
+    "alter table Users drop column reports",
+    "alter table Chats change owner owner_id bigint not null",
 
-alter table Messages modify type text null;
+    "delete from Messages where date=null",
+    "alter table Messages modify date datetime not null",
+    "alter table Messages add reply_message_id BIGINT null after message_id",
+    "alter table Messages drop foreign key Messages_Chats_id_fk",
+    "alter table Messages add constraint Messages_Chats_id_fk foreign key (chat_id) references Chats (id) on delete cascade",
+    "alter table Messages drop foreign key Messages_Users_id_fk",
+    "alter table Messages add constraint Messages_Users_id_fk foreign key (user_id) references Users (id) on delete cascade",
 
-alter table Messages modify date datetime null;"""
+    "alter table Logs drop foreign key Logs_Chats_id_fk",
+    "alter table Logs add constraint Logs_Chats_id_fk foreign key (chat_id) references Chats (id) on delete cascade",
+    "alter table Logs drop foreign key Logs_Users_id_fk",
+    "alter table Logs add constraint Logs_Users_id_fk foreign key (executor_id) references Users (id) on delete cascade",
+    "alter table Logs drop foreign key Logs_Users_id_fk_2",
+    "alter table Logs add constraint Logs_Users_id_fk_2 foreign key (target_id) references Users (id) on delete cascade",
+
+    "alter table Chats drop foreign key Chats_Users_id_fk;",
+    "alter table Chats add constraint Chats_Users_id_fk foreign key (owner_id) references Users (id) on delete cascade;"
+]
 
 term = shutil.get_terminal_size()
 sep = "=" * term.columns
@@ -18,7 +34,7 @@ sep = "=" * term.columns
 venv = False
 default = 1
 sample_files = ["data/database.sample.db"]
-po_files = ["text.py", "buttons.py", "any.py"]
+po_files = ["text.py", "buttons.py", "other.py"]
 
 if os.name == "nt":
     print(f"Setup not supported on {platform.system()}")
@@ -232,7 +248,7 @@ def load_mysql():
 
 
 def compile_po_files():
-    path = "libs/locales/"
+    path = "i38n/"
     locales = os.listdir(path)
     lc = "LC_MESSAGES/"
 
@@ -285,8 +301,8 @@ def install_dependencies():
 
 
 def generate_locales_files(new_locale: p.Optional[str] = None):
-    path = "libs/src/"
-    out_path = "libs/locales/"
+    path = "locales/"
+    out_path = "i38n/"
     locales = os.listdir(out_path)
 
     if not locales:
@@ -326,7 +342,7 @@ def generate_locales_files(new_locale: p.Optional[str] = None):
 
 
 def create_locales():
-    path = "libs/locales/"
+    path = "i38n/"
     while True:
         print("Leave blank to exit")
         lc = _input("Name of locale (telegram format)")
@@ -348,7 +364,7 @@ def create_locales():
     _clear()
     print("""
 To create the locale, the following remains:
-    1 - Fill in .pot file (libs/locales/)
+    1 - Fill in .pot file (i38n/)
     2 - Run "Compile po files"
         """)
     _enter()
@@ -356,7 +372,7 @@ To create the locale, the following remains:
 
 
 def delete_locales():
-    path = "libs/locales/"
+    path = "i38n/"
     while True:
         _clear()
         print("Leave blank to exit")
@@ -418,7 +434,8 @@ def update_database():
         database=config.sql_database
     )
     with mysql.cursor() as c:
-        c.execute(sql)
+        for sql in updates:
+            c.execute(sql)
     mysql.commit()
 
     _enter()
@@ -439,12 +456,14 @@ if __name__ == '__main__':
         "Create locales": create_locales,
         "Delete locales": delete_locales,
         "1": None,
-        "Dump MySQL": dump_mysql,
-        "Update database": update_database,
+        "Dump MySQL": dump_mysql
     }
     exit_index = list(opts.keys()).index("Exit") + 1
     default = 1
     pmt = ""
+
+    if updates:
+        opts["Update database"] = update_database
 
     _clear()
     while True:

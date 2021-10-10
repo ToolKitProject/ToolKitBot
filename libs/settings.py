@@ -2,7 +2,7 @@ import typing as p
 import uuid
 from copy import deepcopy
 
-from .Buttons import Menu, Button, Submenu
+from .buttons import Menu, Button, Submenu
 
 
 class Settings:

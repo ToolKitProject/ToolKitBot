@@ -1,16 +1,18 @@
 import typing as p
-from datetime import timedelta
+from datetime import timedelta, datetime
+from smtpd import program
 
+import pyrogram
 from aiogram import types as t, Bot
 from aiogram.utils.exceptions import MigrateToChat, ChatNotFound
 
-from libs.classes import Database as d
-from libs.objects import Database
-from .Chat import Chat
-from .Database import permissionOBJ, settingsOBJ, reportsOBJ, userOBJ
-from libs import UserText
-from . import Errors as e
-from libs.objects import Cache
+from bot import client
+from libs import errors as e, database as d
+from libs.locales import UserText
+from src.instances import Cache
+from src.instances import Database
+from src.utils import get_value
+from libs.database import userOBJ, LogType as l
 
 
 class User:
@@ -27,10 +29,8 @@ class User:
     src: UserText
 
     userOBJ: userOBJ
-    settings: settingsOBJ
-    permission: permissionOBJ
-    reports: reportsOBJ
-    owns: p.List[d.chatOBJ]
+    settings: p.Dict
+    permission: p.Dict
 
     MUTE = t.ChatPermissions(can_send_messages=False)
     UNMUTE = t.ChatPermissions(*[True] * 8)
@@ -49,11 +49,9 @@ class User:
 
         self.settings = self.userOBJ.settings
         self.permission = self.userOBJ.permission
-        self.reports = self.userOBJ.reports
-        self.owns = Database.get_owns(self.id)
 
     @classmethod
-    @Cache.register(timedelta(minutes=10), 10)
+    @Cache.register(timedelta(minutes=10))
     async def create(cls, auth: p.Union[str, int, t.User]) -> "User":
         from bot import client
 
@@ -65,54 +63,47 @@ class User:
         return cls(user)
 
     @property
-    def full_name(self):
+    def full_name(self) -> str:
         result = self.first_name
         if self.last_name:
             result += f" {self.last_name}"
         return result
 
     @property
-    def mention(self):
+    def mention(self) -> str:
         if self.username:
             return f"@{self.username}"
         else:
             return self.full_name
 
     @property
-    def link(self):
+    def link(self) -> str:
         return f"<a href='tg://user?id={self.id}'>{self.full_name}</a>"
 
     @property
-    def ping(self):
+    def ping(self) -> str:
         if self.username:
             return f"@{self.username}"
         else:
             return self.link
 
     @property
-    def global_reports(self):
-        result = 0
-        for r in self.reports.values():
-            result += r
-        return result
+    def statistic_mode(self) -> int:
+        return get_value(self.settings, ["statistic", "mode"], 1)
 
     @property
-    def statistic_mode(self):
-        s = self.settings["statistic"]
-        if s:
-            return s["mode"] if "mode" in s else 2
-        else:
-            return 2
+    def owns(self) -> p.List[d.chatOBJ]:
+        return Database.get_chats(owner_id=self.id)
 
-    @Cache.register(timedelta(minutes=5), 5)
-    async def get_owns(self) -> p.List[Chat]:
-        owns = []
+    async def get_owns(self):
+        from libs.chat import Chat
+
+        owns: p.List[Chat] = []
         for chat in self.owns:
             try:
                 owns.append(await Chat.create(chat.id))
-            except (MigrateToChat, ChatNotFound):
-                Database.delete_chat(chat.id)
             except Exception as ex:
+                Database.delete_chat(chat.id)
                 await e.ForceError(f"⚠ {ex.args[0]}").answer()
 
         return owns
@@ -136,3 +127,14 @@ class User:
     async def kick(self, chat_id: int):
         bot = Bot.get_current()
         await bot.unban_chat_member(chat_id, self.id, only_if_banned=False)
+
+    def get_reports(self, chat: t.Chat):
+        from libs.chat import Chat
+        chat: Chat
+
+        return len(Database.get_logs(
+            chat_id=chat.id,
+            target_id=self.id,
+            type=l.REPORT,
+            delta=chat.report_delta
+        ))

@@ -5,8 +5,6 @@ import signal
 from aiogram import executor
 from aiogram import types as t
 from aiogram.dispatcher.dispatcher import Dispatcher
-from aiogram.dispatcher.middlewares import BaseMiddleware
-from aiogram.dispatcher.handler import CancelHandler
 from aiogram.utils import json as aiogram_json
 import json
 
@@ -16,11 +14,15 @@ parser = optparse.OptionParser(conflict_handler="resolve")
 parser.add_option('-t', '--test',
                   action="store_true",
                   dest='test',
-                  help='test token')
+                  help='Start with test token')
 parser.add_option('-m', '--main',
                   action="store_true",
                   dest='main',
-                  help='main token')
+                  help='Start with main token')
+parser.add_option('-i', '--init-commands',
+                  action="store_true",
+                  dest='commands',
+                  help='Re init bot commands')
 values, args = parser.parse_args()
 
 if values.test:
@@ -31,11 +33,17 @@ else:
     config.token = config.test_token
 
 from bot import dp, client
+import libs
+import src
+import locales
 import handlers
-from libs.objects import MessageData
-from libs import system, locales
-from libs.src import any
-from libs.utils import UpdateDatabase
+
+other = locales.other
+MessageData = src.instances.MessageData
+langs = config.langs
+locales = libs.locales
+NewInstance = src.utils.NewInstance
+LogMiddleware = src.utils.LogMiddleware
 
 
 def close(signal: int, frame):
@@ -51,16 +59,19 @@ async def shutdown(dp: Dispatcher):
 
 
 async def startup(dp: Dispatcher):
+    config.bot = await dp.bot.get_me()
+    src.instances.Database.get_user(config.bot.id)
+
     logging.warning("Start client")
     await client.start()
 
-    if values.main:
+    if values.main or values.commands:
         logging.warning("Init commands")
         try:
-            await any.command_list.set()
-            for l in system.langs:
+            await other.command_list.set()
+            for l in langs:
                 locales.lang = l
-                await any.command_list.set()
+                await other.command_list.set()
         except Exception as e:
             logging.error(f"Init command failed ({e})")
 
@@ -74,7 +85,8 @@ def dumps(data):
 if __name__ == "__main__":
     aiogram_json.dumps = dumps
     signal.signal(signal.SIGTERM, close)
-    dp.setup_middleware(UpdateDatabase())
+    dp.setup_middleware(NewInstance())
+    dp.setup_middleware(LogMiddleware())
 
     executor.start_polling(
         dp,
