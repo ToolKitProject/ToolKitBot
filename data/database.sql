@@ -62,7 +62,7 @@ CREATE TABLE "Messages" (
   "message_id" bigint(20) NOT NULL,
   "reply_message_id" bigint(20) DEFAULT NULL,
   "message" text COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  "type" text COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  "type" text COLLATE utf8mb4_unicode_ci NOT NULL,
   "date" datetime NOT NULL,
   KEY "Messages_Chats_id_fk" ("chat_id"),
   KEY "Messages_Users_id_fk" ("user_id"),
@@ -91,4 +91,4 @@ CREATE TABLE "Users" (
 /*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2021-10-10 11:23:18
+-- Dump completed on 2021-10-10 13:27:55

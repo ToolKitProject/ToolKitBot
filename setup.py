@@ -5,29 +5,6 @@ import sys
 import traceback
 import typing as p
 
-updates = [
-    "alter table Users drop column reports",
-    "alter table Chats change owner owner_id bigint not null",
-
-    "delete from Messages where date=null",
-    "alter table Messages modify date datetime not null",
-    "alter table Messages add reply_message_id BIGINT null after message_id",
-    "alter table Messages drop foreign key Messages_Chats_id_fk",
-    "alter table Messages add constraint Messages_Chats_id_fk foreign key (chat_id) references Chats (id) on delete cascade",
-    "alter table Messages drop foreign key Messages_Users_id_fk",
-    "alter table Messages add constraint Messages_Users_id_fk foreign key (user_id) references Users (id) on delete cascade",
-
-    "alter table Logs drop foreign key Logs_Chats_id_fk",
-    "alter table Logs add constraint Logs_Chats_id_fk foreign key (chat_id) references Chats (id) on delete cascade",
-    "alter table Logs drop foreign key Logs_Users_id_fk",
-    "alter table Logs add constraint Logs_Users_id_fk foreign key (executor_id) references Users (id) on delete cascade",
-    "alter table Logs drop foreign key Logs_Users_id_fk_2",
-    "alter table Logs add constraint Logs_Users_id_fk_2 foreign key (target_id) references Users (id) on delete cascade",
-
-    "alter table Chats drop foreign key Chats_Users_id_fk;",
-    "alter table Chats add constraint Chats_Users_id_fk foreign key (owner_id) references Users (id) on delete cascade;"
-]
-
 term = shutil.get_terminal_size()
 sep = "=" * term.columns
 
@@ -237,9 +214,9 @@ def load_mysql():
 
     print("Use dump")
     if _yes(False):
-        cmd = f"mysql -p {config.sql_database} < {_input('Path to dump file', 'data/Database_dump.sql')}"
+        cmd = f"mysql -p{config.sql_password} {config.sql_database} < {_input('Path to dump file', 'data/Database_dump.sql')}"
     else:
-        cmd = f"mysql -p {config.sql_database} < data/database.sql"
+        cmd = f"mysql -p{config.sql_password} {config.sql_database} < data/database.sql"
 
     _cmd(cmd)
 
@@ -410,9 +387,9 @@ def dump_mysql():
 
     print("Dump for GitHub ?")
     if _yes(True):
-        cmd = f"mysqldump -v -p --add-drop-table=false --compatible=ansi --no-data {config.sql_database} > data/database.sql"
+        cmd = f"mysqldump -v -p{config.sql_password} --add-drop-table=false --compatible=ansi --no-data {config.sql_database} > data/database.sql"
     else:
-        cmd = f"mysqldump -v -p --comments=false {config.sql_database} > {_input('Path to dump file', 'data/Database_dump.sql')}"
+        cmd = f"mysqldump -v -p{config.sql_password} --no-create-info --comments=false {config.sql_database} > {_input('Path to dump file', 'data/Database_dump.sql')}"
 
     _cmd(cmd)
 
@@ -422,23 +399,33 @@ def dump_mysql():
 
 def update_database():
     try:
-        from mysql.connector import connect as mysql
+        from pymysql import connect as mysql
         import config
     except ImportError:
         return 'Please run "Setup config.py" and "Install or Update dependencies"'
 
-    mysql = mysql(
+    _cmd(f"mysqldump -v -p{config.sql_password} --comments=false --no-create-info {config.sql_database} > data/tmp.sql")
+
+    db = mysql(
         host=config.sql_host,
         user=config.sql_user,
-        password=config.sql_password,
-        database=config.sql_database
+        password=config.sql_password
     )
-    with mysql.cursor() as c:
-        for sql in updates:
-            c.execute(sql)
-    mysql.commit()
+    with db.cursor() as c:
+        sql = f"DROP DATABASE {config.sql_database}"
+        c.execute(sql)
+        print(sql)
+        db.commit()
 
-    _enter()
+        sql = f"CREATE DATABASE {config.sql_database}"
+        c.execute(sql)
+        print(sql)
+        db.commit()
+
+    _cmd(f"mysql -p{config.sql_password} {config.sql_database} < data/database.sql")
+    _cmd(f"mysql -p{config.sql_password}  {config.sql_database} < data/tmp.sql")
+    os.remove("data/tmp.sql")
+
     return True
 
 
@@ -446,7 +433,6 @@ if __name__ == '__main__':
     opts = {
         "Setup systemd unit": systemd_unit_generator,
         "Setup config.py": config_generator,
-        # "Rename sample files": rename_sample_files,
         "Setup MySQL (Load dump)": load_mysql,
         "Compile po files": compile_po_files,
         "Install or Update dependencies": install_dependencies,
@@ -456,14 +442,12 @@ if __name__ == '__main__':
         "Create locales": create_locales,
         "Delete locales": delete_locales,
         "1": None,
-        "Dump MySQL": dump_mysql
+        "Dump MySQL": dump_mysql,
+        "Update database": update_database
     }
     exit_index = list(opts.keys()).index("Exit") + 1
     default = 1
     pmt = ""
-
-    if updates:
-        opts["Update database"] = update_database
 
     _clear()
     while True:
