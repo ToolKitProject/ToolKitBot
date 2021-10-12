@@ -114,12 +114,11 @@ class parsers:
             p.ValueFlag("e", "expire",
                         dest="poll_delta",
                         name=_("Poll expire flag"),
-                        parser=p.TextParser().add(
-                            p.DateArg(None,
+                        arg=p.DateArg(None,
                                       dest="value",
                                       minimum=timedelta(seconds=5),
-                                      maximum=timedelta(minutes=10))
-                        ))
+                                      maximum=timedelta(minutes=10),
+                                      default=None))
         ),
         p.ReasonArg(_("Reason"), default=text.chat.admin.reason_empty),
         p.DateArg(_("Date"), dest="until"),

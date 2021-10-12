@@ -32,7 +32,7 @@ async def restrict_command(msg: t.Message, parsed: ParsedArgs):
                 reply_markup=rm,
 
                 is_anonymous=parsed.flags.anonym,
-                open_period=parsed.flags.poll_delta.value.total_seconds()
+                close_date=parsed.flags.poll_delta
             )
         else:
             await process_restrict(parsed)

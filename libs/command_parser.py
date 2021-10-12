@@ -59,7 +59,7 @@ class ParsedArgs:
 
 
 class ParseObj:
-    def __init__(self, text: str, entities: dict[t.MessageEntity], reply_user: t.User):
+    def __init__(self, text: str, entities: list[t.MessageEntity] = [], reply_user: t.User | None = None):
         self.text = text
         self.entities = entities
         self.reply_user = reply_user
@@ -153,7 +153,7 @@ class BaseOrderParser(BaseParser, ABC):
             if await arg.check(checkOBJ):
                 try:
                     item = await arg.parse(parseOBJ)
-                except Exception:
+                except Exception as err:
                     raise e.ArgumentError.ArgumentIncorrect(arg.name)
             else:
                 item = arg.default

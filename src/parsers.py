@@ -362,25 +362,27 @@ class ValueFlag(Flag):
             full: str,
             dest: str,
             name: str,
-            parser: BaseOrderParser,
+            arg: BaseArg,
             required: bool = False,
     ):
         from . import regex as r
 
         super().__init__(small, full, dest, name, required)
         self.regexp = re.compile(r.parse.value_flag)
-        self.parser = parser
+        self.arg = arg
 
-        for arg in self.parser.args:
-            arg.name = None
-            arg.required = True
+        arg.name = None
+        arg.required = True
 
     async def parse(self, parse: ParseObj) -> p.Any:
+        if not await super().parse(deepcopy(parse)):
+            return self.arg.default
+
         value = None
         for match in parse.find(self.regexp):
             value = match.group("value")
 
-        return await self.parser.parse(value)
+        return await self.arg.parse(ParseObj(value))
 
     async def check(self, parse: ParseObj):
         return super().parse(parse)
