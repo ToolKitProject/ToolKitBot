@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from aiogram import types as t
 from aiogram.dispatcher import FSMContext
 from aiogram.utils.callback_data import CallbackData

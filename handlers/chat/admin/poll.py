@@ -13,11 +13,13 @@ from src.instances import MessageData
     f.message.is_chat,
     f.user.has_permission("can_restrict_members")
 )
-async def check_poll_now(clb: t.CallbackQuery):
+async def check_poll(clb: t.CallbackQuery):
     poll = clb.message.poll
     executor = await User.create(clb.from_user)
     parsed: ParsedArgs = MessageData.data().parsed
 
+    if poll.is_closed:
+        await MessageData.delete(clb.message)
     if poll.total_voter_count < 2:
         raise e.PollCheck()
 

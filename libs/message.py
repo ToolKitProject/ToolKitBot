@@ -1,6 +1,10 @@
+from __future__ import annotations
+
 import typing as p
 
 from aiogram import types as t
+
+from bot import dp
 
 
 class Data:

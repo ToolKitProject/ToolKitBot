@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import typing as p
 import uuid
 from copy import deepcopy
@@ -37,7 +39,7 @@ class Settings:
                 buttons += param.buttons(settings)
             elif isinstance(param, Property):
                 if param.key not in settings:
-                    settings[param.key] = param.default
+                    settings[param.key] = deepcopy(param.default)
                 buttons.append(param.menu(settings[param.key]))
             else:  # If type not supported
                 continue
@@ -117,6 +119,6 @@ class Elements:
         return buttons
 
 
-SettingsType = dict[str, p.Any] | list[p.Any] | p.Any
+SettingsType = p.Union[dict[str, p.Any], list[p.Any], p.Any]
 
-ParameterType = list[Property | Elements | Button]
+ParameterType = list[p.Union[Property, Elements, Button]]

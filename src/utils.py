@@ -118,7 +118,7 @@ async def raise_permissions_errors(users: list[t.User], admins: list[t.ChatMembe
             err = None
 
 
-class NewInstance(BaseMiddleware):
+class NewInstanceMiddleware(BaseMiddleware):
     def __init__(self):
         self.check_types = [
             c.ANIMATION,

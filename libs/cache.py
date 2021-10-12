@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import asyncio
 import functools
 import typing as p
@@ -10,11 +12,11 @@ def register_class(obj: p.Type, group: "CacheGroup"):
         key = key_gen(args, kwargs)
         if key is None:
             return
-        inst = group.get(key)
-        if inst is None:
+        result = group.get(key)
+        if result is None:
             cls.__init__(cls, *args, **kwargs)
-            inst = group.add(cls, key)
-        return inst
+            result = group.add(cls, key)
+        return result
 
     obj.__new__ = new
     return obj
@@ -45,7 +47,7 @@ def register_callable(call: p.Callable, group: "CacheGroup"):
     return new
 
 
-def key_gen(args, kwargs) -> str:
+def key_gen(args, kwargs) -> int:
     return hash(args) + hash(tuple(kwargs.values()))
 
 
@@ -103,7 +105,7 @@ class CacheGroup:
         self.expires_delta = expires_delta
         self.expires_count = expires_count
 
-    def add(self, obj, hash: int) -> p.Any:
+    def add(self, obj: p.Any, hash: int) -> p.Any:
         cache = CachedObject(obj, self.expires_delta, self.expires_count)
         self._cache[hash] = cache
         return cache.cache
@@ -125,7 +127,7 @@ class CachedObject:
     _get_count: int
     _expired: bool
 
-    expires_date: timedelta | None
+    expires_date: datetime | None
     expires_count: int | None
 
     def __init__(self,
@@ -136,7 +138,7 @@ class CachedObject:
         self._get_count = 0
         self._expired = False
 
-        self.expires_date = datetime.now() + expires_delta if expires_delta else expires_delta
+        self.expires_date = expires_delta + datetime.now() if expires_delta is not None else None
         self.expires_count = expires_count
 
     def get(self):
@@ -154,11 +156,10 @@ class CachedObject:
     @property
     def expired(self) -> bool:
         expired = self._expired
-        if self.expires_count:
+        if self.expires_count is not None:
             expired = expired or self._get_count >= self.expires_count
-        if self.expires_date:
+        if self.expires_date is not None:
             expired = expired or datetime.now() >= self.expires_date
-
         return expired
 
     @property

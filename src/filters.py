@@ -1,4 +1,5 @@
 import re
+from typing import Union
 
 from aiogram import types as t, filters as f, Bot
 from aiogram.types import ChatMemberStatus as s
@@ -7,7 +8,7 @@ from bot import bot
 from libs import errors as e
 from . import regex as r
 
-objType = t.Message | t.CallbackQuery | t.ChatMemberUpdated
+objType = Union[t.Message, t.CallbackQuery, t.ChatMemberUpdated]
 
 
 class _helper:

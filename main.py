@@ -43,7 +43,7 @@ other = locales.other
 MessageData = src.instances.MessageData
 langs = locales_config.langs
 locales = libs.locales
-NewInstance = src.utils.NewInstance
+NewInstanceMiddleware = src.utils.NewInstanceMiddleware
 LogMiddleware = src.utils.LogMiddleware
 
 
@@ -86,7 +86,7 @@ def dumps(data):
 if __name__ == "__main__":
     aiogram_json.dumps = dumps
     signal.signal(signal.SIGTERM, close)
-    dp.setup_middleware(NewInstance())
+    dp.setup_middleware(NewInstanceMiddleware())
     dp.setup_middleware(LogMiddleware())
 
     executor.start_polling(

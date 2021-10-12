@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import typing as p
 from abc import ABC, abstractmethod
 
@@ -76,15 +78,13 @@ class BaseArg(ABC):
         self.default = default
 
     @abstractmethod
-    async def parse(self, parse: ParseObj):
-        pass
+    async def parse(self, parse: ParseObj): ...
 
     @abstractmethod
-    async def check(self, parse: ParseObj):
-        pass
+    async def check(self, parse: ParseObj): ...
 
 
-class BaseParser:
+class BaseParser(ABC):
     args: list[BaseArg]
 
     def __init__(self):
@@ -100,10 +100,46 @@ class BaseParser:
         self.args += list(args)
         return self
 
+    def set_action(self, *filters, func: p.Callable[[t.Message, ParsedArgs], p.Any], state=None):
+        async def pre_handler(msg: t.Message):
+            parsed = await self.parse_message(msg)
+            await func(msg, parsed)
+
+        filters = list(filters)
+        filters.insert(0, self.filter)
+
+        dp.register_message_handler(
+            pre_handler,
+            *filters,
+            state=state
+        )
+        return pre_handler
+
     async def parse_message(self, msg: t.Message, chek: bool = True):
         ru = msg.reply_to_message.from_user if msg.reply_to_message else None
         return await self.parse(msg.text, msg.entities, ru, chek)
 
+    @abstractmethod
+    async def parse(self, text: str, entities: list[t.MessageEntity] = [], reply_user: t.User = None,
+                    check: bool = True): ...
+
+    @abstractmethod
+    async def check(self, text: str, entities: list[t.MessageEntity] = [], reply_user: t.User = None,
+                    err: bool = True): ...
+
+    @abstractmethod
+    async def check_all(self, text: str, entities: list[t.MessageEntity] = [], reply_user: t.User = None,
+                        err: bool = False): ...
+
+    @abstractmethod
+    async def check_types(self, text: str, entities: list[t.MessageEntity] = [], reply_user: t.User = None,
+                          err: bool = False, *types: str): ...
+
+    @abstractmethod
+    async def filter(self, msg: t.Message): ...
+
+
+class BaseOrderParser(BaseParser, ABC):
     async def parse(self, text: str, entities: list[t.MessageEntity] = [], reply_user: t.User = None,
                     check: bool = True):
         items = ParsedArgs()
@@ -161,21 +197,26 @@ class BaseParser:
                         return False
         return True
 
-    def set_action(self, *filters, func: p.Callable[[t.Message, ParsedArgs], p.Any], state=None):
-        async def pre_handler(msg: t.Message):
-            parsed = await self.parse_message(msg)
-            await func(msg, parsed)
 
-        filters = list(filters)
-        filters.insert(0, self.filter)
+class BaseUnorderedParser(BaseParser, ABC):
+    sep: str
 
-        dp.register_message_handler(
-            pre_handler,
-            *filters,
-            state=state
-        )
-        return pre_handler
+    def __init__(self, sep=" "):
+        super().__init__()
+        self.sep = sep
 
-    @abstractmethod
-    async def filter(self, msg: t.Message):
+    async def parse(self, text: str, entities: list[t.MessageEntity] = [], reply_user: t.User = None,
+                    check: bool = True):
+        pass
+
+    async def check(self, text: str, entities: list[t.MessageEntity] = [], reply_user: t.User = None,
+                    err: bool = True):
+        pass
+
+    async def check_all(self, text: str, entities: list[t.MessageEntity] = [], reply_user: t.User = None,
+                        err: bool = False):
+        pass
+
+    async def check_types(self, text: str, entities: list[t.MessageEntity] = [], reply_user: t.User = None,
+                          err: bool = False, *types: str):
         pass

@@ -27,7 +27,7 @@ class commands:
         poll = _(
             "📈 Make a poll (-p --poll) \n"
             "🎭 Make poll anonymous (-a --anonym) \n"
-            "⌚ Set poll expire time (-e=600 --expire:65) (1 - 10 min)"
+            "⌚ Set poll expire time (-e=5s --expire:\"1m 5s\") (5s - 10m)"
         )
         clear_history_flag = _(
             "🔥 Delete messages sent by the user") + "(-c --clear-history)"
@@ -103,9 +103,6 @@ class parsers:
     )
 
     restrict = p.CommandParser(restrict_commands, _("Admin command")).add(
-        p.ReasonArg(_("Reason"), default=text.chat.admin.reason_empty),
-        p.DateArg(_("Date"), dest="until"),
-        p.UserArg(_("User"), dest="targets"),
         p.FlagArg().add(
             p.Flag("p", "poll", dest="poll", name=_("Poll flag")),
             p.Flag("a", "anonym_poll",
@@ -117,9 +114,16 @@ class parsers:
             p.ValueFlag("e", "expire",
                         dest="poll_delta",
                         name=_("Poll expire flag"),
-                        default=None,
-                        func=_poll_expire)
-        )
+                        parser=p.TextParser().add(
+                            p.DateArg(None,
+                                      dest="value",
+                                      minimum=timedelta(seconds=5),
+                                      maximum=timedelta(minutes=10))
+                        ))
+        ),
+        p.ReasonArg(_("Reason"), default=text.chat.admin.reason_empty),
+        p.DateArg(_("Date"), dest="until"),
+        p.UserArg(_("User"), dest="targets"),
     )
 
     report = p.CommandParser("report", _("Report codrcmmand")).add(

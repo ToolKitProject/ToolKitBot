@@ -1,6 +1,8 @@
+from __future__ import annotations
+
 import logging
 import typing as p
-from copy import copy
+from copy import copy, deepcopy
 from datetime import datetime, timedelta
 
 from aiogram.utils.json import loads, dumps
@@ -10,6 +12,7 @@ JSON_DEFAULT = {}
 
 
 def clear_dict(d: dict):
+    d = deepcopy(d)
     for k, v in copy(d).items():
         if v is None or v == "" or v == [] or v == {}:
             d.pop(k)
@@ -21,6 +24,7 @@ def clear_dict(d: dict):
 
 
 def clear_list(l: list):
+    l = deepcopy(l)
     for n, v in enumerate(copy(l)):
         if v is None or v == "" or v == [] or v == {}:
             l.pop(n)
@@ -133,7 +137,7 @@ class LogType:
 
 
 class _link_obj:
-    _init: bool = False
+    _init: bool
 
     _table: str
     _links: list[str]
@@ -143,9 +147,6 @@ class _link_obj:
         self._links = links
 
         self._init = True
-
-    def get(self, name: str):
-        return
 
     def set(self, name: str, value: p.Any):
         from src.instances import Database as db
@@ -162,16 +163,12 @@ class _link_obj:
         db.update(sql)
 
     def __getattr__(self, name: str):
-        name = str(name)
-        if self._init:
-            return self.get(name)
+        return
 
     def __getitem__(self, name: str):
         name = str(name)
         if name in self.__dict__:
             return self.__dict__[name]
-        elif self._init:
-            return self.get(name)
 
     def __setattr__(self, key: str, value: p.Any):
         key = str(key)

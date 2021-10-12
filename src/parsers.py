@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import re
 import typing as p
 from calendar import isleap, monthrange
@@ -7,7 +9,7 @@ from datetime import timedelta, datetime
 from aiogram import types as t
 from aiogram.dispatcher import filters as f
 
-from libs.command_parser import BaseParser, BaseArg, ParseObj, ParsedArgs
+from libs.command_parser import BaseOrderParser, BaseArg, ParseObj, ParsedArgs
 from libs.user import User
 
 
@@ -49,7 +51,7 @@ class dates:
         return days
 
 
-class CommandParser(BaseParser):
+class CommandParser(BaseOrderParser):
     def __init__(self, commands: list[str] | str, name: str):
         super().__init__()
         self.commands = commands
@@ -59,7 +61,7 @@ class CommandParser(BaseParser):
         return await f.Command(self.commands).check(msg)
 
 
-class TextParser(BaseParser):
+class TextParser(BaseOrderParser):
     def __init__(self):
         super().__init__()
 
@@ -360,29 +362,25 @@ class ValueFlag(Flag):
             full: str,
             dest: str,
             name: str,
+            parser: BaseOrderParser,
             required: bool = False,
-            default: p.Optional[None] = None,
-            func: p.Callable[[str], p.Any] | None = None
     ):
         from . import regex as r
 
         super().__init__(small, full, dest, name, required)
         self.regexp = re.compile(r.parse.value_flag)
-        self.default = default
-        self.func = func
+        self.parser = parser
+
+        for arg in self.parser.args:
+            arg.name = None
+            arg.required = True
 
     async def parse(self, parse: ParseObj) -> p.Any:
-        if not await super().parse(deepcopy(parse)):
-            return self.default
-
-        result = None
+        value = None
         for match in parse.find(self.regexp):
-            result = match.group("value")
+            value = match.group("value")
 
-        if self.func:
-            return self.func(result)
-        else:
-            return result
+        return await self.parser.parse(value)
 
     async def check(self, parse: ParseObj):
         return super().parse(parse)
