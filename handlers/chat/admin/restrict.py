@@ -138,20 +138,23 @@ async def process_restrict(parsed: ParsedArgs):
     type = parsed.command.text
 
     for user in parsed.targets:
-        if type == "ban":
-            await user.ban(chat_id, parsed.until)
-        elif type == "unban":
-            await user.unban(chat_id)
-        elif type == "kick":
-            await user.kick(chat_id)
-        elif type == "mute":
-            await user.mute(chat_id, parsed.until)
-        elif type == "unmute":
-            await user.unmute(chat_id)
+        try:
+            if type == "ban":
+                await user.ban(chat_id, parsed.until)
+            elif type == "unban":
+                await user.unban(chat_id)
+            elif type == "kick":
+                await user.kick(chat_id)
+            elif type == "mute":
+                await user.mute(chat_id, parsed.until)
+            elif type == "unmute":
+                await user.unmute(chat_id)
 
-        if parsed.flags.clear_history and type in ["ban", "mute", "kick"]:
-            messages = [
-                m.message_id for m in
-                Database.get_messages(user_id=user.id, chat_id=chat_id, delta=timedelta(days=1))
-            ]
-            await process_purge(messages)
+            if parsed.flags.clear_history and type in ["ban", "mute", "kick"]:
+                messages = [
+                    m.message_id for m in
+                    Database.get_messages(user_id=user.id, chat_id=chat_id, delta=timedelta(days=1))
+                ]
+                await process_purge(messages)
+        except Exception:
+            pass
