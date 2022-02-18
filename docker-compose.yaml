@@ -1,0 +1,17 @@
+version: "3"
+
+services:
+  toolkit-bot:
+    build: "."
+    restart: "always"
+  toolkit-db:
+    image: "mysql:latest"
+    restart: "always"
+    container_name: toolkit-db
+    environment:
+      MYSQL_ROOT_PASSWORD: "toolkit"
+      MYSQL_DATABASE: "toolkit"
+      MYSQL_USER: "toolkit"
+      MYSQL_PASSWORD: "toolkit"
+    volumes:
+      - "./data/database.sql:/docker-entrypoint-initdb.d/init.sql"

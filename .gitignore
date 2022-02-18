@@ -125,11 +125,9 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
-config.py
-database.db
+data/docker
 test*.*
 *.session*
-ToolKit.service
 
 .idea
 .vscode

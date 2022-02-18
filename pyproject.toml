@@ -1,0 +1,21 @@
+[tool.poetry]
+name = "toolkitbot"
+version = "0.1.0"
+description = ""
+authors = ["Igor Tolmachev <me@igorek.dev>"]
+license = "GPL-3.0-only"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+aiogram = "^2.19"
+Pyrogram = "^1.4.7"
+TgCrypto = "^1.2.3"
+PyMySQL = "^1.0.2"
+cryptography = "^36.0.1"
+
+[tool.poetry.dev-dependencies]
+black = "^22.1.0"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
