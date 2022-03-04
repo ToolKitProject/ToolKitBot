@@ -1,5 +1,8 @@
 version: "3"
 
+volumes:
+  toolkit:
+
 services:
   toolkit-bot:
     build: "."
@@ -15,3 +18,5 @@ services:
       MYSQL_PASSWORD: "toolkit"
     volumes:
       - "./data/database.sql:/docker-entrypoint-initdb.d/init.sql"
+      - "toolkit:/var/lib/mysql"
+
